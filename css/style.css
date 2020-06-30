@@ -1,0 +1,131 @@
+body {
+  background-color: rgb(100, 99, 99);
+  font-family: monospace;
+  line-height: 1.6;
+  text-decoration: none;
+}
+.header {
+  padding-top: 60px;
+  background-color: rgb(100, 99, 99);
+  color: rgba(255, 255, 255, 0.644);
+}
+.paragraphs {
+  color: white;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+ul li {
+  padding: 5px;
+  background: #f4f4f4;
+  margin: 5px 0;
+}
+
+header {
+  background: darkgray;
+  padding: 1rem;
+  text-align: center;
+}
+
+.container {
+  margin: auto;
+  width: 500px;
+  overflow: auto;
+  padding: 0rem 2rem;
+  color: white;
+  /* border-radius: 5px; */
+}
+
+#my-form {
+  padding: 2rem;
+  background: rgba(169, 169, 169, 0.301);
+}
+
+#my-form label {
+  display: block;
+}
+
+#my-form input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  /* border-radius: 5px; */
+  border: 1px solid #ccc;
+}
+
+.btn,
+.btn-copy,
+.btn-lower,
+.btn-title,
+.btn-para {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  border: 0;
+  background: rgb(100, 99, 99);
+  color: #fff;
+  /* border-radius: 5px; */
+  margin: 5px 0;
+  font-family: monospace;
+}
+
+.btn:hover,
+.btn-lower:hover,
+.btn-copy:hover,
+.btn-title:hover,
+.btn-para:hover {
+  background: #444;
+}
+
+.bg-dark {
+  background: #7b3e8f;
+  color: rgb(255, 255, 255);
+}
+
+.bg-lessdark {
+  background: #3f3d3f;
+  color: rgb(255, 255, 255);
+}
+
+.error {
+  background: orangered;
+  color: #fff;
+  padding: 5px;
+  margin: 5px;
+}
+
+.items {
+  color: #ccc;
+}
+#input,
+#output {
+  width: 100%;
+  padding: 10px 15px;
+  border: 0;
+  /* border-radius: 5px; */
+  margin: 5px 0;
+  font-family: monospace;
+}
+
+.tag {
+  color: rgba(255, 255, 255, 0.575);
+  font-size: xx-small;
+  text-align: center;
+  margin-bottom: 90px;
+}
+
+.dev {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.774);
+}
+
+.dev:hover {
+  color: rgb(255, 255, 255);
+}
