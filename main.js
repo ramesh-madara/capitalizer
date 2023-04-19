@@ -8,13 +8,6 @@ const btnPara = document.querySelector(".btn-para");
 
 const copyText = outputText;
 
-//press enter to trigger- not compatible with text boxes
-// inputText.addEventListener("keyup", (e) => {
-//     if (e.keyCode === 13) {
-//         btn.click();
-//     }
-// })
-
 //Events for BOTTONS
 
 //To Uppercase ALL
@@ -44,23 +37,12 @@ btnTitleCase.addEventListener("click", (e) => {
 
       .map((word) => word.charAt(0).toUpperCase() + word.substring(1));
 
-    // var outText = splitTitle.join(' ');
-    // outText = splitTitle.join(' ').replace(/\/,/g, '');
-
-    // return outText;
     return splitTitle.join(" ");
   }
 
   outputText.value = titleCase(inputText.value);
 });
 
-// btnTitleCase.addEventListener("click", (e) => {
-//   e.preventDefault();
-//   function titleCase (str){
-//     return str.split(/\r|\n|\r?\n|\r\n/).join(' ').split(' ').map(word)
-//   }
-
-// });
 
 //To ParagraphMode
 btnPara.addEventListener("click", (e) => {
@@ -87,3 +69,5 @@ btnCopyText.addEventListener("click", (e) => {
   copyText.select();
   document.execCommand("copy");
 });
+
+//-... -.-- / .-. .- -- . ... .... / -- .- -.. .- .-. .- / .---- ---.. .-.-.- ----- ....- .-.-.- ..--- ...--
