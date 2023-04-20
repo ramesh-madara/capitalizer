@@ -3,15 +3,19 @@ body {
   font-family: monospace;
   line-height: 1.6;
   text-decoration: none;
+  min-height: 100vh;
 }
+
 .header {
   padding-top: 60px;
   background-color: rgb(100, 99, 99);
   color: rgba(255, 255, 255, 0.644);
 }
+
 .paragraphs {
   color: white;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -94,16 +98,11 @@ header {
   color: rgb(255, 255, 255);
 }
 
-.error {
-  background: orangered;
-  color: #fff;
-  padding: 5px;
-  margin: 5px;
-}
 
 .items {
   color: #ccc;
 }
+
 #input,
 #output {
   width: 100%;
@@ -129,3 +128,43 @@ header {
 .dev:hover {
   color: rgb(255, 255, 255);
 }
+
+.dwz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dwx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75vh;
+  height: 50vh;
+  transition: .3S;
+
+}
+
+
+.dwx img {
+  width: 100%;
+  object-fit: cover;
+  box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.459);
+  border-radius: 6px;
+  transition: .3S;
+  filter: grayscale(100%);
+
+}
+
+.dwq {
+  margin-top: 4%;
+}
+
+.dwx :hover {
+  scale: 1.005;
+  transition: .3S;
+  box-shadow: 0px 8px 100px rgba(4, 43, 20, 0.829);
+  filter: none;
+
+}
+

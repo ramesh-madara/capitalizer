@@ -34,15 +34,25 @@ btnTitleCase.addEventListener("click", (e) => {
       .split(/\r?\n/)
       .join(" ")
       .split(" ")
-
-      .map((word) => word.charAt(0).toUpperCase() + word.substring(1));
+      .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.substring(1))
+      .join(" ")
+      .split(/([.!?])(?= )/g)
+      .map((sentence) => sentence.trim())
+      .join("")
+      .split(/(?<=[.!?])/)
+      .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.substring(1));
 
     return splitTitle.join(" ");
   }
 
   outputText.value = titleCase(inputText.value);
 });
-
+function capitalizeAt(characters, charAt) {
+  var output = characters.map((sentence) => sentence.charAt(charAt).toUpperCase() + sentence.substring(1));
+  console.log(output);
+  console.log(charAt);
+  return output;
+}
 //To ParagraphMode
 btnPara.addEventListener("click", (e) => {
   e.preventDefault();
@@ -54,10 +64,10 @@ btnPara.addEventListener("click", (e) => {
       .split(/([.!?])(?= )/g)
       .map((sentence) => sentence.trim())
       .join("")
-      .split(/(?<=[.!?])/)
-      .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.substring(1));
+      .split(/(?<=[.!?])/);
+    splitPara = capitalizeAt(splitPara, 0);
 
-    // console.log(splitPara);
+    console.log(splitPara);
 
     return splitPara.join(" ");
   }
@@ -67,8 +77,11 @@ btnPara.addEventListener("click", (e) => {
 //Copy to Clipboard
 btnCopyText.addEventListener("click", (e) => {
   e.preventDefault();
-  copyText.select();
-  document.execCommand("copy");
+
+  var text = outputText.value;
+  navigator.clipboard.writeText(text);
+  //----execCommand is Deprecated
+  // document.execCommand("copy");  
 });
 
 //-... -.-- / .-. .- -- . ... .... / -- .- -.. .- .-. .- / .---- ---.. .-.-.- ----- ....- .-.-.- ..--- ...--
