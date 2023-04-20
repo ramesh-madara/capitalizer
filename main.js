@@ -43,7 +43,6 @@ btnTitleCase.addEventListener("click", (e) => {
   outputText.value = titleCase(inputText.value);
 });
 
-
 //To ParagraphMode
 btnPara.addEventListener("click", (e) => {
   e.preventDefault();
@@ -52,13 +51,15 @@ btnPara.addEventListener("click", (e) => {
     var splitPara = str
       .split(/\r?\n/)
       .join(" ")
-      .split(". ")
+      .split(/([.!?])(?= )/g)
+      .map((sentence) => sentence.trim())
+      .join("")
+      .split(/(?<=[.!?])/)
+      .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.substring(1));
 
-      .map(
-        (sentence) => sentence.charAt(0).toUpperCase() + sentence.substring(1)
-      );
+    // console.log(splitPara);
 
-    return splitPara.join(". ");
+    return splitPara.join(" ");
   }
   outputText.value = paragraphMode(inputText.value);
 });
