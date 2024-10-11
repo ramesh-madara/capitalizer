@@ -1,0 +1,53 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #282c34;
+}
+
+.cube-container {
+  perspective: 800px; /* Gives a 3D perspective */
+}
+
+.cube {
+  width: 200px; /* Size of the cube */
+  height: 200px; /* Size of the cube */
+  position: relative;
+  transform-style: preserve-3d; /* Allows 3D transformations */
+  transition: transform 0.1s; /* Smooth transition for rotation */
+}
+
+.face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  overflow: hidden; /* Hide overflow to ensure the image does not exceed the face */
+}
+
+.face img {
+  width: 100%; /* Set the image width to 100% of the face */
+  height: 100%; /* Set the image height to 100% of the face */
+  object-fit: cover; /* Cover the face while maintaining the aspect ratio */
+  user-select: none;
+}
+
+.front {
+  transform: rotateY(0deg) translateZ(100px);
+}
+.back {
+  transform: rotateY(180deg) translateZ(100px);
+}
+.left {
+  transform: rotateY(-90deg) translateZ(100px);
+}
+.right {
+  transform: rotateY(90deg) translateZ(100px);
+}
+.top {
+  transform: rotateX(90deg) translateZ(100px);
+}
+.bottom {
+  transform: rotateX(-90deg) translateZ(100px);
+}
