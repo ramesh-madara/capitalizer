@@ -24,14 +24,15 @@ body {
   width: 200px;
   height: 200px;
   overflow: hidden; /* Hide overflow to ensure the image does not exceed the face */
+  pointer-events: none; /* Disable pointer events on faces */
 }
 
 .face img {
   width: 100%; /* Set the image width to 100% of the face */
   height: 100%; /* Set the image height to 100% of the face */
   object-fit: cover; /* Cover the face while maintaining the aspect ratio */
-  user-select: none;
-  pointer-events: none;
+  /* user-select: none;  */
+  /* pointer-events: auto;  */
 }
 
 .front {
