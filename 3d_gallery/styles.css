@@ -31,6 +31,7 @@ body {
   height: 100%; /* Set the image height to 100% of the face */
   object-fit: cover; /* Cover the face while maintaining the aspect ratio */
   user-select: none;
+  pointer-events: none;
 }
 
 .front {
