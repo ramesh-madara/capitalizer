@@ -74,25 +74,25 @@ const data = {
     {
       title: "LionsClub Member Portal",
       company: "Onterra Group",
-      url: "<a href='https://members.lions306c1.org/'>members.lions306c1.org</a>",
+      url: "<a href='https://members.lions306c1.org/' target='_blank'>members.lions306c1.org</a>",
       // length: "7 Months",
     },
     {
       title: "Bosomd' Webisite (Currently under development)",
       company: "Bosomd'",
-      url: "<a href='https://www.bosomd.com/'>www.bosomd.com</a>",
+      url: "<a href='https://www.bosomd.com/' target='_blank'>www.bosomd.com</a>",
       // length: "7 Months",
     },
     {
       title: "Onterra Company Webisite",
       company: "Lions 306c1",
-      url: "<a href='https://www.onterragroup.com/'>www.onterragroup.com</a>",
+      url: "<a href='https://www.onterragroup.com/' target='_blank'>www.onterragroup.com</a>",
       // length: "7 Months",
     },
     {
       title: "Cambridge-Ventures Company Website",
       company: "Cambridge-Ventures (PVT) LTD.</br>",
-      url: "<a href='https://cambridge-ventures.com/'>cambridge-ventures.com</a>",
+      url: "<a href='https://cambridge-ventures.com/' target='_blank'>cambridge-ventures.com</a>",
       // length: "7 Months",
     },
     {
