@@ -220,7 +220,7 @@ svg:hover {
     .header {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      background: linear-gradient(to top, #2980b9, #0081d600);
+      background: linear-gradient(to top, #3f51b5, #3f51b500);
       border-radius: 0 0 25px 25px;
     }
     body {
