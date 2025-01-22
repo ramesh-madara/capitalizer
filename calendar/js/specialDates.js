@@ -9,10 +9,18 @@ const specialDates = [
   },
   {
     month: 1,
-    date: 14,
+    date: 4,
     event: "Independence Day",
     bgcolor: "red",
     color: "white",
+    holiday: true,
+  },
+  {
+    month: 1,
+    date: 14,
+    event: "Valentine's Day",
+    bgcolor: "Pink",
+    color: "black",
     holiday: true,
   },
   {

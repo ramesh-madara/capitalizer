@@ -54,16 +54,24 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
+}
+.isHoliday {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-weight: bold;
+  font-size: 2rem;
 }
 .cell .date-number {
   font-size: 1.7rem;
   font-weight: bold;
 }
-.day-5 {
-  background-color: rgba(122, 133, 133, 0.39);
+.saturday {
+  background-color: rgba(122, 133, 133, 0.39) !important;
 }
-.day-6 {
-  background-color: rgba(255, 159, 183, 0.39);
+.sunday {
+  background-color: rgba(255, 159, 183, 0.39) !important;
 }
 .month-heading {
   color: #494949;

@@ -26,6 +26,17 @@ const markSpecialDates = (month, date, cell) => {
   specialDates.forEach((specialDate) => {
     const specialDayUI = cell.parentElement.querySelector(".special-day");
     if (specialDate.month === month && specialDate.date === date) {
+      if (
+        cell.parentElement.classList.contains("saturday") ||
+        cell.parentElement.classList.contains("sunday")
+      ) {
+        cell.parentElement.classList.remove("saturday");
+        cell.parentElement.classList.remove("sunday");
+      }
+      if (specialDate.holiday == true) {
+        console.log(cell.parentElement.querySelector(".isHoliday"));
+        cell.parentElement.querySelector(".isHoliday").style.display = "block";
+      }
       cell.parentElement.style.backgroundColor = specialDate.bgcolor;
       cell.style.color = specialDate.color;
       specialDayUI.style.color = specialDate.color;
@@ -39,10 +50,22 @@ const markSpecialDates = (month, date, cell) => {
 const resetSpecialDayStyles = () => {
   cells.forEach((cell) => {
     const specialDayUI = cell.parentElement.querySelector(".special-day");
-    console.log(specialDayUI);
-    cell.parentElement.style.backgroundColor = "initial";
     cell.style.color = "initial";
     specialDayUI.innerHTML = ``;
+    cell.parentElement.querySelector(".isHoliday").style.display = "none";
+
+    // if cell.parentElement has day-5 class add saturday class
+    if (cell.parentElement.classList.contains("day-5")) {
+      cell.parentElement.style.backgroundColor = "white";
+
+      cell.parentElement.classList.add("saturday");
+    } else if (cell.parentElement.classList.contains("day-6")) {
+      cell.parentElement.style.backgroundColor = "white";
+
+      cell.parentElement.classList.add("sunday");
+    } else {
+      cell.parentElement.style.backgroundColor = "white";
+    }
   });
 };
 
