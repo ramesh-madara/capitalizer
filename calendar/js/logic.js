@@ -1,7 +1,7 @@
 const date = new Date();
-let month = 10;
-let year = 2025;
-const cells = document.querySelectorAll(".cell");
+let month = date.getMonth();
+let year = date.getFullYear();
+const cells = document.querySelectorAll(".cell .date-number");
 
 const getDates = () => {
   const dates = [];
@@ -20,21 +20,48 @@ const getDates = () => {
 let dates = getDates();
 console.log(dates);
 
+const markSpecialDates = (month, date, cell) => {
+  const specialDaySpan = cell.querySelector(".special-day");
+
+  specialDates.forEach((specialDate) => {
+    const specialDayUI = cell.parentElement.querySelector(".special-day");
+    if (specialDate.month === month && specialDate.date === date) {
+      cell.parentElement.style.backgroundColor = specialDate.bgcolor;
+      cell.style.color = specialDate.color;
+      specialDayUI.style.color = specialDate.color;
+      specialDayUI.innerHTML = ` <span class="event">${specialDate.event}</span>`;
+    }
+  });
+
+  specialDayUI = cell.querySelector(".special-day");
+};
+
+const resetSpecialDayStyles = () => {
+  cells.forEach((cell) => {
+    const specialDayUI = cell.parentElement.querySelector(".special-day");
+    console.log(specialDayUI);
+    cell.parentElement.style.backgroundColor = "initial";
+    cell.style.color = "initial";
+    specialDayUI.innerHTML = ``;
+  });
+};
+
 const populateDates = () => {
+  resetSpecialDayStyles();
   const monthUI = document.querySelector(".month-heading");
   const yearUI = document.querySelector(".year-heading");
-  //show monthname in month UI
+  //show month.name in month UI
   monthUI.innerHTML = new Date(year, month).toLocaleString("default", {
     month: "long",
   });
   yearUI.innerHTML = year;
   firstday = dates[0].day;
-  const firstDayCell = document.querySelector(
-    `.cell:nth-child(${firstday + 1})`
-  );
-  const lastCell = document.querySelector(".cell:last-child");
 
-  console.log(firstDayCell);
+  const firstDayCell = document.querySelector(
+    `.cell:nth-child(${firstday + 1}) .date-number`
+  );
+  const lastCell = document.querySelector(".cell:last-child .date-number");
+
   let firstDayReached = false;
   let dateIndex = 0;
   cells.forEach((cell) => {
@@ -44,6 +71,7 @@ const populateDates = () => {
     }
     if (firstDayReached && dateIndex < dates.length) {
       cell.innerHTML = dates[dateIndex].date;
+      markSpecialDates(dates[dateIndex].month, dates[dateIndex].date, cell);
 
       dateIndex++;
     }
@@ -64,7 +92,12 @@ const incrementMonth = () => {
   cells.forEach((cell) => {
     cell.innerHTML = "";
   });
-  month++;
+  if (month === 11) {
+    month = 0;
+    year++;
+  } else {
+    month++;
+  }
   dates = getDates();
   populateDates();
 };
@@ -72,7 +105,12 @@ const decrementMonth = () => {
   cells.forEach((cell) => {
     cell.innerHTML = "";
   });
-  month--;
+  if (month === 0) {
+    month = 11;
+    year--;
+  } else {
+    month--;
+  }
   dates = getDates();
   populateDates();
 };

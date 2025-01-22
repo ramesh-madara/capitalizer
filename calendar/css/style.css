@@ -42,6 +42,7 @@ body {
   border-bottom-right-radius: 5px;
 }
 .cell {
+  color: initial;
   width: 13%;
   height: 50px;
   flex-grow: 1;
@@ -50,8 +51,13 @@ body {
   border: 1px solid #494949;
   background-color: rgba(222, 227, 255, 0.329);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+.cell .date-number {
+  font-size: 1.7rem;
+  font-weight: bold;
 }
 .day-5 {
   background-color: rgba(122, 133, 133, 0.39);
@@ -62,4 +68,8 @@ body {
 .month-heading {
   color: #494949;
   z-index: 999;
+}
+.prev,
+.next {
+  cursor: pointer;
 }
