@@ -1,5 +1,5 @@
 body {
-  background-color: rgba(0, 0, 0, 0.527);
+  background-color: #fff;
   padding: 0px;
 }
 .container {
@@ -15,15 +15,16 @@ body {
   max-width: 800px;
   margin: 20px;
   background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
 }
 .month {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
@@ -49,7 +50,8 @@ body {
   flex-grow: 1;
   padding: 10px 0;
   text-align: center;
-  border: 1px solid #494949;
+  border: 1px solid #4949492e;
+  border-radius: 10px;
   background-color: rgba(222, 227, 255, 0.329);
   display: flex;
   flex-direction: column;
@@ -81,6 +83,12 @@ body {
 .prev,
 .next {
   cursor: pointer;
+}
+.date-nav {
+  background-color: rgba(109, 109, 109, 0.06);
+  padding: 20px;
+  border-radius: 10px;
+  border: solid 1px #6464642f;
 }
 @media screen and (max-width: 768px) {
   .calendar {

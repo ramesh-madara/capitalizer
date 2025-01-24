@@ -190,12 +190,21 @@ const getPoyaDays = (year) => {
       const dynamicsDates = specialDates.filter(
         (date) => date.type == "dynamic"
       );
-      lastPoyaDates = dynamicsDates.filter((date) => date.year == year - 1);
-      firstKnownPoya = `${lastPoyaDates[0].year}-${lastPoyaDates[0].month}-${lastPoyaDates[0].date}`;
-      lastKnowPoya = `${lastPoyaDates[lastPoyaDates.length - 1].year}-${
-        lastPoyaDates[lastPoyaDates.length - 1].month
-      }-${lastPoyaDates[lastPoyaDates.length - 1].date}`;
+      if (yearProgess) {
+        lastPoyaDates = dynamicsDates.filter((date) => date.year == year - 1);
+      } else {
+        lastPoyaDates = dynamicsDates.filter((date) => date.year == year + 1);
+      }
+      console.log(lastPoyaDates);
+
+      let fpd = lastPoyaDates.filter((date) => date.month == 0)[0];
+      let lpd = lastPoyaDates.filter((date) => date.month == 11)[0];
+      console.log(lpd);
+      console.log(fpd);
+      firstKnownPoya = `${fpd.year}-${fpd.month + 1}-${fpd.date}`;
+      lastKnowPoya = `${lpd.year}-${lpd.month + 1}-${lpd.date}`;
       console.log(lastKnowPoya);
+      console.log(firstKnownPoya);
     }
     removeOldPoyaDays();
 
