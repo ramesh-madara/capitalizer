@@ -64,7 +64,7 @@ const resetSpecialDayStyles = () => {
     specialDayUI.innerHTML = ``;
     cell.parentElement.querySelector(".isHoliday").style.display = "none";
 
-    // if cell.parentElement has day-5 class add saturday class
+    // if cell.parentElement has day-5 class add saturdaay class
     if (cell.parentElement.classList.contains("day-5")) {
       cell.parentElement.style.backgroundColor = "white";
 
@@ -154,7 +154,32 @@ const decrementMonth = () => {
   populateDates();
 };
 
+const incrementYear = () => {
+  cells.forEach((cell) => {
+    cell.innerHTML = "";
+  });
+  lastYear = year;
+  year++;
+  yearProgess = true;
+  getPoyaDays(year);
+  dates = getDates();
+  populateDates();
+};
+const decrementYear = () => {
+  cells.forEach((cell) => {
+    cell.innerHTML = "";
+  });
+  lastYear = year;
+  year--;
+  yearProgess = false;
+  getPoyaDays(year);
+  dates = getDates();
+  populateDates();
+};
+
 const getPoyaDays = (year) => {
+  console.log(year);
+
   let lastKnowPoya;
   let firstKnownPoya;
   if (year != 2025) {
@@ -197,7 +222,7 @@ const getPoyaDays = (year) => {
         month: thisMonth,
         date: thisDate,
         event: event,
-        bgcolor: "yellow",
+        bgcolor: "#66FF00",
         color: "black",
         holiday: true,
       };

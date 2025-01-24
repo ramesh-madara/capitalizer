@@ -1,10 +1,11 @@
 body {
   background-color: rgba(0, 0, 0, 0.527);
+  padding: 0px;
 }
 .container {
   width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
+  margin: 0 0;
+  padding: 0 0px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -68,10 +69,10 @@ body {
   font-weight: bold;
 }
 .saturday {
-  background-color: rgba(122, 133, 133, 0.39) !important;
+  background-color: rgba(5, 105, 219, 0.39) !important;
 }
 .sunday {
-  background-color: rgba(255, 159, 183, 0.39) !important;
+  background-color: rgba(255, 0, 0, 0.635) !important;
 }
 .month-heading {
   color: #494949;
@@ -80,4 +81,22 @@ body {
 .prev,
 .next {
   cursor: pointer;
+}
+@media screen and (max-width: 768px) {
+  .calendar {
+    margin: 0;
+    width: 100%;
+  }
+  .special-day {
+    font-size: 10px;
+    text-wrap: wrap;
+  }
+  .date-number {
+    font-size: 17px !important;
+  }
+  .isHoliday {
+    font-size: 1.5rem;
+    top: 2px;
+    left: 2px;
+  }
 }
