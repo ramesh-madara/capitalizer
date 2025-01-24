@@ -185,7 +185,7 @@ const getPoyaDays = (year) => {
     poyaDays.forEach((date, index) => {
       const thisMonth = date.getMonth();
       const thisDate = date.getDate();
-      let event = monthNames[thisMonth] + " Poya Day";
+      let event = monthNames[thisMonth] + " Full Moon Poya Day";
       if (index != 0) {
         if (specialDates[specialDates.length - 1].month == thisMonth) {
           event = `Extra ${monthNames[thisMonth]} Poya Day`;
