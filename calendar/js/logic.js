@@ -65,11 +65,11 @@ const resetSpecialDayStyles = () => {
     cell.parentElement.querySelector(".isHoliday").style.display = "none";
 
     // if cell.parentElement has day-5 class add saturdaay class
-    if (cell.parentElement.classList.contains("day-5")) {
+    if (cell.parentElement.classList.contains("day-6")) {
       cell.parentElement.style.backgroundColor = "white";
 
       cell.parentElement.classList.add("saturday");
-    } else if (cell.parentElement.classList.contains("day-6")) {
+    } else if (cell.parentElement.classList.contains("day-0")) {
       cell.parentElement.style.backgroundColor = "white";
 
       cell.parentElement.classList.add("sunday");
