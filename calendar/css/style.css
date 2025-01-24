@@ -10,6 +10,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  display: flex;
+  flex-direction: column !important;
+  align-items: center;
 }
 .calendar {
   width: 100%;
@@ -17,7 +20,7 @@ body {
   margin: 20px;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   padding: 10px;
 }
 .month {
@@ -103,10 +106,13 @@ body {
   padding: 3px;
   font-family: "Courier New", Courier, monospace;
   margin-top: 4px;
+  display: flex;
+  flex-direction: column;
 }
 .makeTile h4 {
-  margin: 0px;
-  line-height: 0px;
+  margin: 0;
+  margin-bottom: 15px;
+  line-height: 1px;
 }
 .key {
   font-family: "Courier New", Courier, monospace;
