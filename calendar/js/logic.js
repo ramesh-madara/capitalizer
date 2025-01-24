@@ -1,6 +1,12 @@
+let yearProgess = true;
+
 const date = new Date();
 let month = date.getMonth();
 let year = date.getFullYear();
+// let year = 2026;
+// getPoyaDays(year);
+
+let lastYear = year;
 const cells = document.querySelectorAll(".cell .date-number");
 
 const getDates = () => {
@@ -18,14 +24,18 @@ const getDates = () => {
   return dates;
 };
 let dates = getDates();
-console.log(dates);
+// console.log(dates);
 
 const markSpecialDates = (month, date, cell) => {
   const specialDaySpan = cell.querySelector(".special-day");
 
   specialDates.forEach((specialDate) => {
     const specialDayUI = cell.parentElement.querySelector(".special-day");
-    if (specialDate.month === month && specialDate.date === date) {
+    if (
+      specialDate.month === month &&
+      specialDate.date === date &&
+      (specialDate.year ? specialDate.year === year : true)
+    ) {
       if (
         cell.parentElement.classList.contains("saturday") ||
         cell.parentElement.classList.contains("sunday")
@@ -34,7 +44,7 @@ const markSpecialDates = (month, date, cell) => {
         cell.parentElement.classList.remove("sunday");
       }
       if (specialDate.holiday == true) {
-        console.log(cell.parentElement.querySelector(".isHoliday"));
+        // console.log(cell.parentElement.querySelector(".isHoliday"));
         cell.parentElement.querySelector(".isHoliday").style.display = "block";
       }
       cell.parentElement.style.backgroundColor = specialDate.bgcolor;
@@ -90,7 +100,7 @@ const populateDates = () => {
   cells.forEach((cell) => {
     if (cell === firstDayCell) {
       firstDayReached = true;
-      console.log("first day reached");
+      // console.log("first day reached");
     }
     if (firstDayReached && dateIndex < dates.length) {
       cell.innerHTML = dates[dateIndex].date;
@@ -117,7 +127,10 @@ const incrementMonth = () => {
   });
   if (month === 11) {
     month = 0;
+    lastYear = year;
     year++;
+    yearProgess = true;
+    getPoyaDays(year);
   } else {
     month++;
   }
@@ -130,10 +143,71 @@ const decrementMonth = () => {
   });
   if (month === 0) {
     month = 11;
+    lastYear = year;
     year--;
+    yearProgess = false;
+    getPoyaDays(year);
   } else {
     month--;
   }
   dates = getDates();
   populateDates();
+};
+
+const getPoyaDays = (year) => {
+  let lastKnowPoya;
+  let firstKnownPoya;
+  if (year != 2025) {
+    if (year == 2024 || year == 2026) {
+      lastKnowPoya = "2025-12-04";
+      firstKnownPoya = "2025-01-13";
+    } else {
+      const dynamicsDates = specialDates.filter(
+        (date) => date.type == "dynamic"
+      );
+      lastPoyaDates = dynamicsDates.filter((date) => date.year == year - 1);
+      firstKnownPoya = `${lastPoyaDates[0].year}-${lastPoyaDates[0].month}-${lastPoyaDates[0].date}`;
+      lastKnowPoya = `${lastPoyaDates[lastPoyaDates.length - 1].year}-${
+        lastPoyaDates[lastPoyaDates.length - 1].month
+      }-${lastPoyaDates[lastPoyaDates.length - 1].date}`;
+      console.log(lastKnowPoya);
+    }
+    removeOldPoyaDays();
+
+    let poyaDays = [];
+    if (yearProgess == true) {
+      poyaDays = calculateFullMoonPoyaDays(lastKnowPoya, 15, yearProgess);
+    } else {
+      poyaDays = calculateFullMoonPoyaDays(firstKnownPoya, 15, yearProgess);
+    }
+    console.log(poyaDays);
+
+    poyaDays.forEach((date, index) => {
+      const thisMonth = date.getMonth();
+      const thisDate = date.getDate();
+      let event = monthNames[thisMonth] + " Poya Day";
+      if (index != 0) {
+        if (specialDates[specialDates.length - 1].month == thisMonth) {
+          event = `Extra ${monthNames[thisMonth]} Poya Day`;
+        }
+      }
+      const poyaDay = {
+        year: date.getFullYear(),
+        type: "dynamic",
+        month: thisMonth,
+        date: thisDate,
+        event: event,
+        bgcolor: "yellow",
+        color: "black",
+        holiday: true,
+      };
+      specialDates.push(poyaDay);
+      console.log(`Poya ${index + 1}: ${date.toDateString()}`);
+    });
+    console.log(specialDates);
+  }
+};
+
+const removeOldPoyaDays = () => {
+  specialDates = specialDates.filter((date) => date.type !== "dynamic");
 };
