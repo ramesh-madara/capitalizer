@@ -1,6 +1,7 @@
 body {
   background-color: #fff;
   padding: 0px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .container {
   width: 100%;
@@ -32,9 +33,10 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 10px 15px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  font-family: "Courier New", Courier, monospace;
 }
 .days {
   display: flex;
@@ -69,6 +71,7 @@ body {
 .cell .date-number {
   font-size: 1.7rem;
   font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
 }
 .saturday {
   background-color: rgba(5, 105, 219, 0.39) !important;
@@ -79,6 +82,8 @@ body {
 .month-heading {
   color: #494949;
   z-index: 999;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bolder;
 }
 .prev,
 .next {
@@ -90,13 +95,39 @@ body {
   border-radius: 10px;
   border: solid 1px #6464642f;
 }
+.makeTile {
+  /* position: fixed; */
+  text-align: center;
+  bottom: 0;
+  right: 0;
+  padding: 3px;
+  font-family: "Courier New", Courier, monospace;
+  margin-top: 4px;
+}
+.makeTile h4 {
+  margin: 0px;
+  line-height: 0px;
+}
+.key {
+  font-family: "Courier New", Courier, monospace;
+  margin: 3px;
+}
+.special-day {
+  font-size: 0.8rem !important;
+}
 @media screen and (max-width: 768px) {
+  .month {
+    padding: 4px;
+  }
+  .makeTile {
+    font-size: 0.7rem;
+  }
   .calendar {
     margin: 0;
     width: 100%;
   }
   .special-day {
-    font-size: 10px;
+    font-size: 0.6rem !important;
     text-wrap: wrap;
   }
   .date-number {

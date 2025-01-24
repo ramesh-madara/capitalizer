@@ -190,7 +190,7 @@ const getPoyaDays = (year) => {
       const dynamicsDates = specialDates.filter(
         (date) => date.type == "dynamic"
       );
-      if (yearProgess) {
+      if (yearProgess == true) {
         lastPoyaDates = dynamicsDates.filter((date) => date.year == year - 1);
       } else {
         lastPoyaDates = dynamicsDates.filter((date) => date.year == year + 1);

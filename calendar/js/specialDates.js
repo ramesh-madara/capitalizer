@@ -270,20 +270,37 @@ function calculateFullMoonPoyaDays(startDate, numberOfPoyas, yearProgess) {
   let lunarCycle;
 
   let currentDate = new Date(startDate);
-  if (currentDate.getMonth() % 2 == 0) {
+  if (currentDate.getMonth() % 2 == 0 && yearProgess == true) {
     lunarCycle = lunarCycle2;
-  } else {
+  } else if (currentDate.getMonth() % 2 == 0 && yearProgess == false) {
     lunarCycle = lunarCycle1;
+  } else if (currentDate.getMonth() % 2 != 0 && yearProgess == true) {
+    lunarCycle = lunarCycle1;
+  } else if (currentDate.getMonth() % 2 != 0 && yearProgess == false) {
+    lunarCycle = lunarCycle2;
   }
+  console.log(currentDate + " " + lunarCycle);
 
   for (let i = 0; i < numberOfPoyas; i++) {
     if (fullMoonDates.length > 0) {
       lastMonth = new Date(fullMoonDates[fullMoonDates.length - 1]).getMonth();
+      lastYear = new Date(
+        fullMoonDates[fullMoonDates.length - 1]
+      ).getFullYear();
       // console.log(lastMonth);
-      if (lastMonth == currentDate.getMonth() && lastMonth != 4) {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        currentDate.setDate(1);
-      }
+      // if (
+      //   lastMonth == currentDate.getMonth() &&
+      //   currentDate.getMonth() != 4 &&
+      //   lastYear == 2026
+      // ) {
+      //   currentDate.setMonth(currentDate.getMonth() + 1);
+      //   currentDate.setDate(1);
+      //   console.log("Special");
+      //   console.log(currentDate);
+      // } else if (lastMonth == 4) {
+      //   console.log("Special2");
+      //   console.log(currentDate);
+      // }
     }
     fullMoonDates.push(new Date(currentDate));
     if (yearProgess == true) {
@@ -291,7 +308,7 @@ function calculateFullMoonPoyaDays(startDate, numberOfPoyas, yearProgess) {
     } else {
       currentDate.setDate(currentDate.getDate() - lunarCycle);
     }
-    console.log(currentDate);
+    // console.log(currentDate);
     if (lunarCycle == lunarCycle1) {
       lunarCycle = lunarCycle2;
     } else {
