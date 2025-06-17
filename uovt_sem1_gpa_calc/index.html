@@ -15,6 +15,9 @@
         font-family: Arial, sans-serif;
         margin: 30px;
         padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       h1,
       h2 {
@@ -55,6 +58,26 @@
         text-align: center;
         white-space: nowrap;
       }
+      /* Wrap subject names on small screens */
+      @media (max-width: 600px) {
+        .table-responsive th:first-child,
+        .table-responsive td:first-child {
+          white-space: normal;
+          overflow-wrap: break-word;
+        }
+        body {
+          margin: 15px;
+        }
+        th,
+        td {
+          padding: 8px;
+          font-size: 0.9em;
+        }
+        button {
+          width: 100%;
+          padding: 12px;
+        }
+      }
       /* Header region for name/index */
       #pdf-header {
         max-width: 800px;
@@ -76,21 +99,6 @@
       .grade-text {
         display: none;
         width: 100%;
-      }
-      /* Responsive tweaks */
-      @media (max-width: 600px) {
-        body {
-          margin: 15px;
-        }
-        th,
-        td {
-          padding: 8px;
-          font-size: 0.9em;
-        }
-        button {
-          width: 100%;
-          padding: 12px;
-        }
       }
     </style>
   </head>
@@ -132,7 +140,7 @@
         </select>
       </label>
       <label>
-        Student Number (1–300):
+        Student Number:
         <select id="studentNum" onchange="updateIndexNumber()">
           <option value="">-- Select Number --</option>
         </select>
@@ -253,7 +261,8 @@
 
       function downloadImage() {
         const name = document.getElementById("studentName").value.trim();
-        const idx = getIndexNumber();
+        const idx = getIndexNumber() || "Report";
+        const safeIdx = idx.replace(/\//g, "-");
         const report = document.getElementById("grade-report");
         const clone = report.cloneNode(true);
         const hdr = clone.querySelector("#pdf-header");
@@ -274,7 +283,8 @@
         document.body.appendChild(clone);
         html2canvas(clone).then((canvas) => {
           const a = document.createElement("a");
-          a.download = "Semester1_Grades_and_GPA.png";
+          const filename = `Semester1_Grades_and_GPA_${safeIdx}.png`;
+          a.download = filename;
           a.href = canvas.toDataURL("image/png");
           a.click();
           document.body.removeChild(clone);
