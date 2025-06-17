@@ -4,10 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Semester 1 GPA Calculator</title>
-    <!-- Include html2canvas for image export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-      /* Global resets and mobile responsiveness */
       * {
         box-sizing: border-box;
       }
@@ -58,7 +56,6 @@
         text-align: center;
         white-space: nowrap;
       }
-      /* Wrap subject names on small screens */
       @media (max-width: 600px) {
         .table-responsive th:first-child,
         .table-responsive td:first-child {
@@ -78,7 +75,6 @@
           padding: 12px;
         }
       }
-      /* Header region for name/index */
       #pdf-header {
         max-width: 800px;
         width: 100%;
@@ -95,7 +91,6 @@
         font-size: 1em;
         cursor: pointer;
       }
-      /* Hidden grade text shown only in image rendering */
       .grade-text {
         display: none;
         width: 100%;
@@ -169,7 +164,7 @@
 
       <div class="center">
         <h2 id="gpa-display">GPA: 0.00</h2>
-        <button onclick="downloadImage()">Download as Image</button>
+        <button onclick="downloadImage()">Download GPA Report</button>
       </div>
     </div>
 
@@ -294,7 +289,6 @@
         });
       }
 
-      // init
       populateStudentNumbers();
       populateTable();
     </script>
