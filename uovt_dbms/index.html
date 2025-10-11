@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Students • UniversityDB</title>
+<style>
+  :root{
+    --bg:#0f1115;--panel:#151b27;--muted:#94a3b8;--text:#e6edf3;
+    --accent:#60a5fa;--border:#22314a;--row:#0e1420;--row2:#0b111a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, #1b2333 0, transparent 50%),var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .wrap{max-width:1100px;margin:auto;padding:28px 16px 64px}
+  header{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:16px}
+  h1{margin:0;font-size:clamp(20px,2.2vw,28px)}
+  .tools{display:flex;gap:10px;flex-wrap:wrap}
+  .search{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:280px}
+  .search input{all:unset;color:var(--text);width:260px}
+  .btn{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(135deg,#1a2331,#141a24);color:var(--text);font-weight:600;cursor:pointer}
+  .btn:hover{border-color:var(--accent);box-shadow:0 0 0 2px #5fb3ff22 inset}
+  .panel{background:#101725cc;border:1px solid var(--border);border-radius:14px;overflow:hidden;backdrop-filter:blur(8px)}
+  .table-wrap{overflow:auto;max-height:72vh}
+  table{width:100%;min-width:900px;border-collapse:separate;border-spacing:0}
+  thead th{position:sticky;top:0;background:linear-gradient(180deg,#1b2331,#161c26);color:#dbeafe;border-bottom:1px solid var(--border);font-size:13px;text-align:left}
+  th,td{padding:12px 14px;border-bottom:1px solid #1f2a3f}
+  tbody tr:hover td{background:var(--row)}
+  tbody tr:nth-child(even) td{background:var(--row2)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace}
+  .pill{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid #2b3752;background:#172338;color:#b9d3ff;font-weight:700;font-size:12px}
+  .status{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;padding:10px 14px;border-top:1px solid var(--border);background:#0c1320}
+  .badge{font-size:11px;padding:2px 6px;border-radius:6px;border:1px solid #2b3752;background:#141c2a;color:#aac7ff}
+  .sort{cursor:pointer;user-select:none;display:inline-flex;gap:6px;align-items:center}
+  .sort::after{content:"↕";opacity:.5;font-size:12px}
+  .sort.asc::after{content:"↑";opacity:1}
+  .sort.desc::after{content:"↓";opacity:1}
+  a.link{color:var(--accent);text-decoration:none}
+  a.link:hover{text-decoration:underline}
+  .loading{padding:28px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Students <span id="countBadge" class="badge">— loading…</span></h1>
+    <div class="tools">
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-3.6-3.6M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#8ea0b6" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="q" placeholder="Search name, email, intake, location…" />
+      </label>
+      <button id="refreshBtn" class="btn">Refresh</button>
+      <button id="downloadBtn" class="btn">Download CSV</button>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="table-wrap">
+      <div id="loading" class="loading">Fetching data…</div>
+      <table id="tbl" style="display:none">
+        <thead>
+          <tr>
+            <th><span class="sort" data-key="student_id">Student ID</span></th>
+            <th><span class="sort" data-key="name">Name</span></th>
+            <th><span class="sort" data-key="intake">Intake</span></th>
+            <th><span class="sort" data-key="email">Email</span></th>
+            <th><span class="sort" data-key="contact_number">Contact</span></th>
+            <th><span class="sort" data-key="location">Location</span></th>
+            <th><span class="sort" data-key="birthday">Birthday</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="status">
+      <div id="statusText">Ready.</div>
+      <div style="margin-left:auto">
+        Source: <a id="srcLink" class="link" target="_blank" rel="noopener">/student/info/</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // use your /student/info/ JSON (students array, dates already YYYY-MM-DD)
+  const ENDPOINT = "https://gedca92cf14b04c-university.adb.us-phoenix-1.oraclecloudapps.com/ords/universitydb/student/info/";
+
+  const q = document.getElementById('q');
+  const tbody = document.getElementById('tbody');
+  const tbl = document.getElementById('tbl');
+  const loadingEl = document.getElementById('loading');
+  const countBadge = document.getElementById('countBadge');
+  const statusText = document.getElementById('statusText');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const srcLink = document.getElementById('srcLink');
+  srcLink.href = ENDPOINT;
+
+  let rows = [];
+  let sortState = { key: 'student_id', dir: 'asc' };
+
+  function render(){
+    const term = (q.value || '').toLowerCase().trim();
+    let data = rows.slice();
+
+    if(term){
+      data = data.filter(r =>
+        (r.name||'').toLowerCase().includes(term) ||
+        (r.email||'').toLowerCase().includes(term) ||
+        (r.intake||'').toLowerCase().includes(term) ||
+        (r.location||'').toLowerCase().includes(term) ||
+        (r.student_id||'').toLowerCase().includes(term)
+      );
+    }
+
+    const { key, dir } = sortState;
+    data.sort((a,b)=>{
+      const av = (a[key] ?? '').toString().toLowerCase();
+      const bv = (b[key] ?? '').toString().toLowerCase();
+      if(av < bv) return dir==='asc' ? -1 : 1;
+      if(av > bv) return dir==='asc' ? 1 : -1;
+      return 0;
+    });
+
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td class="mono">${r.student_id}</td>
+        <td>${r.name}</td>
+        <td><span class="pill">${r.intake}</span></td>
+        <td><a class="link" href="mailto:${r.email}">${r.email}</a></td>
+        <td class="mono">${r.contact_number}</td>
+        <td>${r.location}</td>
+        <td class="mono">${r.birthday}</td>
+      </tr>
+    `).join('');
+
+    countBadge.textContent = `— ${data.length} shown`;
+    statusText.textContent = term ? `Filtered by “${term}”` : `Loaded ${rows.length} records`;
+  }
+
+  async function load(){
+    loadingEl.style.display = '';
+    tbl.style.display = 'none';
+    statusText.textContent = 'Fetching…';
+    try{
+      const res = await fetch(ENDPOINT, { headers: { 'Accept': 'application/json' } });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      rows = Array.isArray(json.students) ? json.students : [];
+      render();
+      loadingEl.style.display = 'none';
+      tbl.style.display = '';
+      statusText.textContent = `Loaded ${rows.length} records`;
+    }catch(err){
+      loadingEl.textContent = `Error: ${err.message}`;
+      statusText.textContent = 'Failed to fetch.';
+    }
+  }
+
+  document.querySelectorAll('.sort').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.dataset.key;
+      if(sortState.key === key){
+        sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+      }else{
+        sortState.key = key; sortState.dir = 'asc';
+      }
+      document.querySelectorAll('.sort').forEach(s=>s.classList.remove('asc','desc'));
+      el.classList.add(sortState.dir);
+      render();
+    });
+  });
+
+  q.addEventListener('input', render);
+  refreshBtn.addEventListener('click', load);
+
+  downloadBtn.addEventListener('click', ()=>{
+    const term = (q.value || '').toLowerCase().trim();
+    let data = rows.slice();
+    if(term){
+      data = data.filter(r =>
+        (r.name||'').toLowerCase().includes(term) ||
+        (r.email||'').toLowerCase().includes(term) ||
+        (r.intake||'').toLowerCase().includes(term) ||
+        (r.location||'').toLowerCase().includes(term) ||
+        (r.student_id||'').toLowerCase().includes(term)
+      );
+    }
+    const header = ['student_id','name','intake','email','contact_number','location','birthday'];
+    const csv = [header.join(',')].concat(
+      data.map(r => header.map(h => `"${String(r[h] ?? '').replaceAll('"','""')}"`).join(','))
+    ).join('\r\n');
+
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'students.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  load();
+</script>
+</body>
+</html>
