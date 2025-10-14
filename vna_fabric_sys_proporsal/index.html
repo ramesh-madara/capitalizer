@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Proposal: V&A Fabric Co. Web Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA is structured as a narrative journey through the project proposal, starting with a high-level dashboard and then diving into the core business workflows (modules). A top navigation bar allows users to jump between sections: Dashboard, Sourcing & Costing, Inventory, Sales, Financials, and Project Plan. This task-oriented structure was chosen because it directly mirrors the proposed system's modules and the company's operational flow, making it highly intuitive for stakeholders at V&A Fabric Co. to understand how the new system addresses each part of their business. Interactive elements within each section are designed to make abstract concepts (like cost calculation or workflow changes) tangible and easy to grasp. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Key project benefits -> Goal: Inform -> Viz: Interactive cards -> Interaction: Hover to reveal details -> Justification: Provides layered info without initial clutter.
+        - Report Info: Current vs. Proposed Workflow -> Goal: Compare -> Viz: HTML/CSS side-by-side diagram with icons -> Interaction: Static visual comparison -> Justification: Clearly highlights efficiency gains.
+        - Report Info: Landed Cost Calculation -> Goal: Organize/Relationships -> Viz: Donut Chart (Chart.js) + HTML sliders -> Interaction: User adjusts sliders (cost factors), chart updates in real-time -> Justification: Makes a complex calculation interactive and demonstrates the relationship between cost components.
+        - Report Info: Outstanding Payments -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Interaction: Filter by customer (mock) -> Justification: A standard, effective way to show comparative financial data.
+        - Report Info: Project Timeline -> Goal: Organize/Change -> Viz: Gantt-style chart via HTML/CSS Grid -> Interaction: Click on a phase to expand and see key deliverables -> Justification: Presents the project plan in a clear, interactive format.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #fdfbf8;
+        color: #4a4a4a;
+      }
+      .nav-link {
+        transition: all 0.3s;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link.active,
+      .nav-link:hover {
+        color: #1e40af; /* A muted blue */
+        border-bottom-color: #1e40af;
+      }
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease-in-out;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 350px;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+      .slider-thumb-blue::-webkit-slider-thumb {
+        background: #3b82f6;
+      }
+      .slider-thumb-blue::-moz-range-thumb {
+        background: #3b82f6;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+      <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <span class="text-xl font-bold text-gray-800">V&A Fabric Co.</span>
+            <span class="ml-2 text-xl font-light text-gray-500">Web Platform Proposal</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="#dashboard" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Dashboard</a>
+              <a href="#sourcing" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Sourcing & Costing</a>
+              <a href="#inventory" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Inventory</a>
+              <a href="#sales" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Sales & Dispatch</a>
+              <a href="#financials" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Financials</a>
+              <a href="#plan" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Project Plan</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section id="dashboard" class="py-12 sm:py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Modernizing Your Workflow</h1>
+            <p class="mt-4 text-lg leading-8 text-gray-600">An interactive overview of the proposed web platform to replace the current system.</p>
+          </div>
+
+          <div class="mt-16">
+            <h2 class="text-2xl font-semibold text-center text-gray-800">Key Project Benefits</h2>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div class="card p-6 rounded-lg">
+                <h3 class="font-semibold text-lg">Access Anywhere</h3>
+                <p class="mt-2 text-gray-600">Use the system from any device—desktop, laptop, or tablet—anywhere in the world.</p>
+              </div>
+              <div class="card p-6 rounded-lg">
+                <h3 class="font-semibold text-lg">Better Warehouse Workflow</h3>
+                <p class="mt-2 text-gray-600">A tablet-friendly interface for staff ends paperwork and double-handling.</p>
+              </div>
+              <div class="card p-6 rounded-lg">
+                <h3 class="font-semibold text-lg">No More Manual Entry</h3>
+                <p class="mt-2 text-gray-600">A fully digital Goods Received Note (GRN) process replaces error-prone Excel uploads.</p>
+              </div>
+              <div class="card p-6 rounded-lg">
+                <h3 class="font-semibold text-lg">Live Data & Reports</h3>
+                <p class="mt-2 text-gray-600">Get instant access to stock levels, sales data, and financial reports.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-16">
+            <h2 class="text-2xl font-semibold text-center text-gray-800">Solving Current Challenges</h2>
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              <div class="card p-6 rounded-lg border-l-4 border-red-400">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Current Fragmented Process</h3>
+                <div class="space-y-4 text-gray-600">
+                  <p><strong>1. No Remote Access:</strong> Decisions made while traveling are based on old information.</p>
+                  <p><strong>2. Inefficient GRN Process:</strong> Manual Excel uploads are slow and lead to data errors.</p>
+                  <p><strong>3. Disconnected Warehouse:</strong> Admins use a PC, but warehouse staff have no digital tool, causing delays.</p>
+                  <p><strong>4. Difficult Data Management:</strong> Complex, desktop-only UI makes managing stock difficult.</p>
+                </div>
+              </div>
+              <div class="card p-6 rounded-lg border-l-4 border-green-400">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Proposed Unified Platform</h3>
+                <div class="space-y-4 text-gray-600">
+                  <p><strong>1. Global Access:</strong> Real-time data available on any device, anywhere.</p>
+                  <p><strong>2. Digital GRN:</strong> Direct data input from supplier packing lists, with auto-validation.</p>
+                  <p><strong>3. Connected Warehouse:</strong> A tablet app for staff syncs instantly with the admin's view.</p>
+                  <p><strong>4. Simple Management:</strong> A clean, web-based interface for all data management tasks.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sourcing" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Module: Sourcing & Costing</h2>
+            <p class="mt-4 text-lg leading-8 text-gray-600">
+              This module digitizes the crucial pre-import phase, helping you make smarter purchasing decisions. It combines supplier management with a powerful tool to calculate the final landed cost
+              of fabric samples from China.
+            </p>
+          </div>
+          <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="card p-8 rounded-lg">
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">Interactive Landed Cost Calculator</h3>
+              <p class="text-gray-600 mb-6">
+                Adjust the sliders to see how different factors affect the final cost breakdown. This tool helps determine if a fabric is profitable before you commit to a bulk order.
+              </p>
+              <div class="space-y-4">
+                <div>
+                  <label for="yuanPrice" class="block text-sm font-medium text-gray-700">Fabric Cost (Yuan/meter)</label>
+                  <input id="yuanPrice" type="range" min="10" max="100" value="35" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="yuanPriceValue">35 CNY</span>
+                </div>
+                <div>
+                  <label for="shippingCost" class="block text-sm font-medium text-gray-700">Shipping (% of Fabric Cost)</label>
+                  <input id="shippingCost" type="range" min="5" max="30" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="shippingCostValue">15%</span>
+                </div>
+                <div>
+                  <label for="taxCost" class="block text-sm font-medium text-gray-700">Duties & Tax (% of Fabric Cost)</label>
+                  <input id="taxCost" type="range" min="5" max="40" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="taxCostValue">20%</span>
+                </div>
+                <div>
+                  <label for="margin" class="block text-sm font-medium text-gray-700">Desired Margin (%)</label>
+                  <input id="margin" type="range" min="10" max="50" value="25" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="marginValue">25%</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="chart-container">
+                <canvas id="costCalculatorChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="inventory" class="py-12 sm:py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Module: Inventory & Warehouse</h2>
+            <p class="mt-4 text-lg leading-8 text-gray-600">
+              This module provides precise control over every item in your warehouse. It replaces the manual Excel GRN process and introduces unique roll tracking, ensuring you always have accurate,
+              real-time stock data.
+            </p>
+          </div>
+          <div class="mt-12 text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">From Manual Upload to Digital GRN</h3>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
+              <div class="text-gray-500">Supplier DPL</div>
+              <div class="text-2xl text-blue-500 font-bold animate-pulse">→</div>
+              <div class="card p-4 rounded-lg text-red-600">Manual Excel Entry</div>
+              <div class="text-2xl text-blue-500 font-bold animate-pulse">→</div>
+              <div class="text-gray-500">System Upload</div>
+              <div class="text-2xl text-blue-500 font-bold animate-pulse">→</div>
+              <div class="card p-4 rounded-lg bg-red-100 border-red-500">Risk of Errors</div>
+            </div>
+            <div class="my-6 text-2xl font-bold text-gray-400">BECOMES</div>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
+              <div class="text-gray-500">Supplier DPL</div>
+              <div class="text-2xl text-green-500 font-bold animate-pulse">→</div>
+              <div class="card p-4 rounded-lg text-green-600">Direct System Input</div>
+              <div class="text-2xl text-green-500 font-bold animate-pulse">→</div>
+              <div class="text-gray-500">Auto-Reconciliation</div>
+              <div class="text-2xl text-green-500 font-bold animate-pulse">→</div>
+              <div class="card p-4 rounded-lg bg-green-100 border-green-500">Accurate Stock</div>
+            </div>
+          </div>
+          <div class="mt-12 card rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Key Inventory Features</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600">
+              <li><strong>Unique Roll Tracking:</strong> Every fabric roll is tracked as a unique item from receiving to sale.</li>
+              <li><strong>Live Inventory Dashboard:</strong> A real-time, filterable view of all stock by shipment, location, or fabric type.</li>
+              <li><strong>Simple Stock Adjustments:</strong> An intuitive interface to make stock adjustments with clear reason tracking.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="sales" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Module: Sales & Dispatch</h2>
+            <p class="mt-4 text-lg leading-8 text-gray-600">
+              This module streamlines the entire sales process, with a special focus on an efficient, collaborative workflow between admins and warehouse staff. The new tablet-optimized dispatch
+              system eliminates delays and confirms orders in real-time.
+            </p>
+          </div>
+          <div class="mt-12">
+            <h3 class="text-xl font-semibold text-center text-gray-800 mb-8">New Tablet-Optimized Dispatch Workflow</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div class="card p-6 rounded-lg">
+                <div class="text-3xl mb-4">🖥️</div>
+                <h4 class="font-semibold text-lg">Step 1: Admin Creates Note</h4>
+                <p class="mt-2 text-gray-600">An admin creates a new Dispatch Note on their desktop, which instantly becomes available to the warehouse team.</p>
+              </div>
+              <div class="card p-6 rounded-lg">
+                <div class="text-3xl mb-4">📱</div>
+                <h4 class="font-semibold text-lg">Step 2: Warehouse Picks Order</h4>
+                <p class="mt-2 text-gray-600">Using a tablet, a warehouse worker views the note, physically picks the correct fabric rolls, and updates the note in real-time.</p>
+              </div>
+              <div class="card p-6 rounded-lg">
+                <div class="text-3xl mb-4">✅</div>
+                <h4 class="font-semibold text-lg">Step 3: Admin Confirms</h4>
+                <p class="mt-2 text-gray-600">The admin receives a notification, verifies the picked items on their screen, and finalizes the note for invoicing.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-12 card rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Additional Sales Features</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600">
+              <li><strong>Customer Database (CRM):</strong> A central place to manage all your customer information.</li>
+              <li><strong>Fabric Reservation:</strong> A new feature allowing you to reserve stock for a customer before a formal sale is made.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="financials" class="py-12 sm:py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Module: Invoicing & Financials</h2>
+            <p class="mt-4 text-lg leading-8 text-gray-600">
+              This module automates billing and simplifies financial tracking. It generates invoices directly from dispatch notes, handles complex billing rules, and provides instant visibility into
+              your company's financial health.
+            </p>
+          </div>
+          <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div class="chart-container">
+                <canvas id="outstandingPaymentsChart"></canvas>
+              </div>
+            </div>
+            <div class="card p-8 rounded-lg">
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">Financial Clarity</h3>
+              <p class="text-gray-600 mb-6">Instantly see who owes money and manage payments effectively. The system automates complex tasks to ensure accuracy.</p>
+              <ul class="list-disc list-inside space-y-3 text-gray-600">
+                <li><strong>Automated Invoicing:</strong> Invoices are generated directly from finalized Dispatch Notes, reducing manual work.</li>
+                <li><strong>Handles Complex Billing:</strong> Automatically creates separate invoices for items from different shipments, as per your business rules.</li>
+                <li><strong>Partial Payment Tracking:</strong> Easily record and track multiple payments against a single invoice.</li>
+                <li><strong>Outstanding Reports:</strong> Generate real-time outstanding payment statements for any customer at any time.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="plan" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Project Plan & Timeline</h2>
+            <p class="mt-4 text-lg leading-8 text-gray-600">
+              The project will be delivered in phases to ensure a smooth transition and allow for feedback at each stage. Timelines and costs are estimates to be finalized.
+            </p>
+          </div>
+          <div id="timeline" class="mt-12 space-y-4"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+      <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+        <p>&copy; 2025 Proposal for V&A Fabric Co. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const costCalculatorData = {
+          labels: ["Fabric Cost", "Shipping", "Duties & Tax", "Margin"],
+          datasets: [
+            {
+              label: "Cost Breakdown",
+              data: [35, 15, 20, 25],
+              backgroundColor: ["#3B82F6", "#60A5FA", "#93C5FD", "#16A34A"],
+              borderColor: "#FFFFFF",
+              borderWidth: 2,
+            },
+          ],
+        };
+
+        const costCalculatorConfig = {
+          type: "doughnut",
+          data: costCalculatorData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "top" },
+              tooltip: {
+                callbacks: { label: (context) => `${context.label}: ${context.raw}%` },
+              },
+            },
+          },
+        };
+
+        const costChartCtx = document.getElementById("costCalculatorChart").getContext("2d");
+        const costCalculatorChart = new Chart(costChartCtx, costCalculatorConfig);
+
+        const yuanPriceSlider = document.getElementById("yuanPrice");
+        const shippingCostSlider = document.getElementById("shippingCost");
+        const taxCostSlider = document.getElementById("taxCost");
+        const marginSlider = document.getElementById("margin");
+
+        function updateCostChart() {
+          const yuanPrice = parseInt(yuanPriceSlider.value);
+          const shipping = parseInt(shippingCostSlider.value);
+          const tax = parseInt(taxCostSlider.value);
+          const margin = parseInt(marginSlider.value);
+
+          document.getElementById("yuanPriceValue").textContent = `${yuanPrice} CNY`;
+          document.getElementById("shippingCostValue").textContent = `${shipping}%`;
+          document.getElementById("taxCostValue").textContent = `${tax}%`;
+          document.getElementById("marginValue").textContent = `${margin}%`;
+
+          const total = yuanPrice * (1 + shipping / 100 + tax / 100);
+          const finalPrice = total * (1 + margin / 100);
+
+          const fabricCostPercent = (yuanPrice / finalPrice) * 100;
+          const shippingPercent = ((yuanPrice * shipping) / 100 / finalPrice) * 100;
+          const taxPercent = ((yuanPrice * tax) / 100 / finalPrice) * 100;
+          const marginPercent = ((finalPrice - total) / finalPrice) * 100;
+
+          costCalculatorChart.data.datasets[0].data = [fabricCostPercent, shippingPercent, taxPercent, marginPercent];
+          costCalculatorChart.update();
+        }
+
+        [yuanPriceSlider, shippingCostSlider, taxCostSlider, marginSlider].forEach((slider) => {
+          slider.addEventListener("input", updateCostChart);
+        });
+        updateCostChart();
+
+        const outstandingPaymentsData = {
+          labels: ["R.LEE APPAREL", "Sarathi Denim", "UNCOMMON CLOTHING", "Volcom Tired Work", "The Jeans Studio"],
+          datasets: [
+            {
+              label: "Outstanding Amount (LKR)",
+              data: [2218180, 1818920, 1818920, 1626140, 1215006],
+              backgroundColor: "#3B82F6",
+              borderColor: "#1E40AF",
+              borderWidth: 1,
+            },
+          ],
+        };
+
+        const outstandingPaymentsConfig = {
+          type: "bar",
+          data: outstandingPaymentsData,
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => ` LKR ${context.raw.toLocaleString()}`,
+                },
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  callback: function (value, index, values) {
+                    return value / 1000000 + "M";
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        const paymentsChartCtx = document.getElementById("outstandingPaymentsChart").getContext("2d");
+        new Chart(paymentsChartCtx, outstandingPaymentsConfig);
+
+        const timelineData = [
+          { phase: "1. Discovery & Design", deliverables: ["Detailed workflow mapping", "UI/UX mockups", "Technical planning"], color: "bg-blue-100", textColor: "text-blue-800" },
+          { phase: "2. Core Development", deliverables: ["Product, Procurement & Inventory Modules", "Database setup"], color: "bg-green-100", textColor: "text-green-800" },
+          { phase: "3. Sales & Financials", deliverables: ["Sales, Dispatch & Invoicing Modules", "Reporting dashboard"], color: "bg-yellow-100", textColor: "text-yellow-800" },
+          { phase: "4. Testing & Launch", deliverables: ["User acceptance testing (UAT)", "Data migration", "Staff training", "Deployment"], color: "bg-purple-100", textColor: "text-purple-800" },
+          { phase: "5. Post-Launch Support", deliverables: ["Ongoing support and maintenance"], color: "bg-gray-100", textColor: "text-gray-800" },
+        ];
+
+        const timelineContainer = document.getElementById("timeline");
+        timelineData.forEach((item) => {
+          const phaseEl = document.createElement("div");
+          phaseEl.className = "card rounded-lg overflow-hidden cursor-pointer";
+
+          const header = document.createElement("div");
+          header.className = `p-4 ${item.color} ${item.textColor} font-semibold flex justify-between items-center`;
+          header.innerHTML = `<span>${item.phase}</span><span class="transform transition-transform duration-300">▼</span>`;
+
+          const content = document.createElement("div");
+          content.className = "p-4 bg-white hidden";
+          const list = document.createElement("ul");
+          list.className = "list-disc list-inside space-y-1 text-gray-600";
+          item.deliverables.forEach((d) => {
+            const li = document.createElement("li");
+            li.textContent = d;
+            list.appendChild(li);
+          });
+          content.appendChild(list);
+
+          phaseEl.appendChild(header);
+          phaseEl.appendChild(content);
+          timelineContainer.appendChild(phaseEl);
+
+          header.addEventListener("click", () => {
+            content.classList.toggle("hidden");
+            header.querySelector("span:last-child").classList.toggle("rotate-180");
+          });
+        });
+
+        const navLinks = document.querySelectorAll(".nav-link");
+        const sections = document.querySelectorAll("main section");
+
+        function changeActiveLink() {
+          let index = sections.length;
+          while (--index && window.scrollY + 50 < sections[index].offsetTop) {}
+
+          navLinks.forEach((link) => link.classList.remove("active"));
+          const activeLink = document.querySelector(`.nav-link[href="#${sections[index].id}"]`);
+          if (activeLink) {
+            activeLink.classList.add("active");
+          }
+        }
+        changeActiveLink();
+        window.addEventListener("scroll", changeActiveLink);
+
+        navLinks.forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
