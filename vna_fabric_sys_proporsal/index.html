@@ -8,14 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: The SPA is structured as a narrative journey through the project proposal, starting with a high-level dashboard and then diving into the core business workflows (modules). A top navigation bar allows users to jump between sections: Dashboard, Sourcing & Costing, Inventory, Sales, Financials, and Project Plan. This task-oriented structure was chosen because it directly mirrors the proposed system's modules and the company's operational flow, making it highly intuitive for stakeholders at V&A Fabric Co. to understand how the new system addresses each part of their business. Interactive elements within each section are designed to make abstract concepts (like cost calculation or workflow changes) tangible and easy to grasp. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Key project benefits -> Goal: Inform -> Viz: Interactive cards -> Interaction: Hover to reveal details -> Justification: Provides layered info without initial clutter.
-        - Report Info: Current vs. Proposed Workflow -> Goal: Compare -> Viz: HTML/CSS side-by-side diagram with icons -> Interaction: Static visual comparison -> Justification: Clearly highlights efficiency gains.
-        - Report Info: Landed Cost Calculation -> Goal: Organize/Relationships -> Viz: Donut Chart (Chart.js) + HTML sliders -> Interaction: User adjusts sliders (cost factors), chart updates in real-time -> Justification: Makes a complex calculation interactive and demonstrates the relationship between cost components.
-        - Report Info: Outstanding Payments -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Interaction: Filter by customer (mock) -> Justification: A standard, effective way to show comparative financial data.
-        - Report Info: Project Timeline -> Goal: Organize/Change -> Viz: Gantt-style chart via HTML/CSS Grid -> Interaction: Click on a phase to expand and see key deliverables -> Justification: Presents the project plan in a clear, interactive format.
-    -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
       body {
@@ -29,7 +21,7 @@
       }
       .nav-link.active,
       .nav-link:hover {
-        color: #1e40af; /* A muted blue */
+        color: #1e40af;
         border-bottom-color: #1e40af;
       }
       .card {
@@ -153,35 +145,42 @@
           <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div class="card p-8 rounded-lg">
               <h3 class="text-xl font-semibold text-gray-800 mb-4">Interactive Landed Cost Calculator</h3>
-              <p class="text-gray-600 mb-6">
-                Adjust the sliders to see how different factors affect the final cost breakdown. This tool helps determine if a fabric is profitable before you commit to a bulk order.
-              </p>
+              <p class="text-gray-600 mb-6">Adjust the sliders to see how different factors affect the final cost breakdown. Fabric Cost, Shipping, and Duties are now independent (absolute CNY/m).</p>
               <div class="space-y-4">
                 <div>
-                  <label for="yuanPrice" class="block text-sm font-medium text-gray-700">Fabric Cost (Yuan/meter)</label>
-                  <input id="yuanPrice" type="range" min="10" max="100" value="35" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
-                  <span class="text-sm text-blue-600 font-semibold float-right" id="yuanPriceValue">35 CNY</span>
+                  <label for="yuanPrice" class="block text-sm font-medium text-gray-700">Fabric Cost (CNY/meter)</label>
+                  <input id="yuanPrice" type="range" min="10" max="150" value="68" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="yuanPriceValue">68 CNY</span>
                 </div>
+
                 <div>
-                  <label for="shippingCost" class="block text-sm font-medium text-gray-700">Shipping (% of Fabric Cost)</label>
-                  <input id="shippingCost" type="range" min="5" max="30" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
-                  <span class="text-sm text-blue-600 font-semibold float-right" id="shippingCostValue">15%</span>
+                  <label for="shippingAmount" class="block text-sm font-medium text-gray-700">Shipping (CNY/meter)</label>
+                  <input id="shippingAmount" type="range" min="0" max="60" value="14" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="shippingAmountValue">14 CNY</span>
                 </div>
+
                 <div>
-                  <label for="taxCost" class="block text-sm font-medium text-gray-700">Duties & Tax (% of Fabric Cost)</label>
-                  <input id="taxCost" type="range" min="5" max="40" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
-                  <span class="text-sm text-blue-600 font-semibold float-right" id="taxCostValue">20%</span>
+                  <label for="taxAmount" class="block text-sm font-medium text-gray-700">Duties &amp; Tax (CNY/meter)</label>
+                  <input id="taxAmount" type="range" min="0" max="80" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <span class="text-sm text-blue-600 font-semibold float-right" id="taxAmountValue">20 CNY</span>
                 </div>
+
                 <div>
                   <label for="margin" class="block text-sm font-medium text-gray-700">Desired Margin (%)</label>
-                  <input id="margin" type="range" min="10" max="50" value="25" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
+                  <input id="margin" type="range" min="0" max="60" value="25" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-blue" />
                   <span class="text-sm text-blue-600 font-semibold float-right" id="marginValue">25%</span>
                 </div>
               </div>
             </div>
+
             <div>
               <div class="chart-container">
                 <canvas id="costCalculatorChart"></canvas>
+              </div>
+              <div class="mt-4 text-center">
+                <div class="inline-block px-4 py-2 rounded-md bg-blue-50 text-blue-800 font-semibold">
+                  <span id="finalPrice">Final Price: —</span>
+                </div>
               </div>
             </div>
           </div>
@@ -273,10 +272,6 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-3xl font-bold tracking-tight text-gray-900">Module: Invoicing & Financials</h2>
-            <p class="mt-4 text-lg leading-8 text-gray-600">
-              This module automates billing and simplifies financial tracking. It generates invoices directly from dispatch notes, handles complex billing rules, and provides instant visibility into
-              your company's financial health.
-            </p>
           </div>
           <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -302,9 +297,6 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-3xl font-bold tracking-tight text-gray-900">Project Plan & Timeline</h2>
-            <p class="mt-4 text-lg leading-8 text-gray-600">
-              The project will be delivered in phases to ensure a smooth transition and allow for feedback at each stage. Timelines and costs are estimates to be finalized.
-            </p>
           </div>
           <div id="timeline" class="mt-12 space-y-4"></div>
         </div>
@@ -319,12 +311,13 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        /* ===== Cost Calculator (Independent sliders) ===== */
         const costCalculatorData = {
           labels: ["Fabric Cost", "Shipping", "Duties & Tax", "Margin"],
           datasets: [
             {
-              label: "Cost Breakdown",
-              data: [35, 15, 20, 25],
+              label: "Cost Breakdown (CNY/m)",
+              data: [0, 0, 0, 0],
               backgroundColor: ["#3B82F6", "#60A5FA", "#93C5FD", "#16A34A"],
               borderColor: "#FFFFFF",
               borderWidth: 2,
@@ -341,7 +334,15 @@
             plugins: {
               legend: { position: "top" },
               tooltip: {
-                callbacks: { label: (context) => `${context.label}: ${context.raw}%` },
+                callbacks: {
+                  label: (ctx) => {
+                    const vals = ctx.dataset.data;
+                    const total = vals.reduce((a, b) => a + b, 0);
+                    const val = ctx.raw;
+                    const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+                    return `${ctx.label}: ${val.toFixed(2)} CNY (${pct}%)`;
+                  },
+                },
               },
             },
           },
@@ -350,39 +351,38 @@
         const costChartCtx = document.getElementById("costCalculatorChart").getContext("2d");
         const costCalculatorChart = new Chart(costChartCtx, costCalculatorConfig);
 
+        // Sliders (Fabric CNY, Shipping CNY, Duties CNY, Margin %)
         const yuanPriceSlider = document.getElementById("yuanPrice");
-        const shippingCostSlider = document.getElementById("shippingCost");
-        const taxCostSlider = document.getElementById("taxCost");
+        const shippingAmountSlider = document.getElementById("shippingAmount");
+        const taxAmountSlider = document.getElementById("taxAmount");
         const marginSlider = document.getElementById("margin");
 
         function updateCostChart() {
-          const yuanPrice = parseInt(yuanPriceSlider.value);
-          const shipping = parseInt(shippingCostSlider.value);
-          const tax = parseInt(taxCostSlider.value);
-          const margin = parseInt(marginSlider.value);
+          const fabric = parseFloat(yuanPriceSlider.value); // CNY/m
+          const shippingAmt = parseFloat(shippingAmountSlider.value); // CNY/m
+          const taxAmt = parseFloat(taxAmountSlider.value); // CNY/m
+          const marginPct = parseFloat(marginSlider.value); // %
 
-          document.getElementById("yuanPriceValue").textContent = `${yuanPrice} CNY`;
-          document.getElementById("shippingCostValue").textContent = `${shipping}%`;
-          document.getElementById("taxCostValue").textContent = `${tax}%`;
-          document.getElementById("marginValue").textContent = `${margin}%`;
+          // Update UI labels
+          document.getElementById("yuanPriceValue").textContent = `${fabric} CNY`;
+          document.getElementById("shippingAmountValue").textContent = `${shippingAmt} CNY`;
+          document.getElementById("taxAmountValue").textContent = `${taxAmt} CNY`;
+          document.getElementById("marginValue").textContent = `${marginPct}%`;
 
-          const total = yuanPrice * (1 + shipping / 100 + tax / 100);
-          const finalPrice = total * (1 + margin / 100);
+          const baseCost = fabric + shippingAmt + taxAmt;
+          const marginAmt = baseCost * (marginPct / 100);
+          const finalPrice = baseCost + marginAmt;
 
-          const fabricCostPercent = (yuanPrice / finalPrice) * 100;
-          const shippingPercent = ((yuanPrice * shipping) / 100 / finalPrice) * 100;
-          const taxPercent = ((yuanPrice * tax) / 100 / finalPrice) * 100;
-          const marginPercent = ((finalPrice - total) / finalPrice) * 100;
-
-          costCalculatorChart.data.datasets[0].data = [fabricCostPercent, shippingPercent, taxPercent, marginPercent];
+          costCalculatorChart.data.datasets[0].data = [fabric, shippingAmt, taxAmt, marginAmt];
           costCalculatorChart.update();
+
+          document.getElementById("finalPrice").textContent = `Final Price: ${finalPrice.toFixed(2)} CNY/m`;
         }
 
-        [yuanPriceSlider, shippingCostSlider, taxCostSlider, marginSlider].forEach((slider) => {
-          slider.addEventListener("input", updateCostChart);
-        });
+        [yuanPriceSlider, shippingAmountSlider, taxAmountSlider, marginSlider].forEach((s) => s.addEventListener("input", updateCostChart));
         updateCostChart();
 
+        /* ===== Outstanding payments (unchanged) ===== */
         const outstandingPaymentsData = {
           labels: ["R.LEE APPAREL", "Sarathi Denim", "UNCOMMON CLOTHING", "Volcom Tired Work", "The Jeans Studio"],
           datasets: [
@@ -414,7 +414,7 @@
             scales: {
               x: {
                 ticks: {
-                  callback: function (value, index, values) {
+                  callback: function (value) {
                     return value / 1000000 + "M";
                   },
                 },
@@ -426,6 +426,7 @@
         const paymentsChartCtx = document.getElementById("outstandingPaymentsChart").getContext("2d");
         new Chart(paymentsChartCtx, outstandingPaymentsConfig);
 
+        /* ===== Timeline accordions (unchanged) ===== */
         const timelineData = [
           { phase: "1. Discovery & Design", deliverables: ["Detailed workflow mapping", "UI/UX mockups", "Technical planning"], color: "bg-blue-100", textColor: "text-blue-800" },
           { phase: "2. Core Development", deliverables: ["Product, Procurement & Inventory Modules", "Database setup"], color: "bg-green-100", textColor: "text-green-800" },
@@ -464,18 +465,15 @@
           });
         });
 
+        /* ===== Nav active link (unchanged) ===== */
         const navLinks = document.querySelectorAll(".nav-link");
         const sections = document.querySelectorAll("main section");
-
         function changeActiveLink() {
           let index = sections.length;
           while (--index && window.scrollY + 50 < sections[index].offsetTop) {}
-
           navLinks.forEach((link) => link.classList.remove("active"));
           const activeLink = document.querySelector(`.nav-link[href="#${sections[index].id}"]`);
-          if (activeLink) {
-            activeLink.classList.add("active");
-          }
+          if (activeLink) activeLink.classList.add("active");
         }
         changeActiveLink();
         window.addEventListener("scroll", changeActiveLink);
@@ -483,9 +481,7 @@
         navLinks.forEach((anchor) => {
           anchor.addEventListener("click", function (e) {
             e.preventDefault();
-            document.querySelector(this.getAttribute("href")).scrollIntoView({
-              behavior: "smooth",
-            });
+            document.querySelector(this.getAttribute("href")).scrollIntoView({ behavior: "smooth" });
           });
         });
       });
