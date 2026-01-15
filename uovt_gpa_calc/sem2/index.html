@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../imgs/gpa.png">
     <title>DOS GPA Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -176,6 +177,84 @@
                 font-size: 0.8em;
                 padding: 5px;
             }
+
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: 40%;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 15%;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: 45%;
+            }
+        }
+
+        /* Grade Modal Specifics */
+        .grade-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .grade-option-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--text-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+            flex: 1 0 auto;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .grade-option-btn:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .grade-display-btn {
+            width: 85%;
+            padding: 10px 5px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+            line-height: 1.2;
+        }
+
+        .grade-range-text {
+            font-size: 0.75em;
+            opacity: 0.8;
+            margin-top: 3px;
+            font-weight: normal;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
         }
     </style>
 </head>
@@ -188,7 +267,7 @@
     </div>
 
     <div class="container">
-        <h1 style="text-align: center;">Degree GPA Calculator</h1>
+        <h1 style="text-align: center;">UOVT GPA Calculator</h1>
 
         <div class="details-grid">
             <div>
@@ -198,6 +277,7 @@
             <div>
                 <label>Department:</label>
                 <select id="Department">
+                    <option value="" disabled selected>Select Your Department</option>
                     <option value="SOF">SOF</option>
                     <option value="MMW">MMW</option>
                     <option value="NET">NET</option>
@@ -206,6 +286,7 @@
             <div>
                 <label>Year:</label>
                 <select id="year">
+                    <option value="" disabled selected>Select Your Year</option>
                     <option value="22">22/23</option>
                     <option value="23">23/24</option>
                     <option value="24">24/25</option>
@@ -214,6 +295,7 @@
             <div>
                 <label>Batch:</label>
                 <select id="batch">
+                    <option value="" disabled selected>Select Your Batch</option>
                     <option value="B1">B1</option>
                     <option value="B2">B2</option>
                 </select>
@@ -254,8 +336,8 @@
             <div id="sem1-input" class="summary-box hidden">
                 <h3>Enter Known GPA</h3>
                 <p>Enter your final GPA for Semester 1:</p>
-                <input type="number" id="sem1-simple-gpa" step="0.01" max="4.0" placeholder="e.g. 3.45"
-                    oninput="saveData()" style="width: 50%; text-align: center; font-size: 1.2em;">
+                <input type="number" id="sem1-simple-gpa" min="0" max="4.0" step="0.01" placeholder="e.g. 3.45"
+                    oninput="handleSem1Input(this.value)" style="width: 50%; text-align: center; font-size: 1.2em;">
                 <br><br>
                 <button onclick="setSem1Mode('manual')">Switch to Manual Grade Entry</button>
             </div>
@@ -305,6 +387,15 @@
         </div>
     </div>
 
+    <div id="grade-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="position: relative;">
+            <button class="close-btn" onclick="closeGradeModal()">×</button>
+            <h3>Select Grade</h3>
+            <div id="grade-options-container" class="grade-grid">
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- DATA ---
         const gradePoints = {
@@ -345,7 +436,8 @@
             sem1Grades: {},
             sem2Grades: {},
             theme: 'dark',
-            studentDetails: { name: '', dept: 'SOF', year: '22', batch: 'B1', num: '1' }
+            studentDetails: { name: '', dept: '', year: '', batch: '', num: '' },
+            currentSelection: { sem: null, index: null } // To track which grade is being edited
         };
 
         // --- INIT ---
@@ -363,7 +455,13 @@
                 appState = JSON.parse(saved);
                 applyTheme();
                 renderTables();
+                // Ensure defaults if loading old state structure
+                if (!appState.studentDetails.dept) appState.studentDetails.dept = "";
+
                 restoreDetails();
+
+                // If we have saved data, update calculations.
+                // But only switch modes/UI if explicitly saved.
                 updateCalculations();
                 updateUIForMode();
             } else {
@@ -375,6 +473,7 @@
 
         function populateStudentNumbers() {
             const sel = document.getElementById("studentNum");
+            sel.innerHTML = '<option value="" disabled selected>Select Student Number</option>';
             for (let i = 1; i <= 300; i++) {
                 const opt = document.createElement("option");
                 opt.value = i;
@@ -391,7 +490,6 @@
             const s = document.getElementById("studentNum").value;
             if (d && y && b && s) {
                 const sn = parseInt(s) < 10 ? "0" + parseInt(s) : s;
-                // y is now "22", "23", or "24" directly from the value
                 return `${d}/${y}/${b}/${sn}`;
             }
             return "---";
@@ -413,15 +511,29 @@
             const d = appState.studentDetails;
             if (d) {
                 document.getElementById('studentName').value = d.name || '';
-                document.getElementById('Department').value = d.dept || 'SOF';
-                document.getElementById('year').value = d.year || '22';
-                document.getElementById('batch').value = d.batch || 'B1';
-                document.getElementById('studentNum').value = d.num || '1';
+                document.getElementById('Department').value = d.dept || '';
+                document.getElementById('year').value = d.year || '';
+                document.getElementById('batch').value = d.batch || '';
+                document.getElementById('studentNum').value = d.num || '';
             }
         }
 
         function updateIndexPreview() {
             document.getElementById('idx-preview').innerText = getIndexNumber();
+        }
+
+        // --- REAL-TIME INPUT HANDLER ---
+        function handleSem1Input(val) {
+            // Validation: Restrict > 4.0
+            if (parseFloat(val) > 4.0) {
+                val = "4.0";
+                document.getElementById('sem1-simple-gpa').value = val;
+            }
+            // Validation: Prevent letters is handled by input type="number"
+
+            appState.sem1SimpleGPA = val;
+            saveData();
+            updateCalculations();
         }
 
         // --- MODAL & FLOW ---
@@ -455,39 +567,93 @@
 
         // --- RENDERING & CALC ---
         function renderTables() {
-            // Sem 1
-            document.getElementById('tbody-sem1').innerHTML = subjects.sem1.map((sub, i) => `
-                <tr>
-                    <td>${sub.name}</td>
-                    <td>${sub.credits}</td>
-                    <td>
-                        <select onchange="updateGrade('sem1', ${i}, this.value)">
-                            <option value="">--</option>
-                            ${Object.keys(gradePoints).map(g => `<option value="${g}" ${appState.sem1Grades[i] === g ? 'selected' : ''}>${g}</option>`).join('')}
-                        </select>
-                    </td>
-                </tr>`).join('');
+            const formatGradeHtml = (g) => {
+                if (!g || g === "--" || g === "nr") return g === "nr" ? "Not Released" : "--";
+                const parts = g.match(/^(.+)\s(\(.*\))$/);
+                if (parts && parts.length === 3) {
+                    return `<span>${parts[1]}</span><span class="grade-range-text">${parts[2]}</span>`;
+                }
+                return g;
+            };
 
-            // Sem 2
-            document.getElementById('tbody-sem2').innerHTML = subjects.sem2.map((sub, i) => `
+            document.getElementById('tbody-sem1').innerHTML = subjects.sem1.map((sub, i) => {
+                const g = appState.sem1Grades[i] || "--";
+                return `
                 <tr>
                     <td>${sub.name}</td>
                     <td>${sub.credits}</td>
                     <td>
-                        <select onchange="updateGrade('sem2', ${i}, this.value)">
-                            <option value="">--</option>
-                            <option value="nr" ${appState.sem2Grades[i] === 'nr' ? 'selected' : ''}>Not Released</option>
-                            ${Object.keys(gradePoints).map(g => `<option value="${g}" ${appState.sem2Grades[i] === g ? 'selected' : ''}>${g}</option>`).join('')}
-                        </select>
+                        <button class="grade-display-btn" onclick="openGradeModal('sem1', ${i})">
+                            ${formatGradeHtml(g)}
+                        </button>
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
+
+            document.getElementById('tbody-sem2').innerHTML = subjects.sem2.map((sub, i) => {
+                let g = appState.sem2Grades[i] || "--";
+                return `
+                <tr>
+                    <td>${sub.name}</td>
+                    <td>${sub.credits}</td>
+                    <td>
+                        <button class="grade-display-btn" onclick="openGradeModal('sem2', ${i})">
+                            ${formatGradeHtml(g)}
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
         }
 
-        function updateGrade(sem, index, value) {
-            if (sem === 'sem1') appState.sem1Grades[index] = value;
-            else appState.sem2Grades[index] = value;
-            saveData();
-            updateCalculations();
+        // --- GRADE MODAL LOGIC ---
+        function openGradeModal(sem, index) {
+            appState.currentSelection = { sem, index };
+            const container = document.getElementById('grade-options-container');
+            container.innerHTML = '';
+
+            if (sem === 'sem2') {
+                const nrBtn = document.createElement('button');
+                nrBtn.className = 'grade-option-btn';
+                nrBtn.innerText = 'Not Released';
+                nrBtn.onclick = () => selectGrade('nr');
+                nrBtn.style.flexBasis = "100%";
+                container.appendChild(nrBtn);
+            }
+
+            Object.keys(gradePoints).forEach(g => {
+                const btn = document.createElement('button');
+                btn.className = 'grade-option-btn';
+                btn.innerText = g;
+                btn.onclick = () => selectGrade(g);
+                container.appendChild(btn);
+            });
+
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'grade-option-btn';
+            clearBtn.innerText = 'Clear (--)';
+            clearBtn.onclick = () => selectGrade('');
+            clearBtn.style.flexBasis = "100%";
+            container.appendChild(clearBtn);
+
+            document.getElementById('grade-modal').classList.remove('hidden');
+        }
+
+        function selectGrade(value) {
+            const { sem, index } = appState.currentSelection;
+            if (sem && index !== null) {
+                if (sem === 'sem1') appState.sem1Grades[index] = value;
+                else appState.sem2Grades[index] = value;
+
+                saveData();
+                updateCalculations();
+                renderTables();
+            }
+            closeGradeModal();
+        }
+
+        function closeGradeModal() {
+            document.getElementById('grade-modal').classList.add('hidden');
+            appState.currentSelection = { sem: null, index: null };
         }
 
         function updateCalculations() {
@@ -497,12 +663,13 @@
 
             if (appState.sem1Mode === 'input') {
                 s1C = sem1MaxCredits;
-                s1P = appState.sem1SimpleGPA * sem1MaxCredits;
-                document.getElementById('display-sem1-gpa').innerText = parseFloat(appState.sem1SimpleGPA).toFixed(2);
+                const simpleGPA = parseFloat(appState.sem1SimpleGPA) || 0;
+                s1P = simpleGPA * sem1MaxCredits;
+                document.getElementById('display-sem1-gpa').innerText = simpleGPA.toFixed(2);
             } else {
                 subjects.sem1.forEach((sub, i) => {
                     const g = appState.sem1Grades[i];
-                    if (g && sub.gpa !== false) {
+                    if (g && gradePoints[g] !== undefined && sub.gpa !== false) {
                         s1C += sub.credits;
                         s1P += gradePoints[g] * sub.credits;
                     }
@@ -514,19 +681,21 @@
             let s2C = 0, s2P = 0;
             subjects.sem2.forEach((sub, i) => {
                 const g = appState.sem2Grades[i];
-                if (g && g !== 'nr' && sub.gpa !== false) {
+                if (g && g !== 'nr' && gradePoints[g] !== undefined && sub.gpa !== false) {
                     s2C += sub.credits;
                     s2P += gradePoints[g] * sub.credits;
                 }
             });
             document.getElementById('display-sem2-gpa').innerText = s2C ? (s2P / s2C).toFixed(2) : "0.00";
 
-            // fgpa
+            // FGPA
             const totalC = s1C + s2C;
             const totalP = s1P + s2P;
             document.getElementById('display-fgpa').innerText = totalC ? (totalP / totalC).toFixed(2) : "0.00";
 
-            if (appState.sem1Mode === 'input') appState.sem1SimpleGPA = document.getElementById('sem1-simple-gpa').value;
+            // FIX: DO NOT update the input value here while the user is typing in it!
+            // We only update it if we are switching modes or loading from storage, 
+            // handled by updateUIForMode or init.
         }
 
         function setSem1Mode(mode) {
@@ -540,7 +709,10 @@
             if (appState.sem1Mode === 'input') {
                 document.getElementById('sem1-manual').classList.add('hidden');
                 document.getElementById('sem1-input').classList.remove('hidden');
-                document.getElementById('sem1-simple-gpa').value = appState.sem1SimpleGPA || "";
+                // Only set value here on mode switch/load, NOT during typing
+                if (document.activeElement.id !== 'sem1-simple-gpa') {
+                    document.getElementById('sem1-simple-gpa').value = appState.sem1SimpleGPA || "";
+                }
             } else {
                 document.getElementById('sem1-manual').classList.remove('hidden');
                 document.getElementById('sem1-input').classList.add('hidden');
@@ -572,7 +744,6 @@
         // --- REPORT GENERATION ---
         function downloadReport() {
             const report = document.createElement('div');
-            // Clean white paper style
             report.style.width = '800px';
             report.style.padding = '40px';
             report.style.backgroundColor = '#ffffff';
@@ -586,11 +757,9 @@
             const yearSelect = document.getElementById("year");
             const yearText = yearSelect.selectedIndex >= 0 ? yearSelect.options[yearSelect.selectedIndex].text : yearSelect.value;
 
-            // Get current GPAs
             const s1Display = document.getElementById('display-sem1-gpa').innerText;
             const s2Display = document.getElementById('display-sem2-gpa').innerText;
 
-            // Header with Student Details
             let html = `
                 <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
                     <h1 style="margin:0; text-transform:uppercase;">Academic Grade Report</h1>
@@ -607,7 +776,6 @@
                 </div>
             `;
 
-            // Semester 1
             html += `<h3>Semester 1</h3>`;
             if (appState.sem1Mode === 'input') {
                 const val = parseFloat(appState.sem1SimpleGPA || 0).toFixed(2);
@@ -618,18 +786,12 @@
             } else {
                 html += buildPrintTable(subjects.sem1, appState.sem1Grades);
             }
-            // Add Semester 1 GPA display
             html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 1 GPA: ${s1Display}</strong></div>`;
 
-
-            // Semester 2
             html += `<h3 style="margin-top: 30px;">Semester 2</h3>`;
             html += buildPrintTable(subjects.sem2, appState.sem2Grades);
-            // Add Semester 2 GPA display
             html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 2 GPA: ${s2Display}</strong></div>`;
 
-
-            // Final Totals
             const finalGPA = document.getElementById('display-fgpa').innerText;
             html += `
                 <div style="margin-top: 40px; text-align: right; border-top: 2px solid #000; padding-top: 10px;">
