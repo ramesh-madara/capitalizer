@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Semester 1 GPA Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .form-section {
+      max-width: 800px;
+      width: 100%;
+      margin: auto 0 20px;
+      padding: 0 10px;
+    }
+
+    .form-section label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+
+      .table-responsive th:first-child,
+      .table-responsive td:first-child {
+        white-space: normal;
+        overflow-wrap: break-word;
+      }
+
+      body {
+        margin: 15px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+      }
+    }
+
+    #pdf-header {
+      max-width: 800px;
+      width: 100%;
+      margin: auto 0 10px;
+      padding: 0 10px;
+      text-align: left;
+    }
+
+    .center {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .grade-text {
+      display: none;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-section no-print">
+    <label>
+      Name:
+      <input type="text" id="studentName" />
+    </label>
+    <label>
+      Department:
+      <select id="Department" onchange="updateIndexNumber()">
+        <option value="">-- Select Department --</option>
+        <option value="SOF">SOF</option>
+        <option value="MMW">MMW</option>
+        <option value="NET">NET</option>
+      </select>
+    </label>
+    <label>
+      Year:
+      <select id="year" onchange="updateIndexNumber()">
+        <option value="">-- Select Year --</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+      </select>
+    </label>
+    <label>
+      Batch:
+      <select id="batch" onchange="updateIndexNumber()">
+        <option value="">-- Select Batch --</option>
+        <option value="B1">B1</option>
+        <option value="B2">B2</option>
+      </select>
+    </label>
+    <label>
+      Student Number:
+      <select id="studentNum" onchange="updateIndexNumber()">
+        <option value="">-- Select Number --</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="grade-report">
+    <div id="pdf-header"></div>
+    <h1>Semester 1 GPA Calculator</h1>
+    <center>
+      <a target="_blank" href="https://www.instagram.com/ramesh_madara/"> <span>by -Ramesh Madara</span></a>
+    </center>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Credits</th>
+            <th>Grade (Marks Range)</th>
+          </tr>
+        </thead>
+        <tbody id="subjects-table"></tbody>
+      </table>
+    </div>
+
+    <div class="center">
+      <h2 id="gpa-display">GPA: 0.00</h2>
+      <button onclick="downloadImage()">Download GPA Report</button>
+    </div>
+  </div>
+
+  <script>
+    const gradePoints = {
+      "A+ (85+)": 4.0,
+      "A (75–84)": 4.0,
+      "A- (70–74)": 3.7,
+      "B+ (65–69)": 3.3,
+      "B (60–64)": 3.0,
+      "B- (55–59)": 2.7,
+      "C+ (50–54)": 2.3,
+      "C (45–49)": 2.0,
+      "C- (40–44)": 1.7,
+      "D+ (35–39)": 1.3,
+      "D (30–34)": 1.0,
+      "F (<30)": 0.0,
+    };
+
+    const subjects = [
+      { name: "Mathematics for ICT I", credits: 3 },
+      { name: "Computer Programming", credits: 4 },
+      { name: "Software Development Practices", credits: 4 },
+      { name: "Digital Electronics", credits: 3 },
+      { name: "Data Communication and Networks", credits: 3 },
+      { name: "Database Design", credits: 3 },
+      { name: "Internet Technologies", credits: 4 },
+      { name: "Communication Skills in English I", credits: 3, gpa: false },
+    ];
+
+    function populateStudentNumbers() {
+      for (let i = 1; i <= 300; i++) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i;
+        document.getElementById("studentNum").appendChild(opt);
+      }
+    }
+
+    function populateTable() {
+      const tbody = document.getElementById("subjects-table");
+      subjects.forEach((sub, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${sub.name}</td>
+            <td>${sub.credits}</td>
+            <td>
+              <select id="grade-${i}" onchange="calculateGPA()">
+                <option value="">-- Select Grade --</option>
+                ${Object.keys(gradePoints)
+            .map((g) => `<option value="${g}">${g}</option>`)
+            .join("")}
+              </select>
+              <span id="grade-text-${i}" class="grade-text"></span>
+            </td>
+          `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function calculateGPA() {
+      let totalC = 0,
+        totalP = 0;
+      subjects.forEach((sub, i) => {
+        const sel = document.getElementById(`grade-${i}`);
+        const val = sel.value;
+        const txt = document.getElementById(`grade-text-${i}`);
+        txt.textContent = val ? sel.options[sel.selectedIndex].text : "";
+        if (val && sub.gpa !== false) {
+          totalC += sub.credits;
+          totalP += gradePoints[val] * sub.credits;
+        }
+      });
+      document.getElementById("gpa-display").innerText = `GPA: ${totalC ? (totalP / totalC).toFixed(2) : "0.00"}`;
+    }
+
+    function getIndexNumber() {
+      const d = document.getElementById("Department").value;
+      const y = document.getElementById("year").value;
+      const b = document.getElementById("batch").value;
+      const s = document.getElementById("studentNum").value;
+      if (d && y && b && s) {
+        const sn = s < 10 ? "0" + parseInt(s) : s;
+        return `${d}/${y.slice(-2)}/${b}/${sn}`;
+      }
+      return null;
+    }
+
+    function updateIndexNumber() {
+      calculateGPA();
+    }
+
+    function downloadImage() {
+      const name = document.getElementById("studentName").value.trim();
+      const idx = getIndexNumber() || "Report";
+      const safeIdx = idx.replace(/\//g, "-");
+      const report = document.getElementById("grade-report");
+      const clone = report.cloneNode(true);
+      const hdr = clone.querySelector("#pdf-header");
+      hdr.innerHTML = "";
+      if (name || idx)
+        hdr.innerHTML = `
+          ${name ? `<p><strong>Name:</strong> ${name}</p>` : ""}
+          ${idx ? `<p><strong>Index Number:</strong> ${idx}</p>` : ""}
+          <hr>
+        `;
+      clone.style.position = "fixed";
+      clone.style.top = "-10000px";
+      clone.style.padding = "20px";
+      clone.style.backgroundColor = "#fff";
+      clone.querySelector("button")?.remove();
+      clone.querySelectorAll("select").forEach((s) => s.remove());
+      clone.querySelectorAll(".grade-text").forEach((el) => (el.style.display = "inline-block"));
+      document.body.appendChild(clone);
+      html2canvas(clone).then((canvas) => {
+        const a = document.createElement("a");
+        const filename = `Semester1_Grades_and_GPA_${safeIdx}.png`;
+        a.download = filename;
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+        document.body.removeChild(clone);
+      });
+    }
+
+    populateStudentNumbers();
+    populateTable();
+  </script>
+</body>
+
+</html>
