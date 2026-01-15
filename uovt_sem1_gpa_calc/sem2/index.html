@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOS GPA Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #363635;
+            --text-color: #ffffff;
+            --accent-color: #ffff00;
+            /* DOS Yellow */
+            --input-bg: #1a1a1a;
+            --border-color: #ffffff;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f0f0;
+            --text-color: #1a1a1a;
+            --accent-color: #00008b;
+            --input-bg: #ffffff;
+            --border-color: #1a1a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            text-transform: uppercase;
+            margin: 10px 0;
+        }
+
+        button {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .active-tab {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        input,
+        select {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            font-family: inherit;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* Student Details Section */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            width: 100%;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            border-bottom: none;
+            margin: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            border: 4px double var(--text-color);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .summary-box {
+            border: 2px dashed var(--border-color);
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                font-size: 0.8em;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container top-bar">
+        <button onclick="toggleTheme()">Toggle Theme</button>
+        <button onclick="resetData()">[ RESET / FORGET ]</button>
+    </div>
+
+    <div class="container">
+        <h1 style="text-align: center;">Degree GPA Calculator</h1>
+
+        <div class="details-grid">
+            <div>
+                <label>Name:</label>
+                <input type="text" id="studentName" placeholder="Enter Name">
+            </div>
+            <div>
+                <label>Department:</label>
+                <select id="Department">
+                    <option value="SOF">SOF</option>
+                    <option value="MMW">MMW</option>
+                    <option value="NET">NET</option>
+                </select>
+            </div>
+            <div>
+                <label>Year:</label>
+                <select id="year">
+                    <option value="22">22/23</option>
+                    <option value="23">23/24</option>
+                    <option value="24">24/25</option>
+                </select>
+            </div>
+            <div>
+                <label>Batch:</label>
+                <select id="batch">
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                </select>
+            </div>
+            <div>
+                <label>Student Number:</label>
+                <select id="studentNum"></select>
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <div
+                    style="border: 1px solid var(--accent-color); color: var(--accent-color); padding: 8px; width: 100%; text-align: center;">
+                    INDEX: <span id="idx-preview">SOF/22/B1/01</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active-tab" id="btn-sem1" onclick="switchTab('sem1')">Semester 1</button>
+            <button class="tab-btn" id="btn-sem2" onclick="switchTab('sem2')">Semester 2</button>
+        </div>
+
+        <div id="view-sem1">
+            <div id="sem1-manual" class="hidden">
+                <button onclick="setSem1Mode('input')" style="width:100%; margin-bottom:15px;">I know my Semester 1
+                    GPA</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Credits</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-sem1"></tbody>
+                </table>
+            </div>
+
+            <div id="sem1-input" class="summary-box hidden">
+                <h3>Enter Known GPA</h3>
+                <p>Enter your final GPA for Semester 1:</p>
+                <input type="number" id="sem1-simple-gpa" step="0.01" max="4.0" placeholder="e.g. 3.45"
+                    oninput="saveData()" style="width: 50%; text-align: center; font-size: 1.2em;">
+                <br><br>
+                <button onclick="setSem1Mode('manual')">Switch to Manual Grade Entry</button>
+            </div>
+
+            <h2 style="text-align: right;">Sem 1 GPA: <span id="display-sem1-gpa">0.00</span></h2>
+        </div>
+
+        <div id="view-sem2" class="hidden">
+            <p style="font-size: 0.9em; color: var(--accent-color);">*Select "Not Released" for pending results.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Credits</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-sem2"></tbody>
+            </table>
+            <h2 style="text-align: right;">Sem 2 GPA: <span id="display-sem2-gpa">0.00</span></h2>
+            <hr style="border: 1px solid var(--border-color)">
+            <h2
+                style="text-align: right; color: var(--accent-color); border: 2px solid var(--accent-color); padding: 10px; display: inline-block; float: right;">
+                FINAL GPA (FGPA): <span id="display-fgpa">0.00</span></h2>
+            <div style="clear: both;"></div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="downloadReport()" style="padding: 15px 30px; border-width: 4px;">DOWNLOAD REPORT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="intro-modal" class="modal-overlay hidden">
+        <div class="modal-content" id="modal-step-1">
+            <h2>Welcome</h2>
+            <p>Do you already know your Semester 1 GPA?</p>
+            <button onclick="handleModalChoice(1)">Option 1: Yes, I know my Semester 1 GPA</button>
+            <button onclick="handleModalChoice(2)">Option 2: No, I don't know my Semester 1 GPA</button>
+        </div>
+
+        <div class="modal-content hidden" id="modal-step-2">
+            <h2>Enter Semester 1 GPA</h2>
+            <input type="number" id="modal-gpa-input" placeholder="3.XX" style="font-size: 1.5em; text-align: center;">
+            <br><br>
+            <button onclick="finishModal()">Next >></button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const gradePoints = {
+            "A+ (85+)": 4.0, "A (75–84)": 4.0, "A- (70–74)": 3.7,
+            "B+ (65–69)": 3.3, "B (60–64)": 3.0, "B- (55–59)": 2.7,
+            "C+ (50–54)": 2.3, "C (45–49)": 2.0, "C- (40–44)": 1.7,
+            "D+ (35–39)": 1.3, "D (30–34)": 1.0, "F (<30)": 0.0
+        };
+
+        const subjects = {
+            sem1: [
+                { name: "Mathematics for ICT I", credits: 3 },
+                { name: "Computer Programming", credits: 4 },
+                { name: "Software Development Practices", credits: 4 },
+                { name: "Digital Electronics", credits: 3 },
+                { name: "Data Comms & Networks", credits: 3 },
+                { name: "Database Design", credits: 3 },
+                { name: "Internet Technologies", credits: 4 },
+                { name: "Communication Skills in English I", credits: 3, gpa: false }
+            ],
+            // OFFICIAL CREDITS FROM HANDBOOK 2023 
+            sem2: [
+                { name: "Operating Systems", credits: 2 },
+                { name: "Mathematics for ICT II", credits: 3 },
+                { name: "Computer Architecture", credits: 3 },
+                { name: "Data Structures and Algorithms", credits: 4 },
+                { name: "Database Systems and Programming", credits: 6 },
+                { name: "Visual Programming I", credits: 4 },
+                { name: "Web Programming", credits: 6 },
+                { name: "Computer Networks", credits: 3 },
+                { name: "Communication Skills in English II", credits: 3, gpa: false }
+            ]
+        };
+
+        let appState = {
+            sem1Mode: 'manual',
+            sem1SimpleGPA: 0,
+            sem1Grades: {},
+            sem2Grades: {},
+            theme: 'dark',
+            studentDetails: { name: '', dept: 'SOF', year: '22', batch: 'B1', num: '1' }
+        };
+
+        // --- INIT ---
+        window.onload = function () {
+            populateStudentNumbers();
+
+            // Listeners for index number generation
+            ['Department', 'year', 'batch', 'studentNum', 'studentName'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateDetails);
+                document.getElementById(id).addEventListener('input', updateDetails);
+            });
+
+            const saved = localStorage.getItem('gpaAppState_v3');
+            if (saved) {
+                appState = JSON.parse(saved);
+                applyTheme();
+                renderTables();
+                restoreDetails();
+                updateCalculations();
+                updateUIForMode();
+            } else {
+                document.getElementById('intro-modal').classList.remove('hidden');
+                renderTables();
+            }
+            updateIndexPreview();
+        };
+
+        function populateStudentNumbers() {
+            const sel = document.getElementById("studentNum");
+            for (let i = 1; i <= 300; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = i;
+                sel.appendChild(opt);
+            }
+        }
+
+        // --- INDEX NUMBER LOGIC ---
+        function getIndexNumber() {
+            const d = document.getElementById("Department").value;
+            const y = document.getElementById("year").value;
+            const b = document.getElementById("batch").value;
+            const s = document.getElementById("studentNum").value;
+            if (d && y && b && s) {
+                const sn = parseInt(s) < 10 ? "0" + parseInt(s) : s;
+                // y is now "22", "23", or "24" directly from the value
+                return `${d}/${y}/${b}/${sn}`;
+            }
+            return "---";
+        }
+
+        function updateDetails() {
+            appState.studentDetails = {
+                name: document.getElementById('studentName').value,
+                dept: document.getElementById('Department').value,
+                year: document.getElementById('year').value,
+                batch: document.getElementById('batch').value,
+                num: document.getElementById('studentNum').value
+            };
+            saveData();
+            updateIndexPreview();
+        }
+
+        function restoreDetails() {
+            const d = appState.studentDetails;
+            if (d) {
+                document.getElementById('studentName').value = d.name || '';
+                document.getElementById('Department').value = d.dept || 'SOF';
+                document.getElementById('year').value = d.year || '22';
+                document.getElementById('batch').value = d.batch || 'B1';
+                document.getElementById('studentNum').value = d.num || '1';
+            }
+        }
+
+        function updateIndexPreview() {
+            document.getElementById('idx-preview').innerText = getIndexNumber();
+        }
+
+        // --- MODAL & FLOW ---
+        function handleModalChoice(option) {
+            if (option === 1) {
+                document.getElementById('modal-step-1').classList.add('hidden');
+                document.getElementById('modal-step-2').classList.remove('hidden');
+            } else {
+                appState.sem1Mode = 'manual';
+                document.getElementById('intro-modal').classList.add('hidden');
+                saveData();
+                updateUIForMode();
+            }
+        }
+
+        function finishModal() {
+            const val = parseFloat(document.getElementById('modal-gpa-input').value);
+            if (isNaN(val) || val < 0 || val > 4.0) {
+                alert("Please enter a valid GPA between 0.0 and 4.0");
+                return;
+            }
+            appState.sem1Mode = 'input';
+            appState.sem1SimpleGPA = val;
+            document.getElementById('sem1-simple-gpa').value = val;
+            document.getElementById('intro-modal').classList.add('hidden');
+            switchTab('sem2');
+            saveData();
+            updateCalculations();
+            updateUIForMode();
+        }
+
+        // --- RENDERING & CALC ---
+        function renderTables() {
+            // Sem 1
+            document.getElementById('tbody-sem1').innerHTML = subjects.sem1.map((sub, i) => `
+                <tr>
+                    <td>${sub.name}</td>
+                    <td>${sub.credits}</td>
+                    <td>
+                        <select onchange="updateGrade('sem1', ${i}, this.value)">
+                            <option value="">--</option>
+                            ${Object.keys(gradePoints).map(g => `<option value="${g}" ${appState.sem1Grades[i] === g ? 'selected' : ''}>${g}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>`).join('');
+
+            // Sem 2
+            document.getElementById('tbody-sem2').innerHTML = subjects.sem2.map((sub, i) => `
+                <tr>
+                    <td>${sub.name}</td>
+                    <td>${sub.credits}</td>
+                    <td>
+                        <select onchange="updateGrade('sem2', ${i}, this.value)">
+                            <option value="">--</option>
+                            <option value="nr" ${appState.sem2Grades[i] === 'nr' ? 'selected' : ''}>Not Released</option>
+                            ${Object.keys(gradePoints).map(g => `<option value="${g}" ${appState.sem2Grades[i] === g ? 'selected' : ''}>${g}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function updateGrade(sem, index, value) {
+            if (sem === 'sem1') appState.sem1Grades[index] = value;
+            else appState.sem2Grades[index] = value;
+            saveData();
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            // Sem 1 Calc
+            let s1C = 0, s1P = 0;
+            const sem1MaxCredits = subjects.sem1.reduce((acc, sub) => sub.gpa !== false ? acc + sub.credits : acc, 0);
+
+            if (appState.sem1Mode === 'input') {
+                s1C = sem1MaxCredits;
+                s1P = appState.sem1SimpleGPA * sem1MaxCredits;
+                document.getElementById('display-sem1-gpa').innerText = parseFloat(appState.sem1SimpleGPA).toFixed(2);
+            } else {
+                subjects.sem1.forEach((sub, i) => {
+                    const g = appState.sem1Grades[i];
+                    if (g && sub.gpa !== false) {
+                        s1C += sub.credits;
+                        s1P += gradePoints[g] * sub.credits;
+                    }
+                });
+                document.getElementById('display-sem1-gpa').innerText = s1C ? (s1P / s1C).toFixed(2) : "0.00";
+            }
+
+            // Sem 2 Calc
+            let s2C = 0, s2P = 0;
+            subjects.sem2.forEach((sub, i) => {
+                const g = appState.sem2Grades[i];
+                if (g && g !== 'nr' && sub.gpa !== false) {
+                    s2C += sub.credits;
+                    s2P += gradePoints[g] * sub.credits;
+                }
+            });
+            document.getElementById('display-sem2-gpa').innerText = s2C ? (s2P / s2C).toFixed(2) : "0.00";
+
+            // fgpa
+            const totalC = s1C + s2C;
+            const totalP = s1P + s2P;
+            document.getElementById('display-fgpa').innerText = totalC ? (totalP / totalC).toFixed(2) : "0.00";
+
+            if (appState.sem1Mode === 'input') appState.sem1SimpleGPA = document.getElementById('sem1-simple-gpa').value;
+        }
+
+        function setSem1Mode(mode) {
+            appState.sem1Mode = mode;
+            updateUIForMode();
+            updateCalculations();
+            saveData();
+        }
+
+        function updateUIForMode() {
+            if (appState.sem1Mode === 'input') {
+                document.getElementById('sem1-manual').classList.add('hidden');
+                document.getElementById('sem1-input').classList.remove('hidden');
+                document.getElementById('sem1-simple-gpa').value = appState.sem1SimpleGPA || "";
+            } else {
+                document.getElementById('sem1-manual').classList.remove('hidden');
+                document.getElementById('sem1-input').classList.add('hidden');
+            }
+        }
+
+        function switchTab(sem) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById('btn-' + sem).classList.add('active-tab');
+            document.getElementById('view-sem1').classList.add('hidden');
+            document.getElementById('view-sem2').classList.add('hidden');
+            document.getElementById('view-' + sem).classList.remove('hidden');
+        }
+
+        function saveData() { localStorage.setItem('gpaAppState_v3', JSON.stringify(appState)); }
+        function resetData() {
+            if (confirm("Clear all data?")) {
+                localStorage.removeItem('gpaAppState_v3');
+                location.reload();
+            }
+        }
+        function toggleTheme() {
+            appState.theme = appState.theme === 'light' ? 'dark' : 'light';
+            applyTheme();
+            saveData();
+        }
+        function applyTheme() { document.documentElement.setAttribute('data-theme', appState.theme); }
+
+        // --- REPORT GENERATION ---
+        function downloadReport() {
+            const report = document.createElement('div');
+            // Clean white paper style
+            report.style.width = '800px';
+            report.style.padding = '40px';
+            report.style.backgroundColor = '#ffffff';
+            report.style.color = '#000000';
+            report.style.fontFamily = 'Arial, sans-serif';
+            report.style.position = 'absolute';
+            report.style.top = '-10000px';
+
+            const name = document.getElementById('studentName').value;
+            const idx = getIndexNumber();
+            const yearSelect = document.getElementById("year");
+            const yearText = yearSelect.selectedIndex >= 0 ? yearSelect.options[yearSelect.selectedIndex].text : yearSelect.value;
+
+            // Get current GPAs
+            const s1Display = document.getElementById('display-sem1-gpa').innerText;
+            const s2Display = document.getElementById('display-sem2-gpa').innerText;
+
+            // Header with Student Details
+            let html = `
+                <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                    <h1 style="margin:0; text-transform:uppercase;">Academic Grade Report</h1>
+                    <table style="width:100%; margin-top:15px; border:none;">
+                        <tr>
+                            <td style="border:none; padding:2px;"><strong>Name:</strong> ${name || "________________"}</td>
+                            <td style="border:none; padding:2px; text-align:right;"><strong>Index No:</strong> ${idx}</td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</td>
+                            <td style="border:none; padding:2px; text-align:right;"><strong>Year/Batch:</strong> ${yearText}/${appState.studentDetails.batch}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            // Semester 1
+            html += `<h3>Semester 1</h3>`;
+            if (appState.sem1Mode === 'input') {
+                const val = parseFloat(appState.sem1SimpleGPA || 0).toFixed(2);
+                html += `<div style="padding: 15px; border: 1px solid #ccc; background: #f9f9f9;">
+                    <strong>Semester 1 Status:</strong> Pre-calculated GPA provided.<br>
+                    <strong>GPA:</strong> ${val}
+                </div>`;
+            } else {
+                html += buildPrintTable(subjects.sem1, appState.sem1Grades);
+            }
+            // Add Semester 1 GPA display
+            html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 1 GPA: ${s1Display}</strong></div>`;
+
+
+            // Semester 2
+            html += `<h3 style="margin-top: 30px;">Semester 2</h3>`;
+            html += buildPrintTable(subjects.sem2, appState.sem2Grades);
+            // Add Semester 2 GPA display
+            html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 2 GPA: ${s2Display}</strong></div>`;
+
+
+            // Final Totals
+            const finalGPA = document.getElementById('display-fgpa').innerText;
+            html += `
+                <div style="margin-top: 40px; text-align: right; border-top: 2px solid #000; padding-top: 10px;">
+                    <h2 style="margin:0;">FINAL GPA: ${finalGPA}</h2>
+                </div>
+                <center style="margin-top: 50px; color: #888; font-size: 0.8em;">
+                    by - Ramesh Madara
+                </center>
+            `;
+
+            report.innerHTML = html;
+            document.body.appendChild(report);
+
+            html2canvas(report).then(canvas => {
+                const a = document.createElement("a");
+                a.download = `GPA_Report_${idx.replace(/\//g, '-')}.png`;
+                a.href = canvas.toDataURL("image/png");
+                a.click();
+                document.body.removeChild(report);
+            });
+        }
+
+        function buildPrintTable(subjList, gradesObj) {
+            let rows = subjList.map((sub, i) => {
+                let g = gradesObj[i] || "-";
+                if (g === 'nr') g = "Not Released";
+                return `<tr>
+                    <td style="border:1px solid #ddd; padding:8px;">${sub.name}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:center;">${sub.credits}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:center;">${g}</td>
+                </tr>`;
+            }).join('');
+            return `<table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+                    <thead><tr style="background:#eee;">
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Subject</th>
+                        <th style="border:1px solid #ddd; padding:8px;">Credits</th>
+                        <th style="border:1px solid #ddd; padding:8px;">Grade</th>
+                    </tr></thead><tbody>${rows}</tbody></table>`;
+        }
+    </script>
+</body>
+
+</html>
