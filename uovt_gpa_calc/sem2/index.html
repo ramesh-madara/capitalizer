@@ -256,6 +256,17 @@
             padding: 0;
             width: auto;
         }
+
+        /* Credits Link */
+        .credits-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .credits-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -268,6 +279,8 @@
 
     <div class="container">
         <h1 style="text-align: center;">UOVT GPA Calculator</h1>
+        <h5 style="text-align: center; color: var(--accent-color); text-decoration: none;">BY- <a
+                href="https://github.com/Ramesh-Madara" class="credits-link" target="_blank">Ramesh Madara</a></h5>
 
         <div class="details-grid">
             <div>
@@ -383,7 +396,8 @@
             <h2>Enter Semester 1 GPA</h2>
             <input type="number" id="modal-gpa-input" placeholder="3.XX" style="font-size: 1.5em; text-align: center;">
             <br><br>
-            <button onclick="finishModal()">Next >></button>
+            <button onclick="goBackToStep1()">&lt;&lt; GO BACK</button>
+            <button onclick="finishModal()">NEXT &gt;&gt;</button>
         </div>
     </div>
 
@@ -547,6 +561,11 @@
                 saveData();
                 updateUIForMode();
             }
+        }
+
+        function goBackToStep1() {
+            document.getElementById('modal-step-2').classList.add('hidden');
+            document.getElementById('modal-step-1').classList.remove('hidden');
         }
 
         function finishModal() {
