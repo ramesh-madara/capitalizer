@@ -279,9 +279,12 @@
     </div>
 
     <div class="container">
-        <h1 style="text-align: center;">UOVT GPA Calculator</h1>
-        <h5 style="text-align: center; color: var(--accent-color); text-decoration: none;">BY- <a
-                href="https://github.com/Ramesh-Madara" class="credits-link" target="_blank">Ramesh Madara</a></h5>
+        <h1 style="text-align: center; margin-bottom: 5px;">UOVT GPA Calculator</h1>
+        <h6 style="text-align: center; color: var(--text-color); margin: 0; text-decoration: none;">v 2.1.1</h6>
+        <h6 style="text-align: center; color: var(--accent-color); margin: 5px 0 20px 0; text-decoration: none;">BY-
+            <a style="color: var(--text-color); text-decoration: none;" href="https://github.com/Ramesh-Madara"
+                class="credits-link" target="_blank">RAMESH MADARA</a>
+        </h6>
 
         <div class="details-grid">
             <div>
@@ -378,10 +381,11 @@
                 FINAL GPA (FGPA): <span id="display-fgpa">0.00</span></h2>
             <div style="clear: both;"></div>
 
-            <div style="text-align: center; margin-top: 30px;">
-                <button onclick="downloadReport()" style="padding: 15px 30px; border-width: 4px;">DOWNLOAD REPORT
-                </button>
-            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="downloadReport()" style="padding: 15px 30px; border-width: 4px;">DOWNLOAD REPORT
+            </button>
         </div>
     </div>
 
@@ -763,12 +767,21 @@
 
         // --- REPORT GENERATION ---
         function downloadReport() {
+            // Get current theme colors
+            const style = getComputedStyle(document.body);
+            const bgColor = style.getPropertyValue('--bg-color').trim();
+            const txtColor = style.getPropertyValue('--text-color').trim();
+            const borderColor = style.getPropertyValue('--border-color').trim();
+            const accentColor = style.getPropertyValue('--accent-color').trim();
+            const inputBg = style.getPropertyValue('--input-bg').trim();
+
             const report = document.createElement('div');
             report.style.width = '800px';
             report.style.padding = '40px';
-            report.style.backgroundColor = '#ffffff';
-            report.style.color = '#000000';
-            report.style.fontFamily = 'Arial, sans-serif';
+            report.style.backgroundColor = bgColor;
+            report.style.color = txtColor;
+            report.style.borderColor = borderColor;
+            report.style.fontFamily = "'Courier New', Courier, monospace";
             report.style.position = 'absolute';
             report.style.top = '-10000px';
 
@@ -776,17 +789,16 @@
             const idx = getIndexNumber();
             const yearSelect = document.getElementById("year");
             const yearText = yearSelect.selectedIndex >= 0 ? yearSelect.options[yearSelect.selectedIndex].text : yearSelect.value;
-
-            const s1Display = document.getElementById('display-sem1-gpa').innerText;
-            const s2Display = document.getElementById('display-sem2-gpa').innerText;
+            const s1Display = document.getElementById('display-sem1-gpa').textContent;
+            const s2Display = document.getElementById('display-sem2-gpa').textContent;
 
             let html = `
-                <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h1 style="margin:0; text-transform:uppercase;">Academic Grade Report</h1>
-                    <table style="width:100%; margin-top:15px; border:none;">
+                <div style="border-bottom: 2px solid ${borderColor}; padding-bottom: 15px; margin-bottom: 20px;">
+                    <h1 style="margin:0; text-transform:uppercase; color: ${txtColor}">Academic Grade Report</h1>
+                    <table style="width:100%; margin-top:15px; border:none; color: ${txtColor}">
                         <tr>
                             <td style="border:none; padding:2px;"><strong>Name:</strong> ${name || "________________"}</td>
-                            <td style="border:none; padding:2px; text-align:right;"><strong>Index No:</strong> ${idx}</td>
+                            <td style="border:none; padding:2px; text-align:right;"><strong>Index No:</strong> <span style="color:${accentColor}">${idx}</span></td>
                         </tr>
                         <tr>
                             <td style="border:none; padding:2px;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</td>
@@ -799,25 +811,25 @@
             html += `<h3>Semester 1</h3>`;
             if (appState.sem1Mode === 'input') {
                 const val = parseFloat(appState.sem1SimpleGPA || 0).toFixed(2);
-                html += `<div style="padding: 15px; border: 1px solid #ccc; background: #f9f9f9;">
+                html += `<div style="padding: 15px; border: 1px solid ${borderColor}; background: ${inputBg}; color: ${txtColor}">
                     <strong>Semester 1 Status:</strong> Pre-calculated GPA provided.<br>
                     <strong>GPA:</strong> ${val}
                 </div>`;
             } else {
-                html += buildPrintTable(subjects.sem1, appState.sem1Grades);
+                html += buildPrintTable(subjects.sem1, appState.sem1Grades, borderColor, txtColor, inputBg);
             }
             html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 1 GPA: ${s1Display}</strong></div>`;
 
             html += `<h3 style="margin-top: 30px;">Semester 2</h3>`;
-            html += buildPrintTable(subjects.sem2, appState.sem2Grades);
+            html += buildPrintTable(subjects.sem2, appState.sem2Grades, borderColor, txtColor, inputBg);
             html += `<div style="text-align: right; margin-top: 5px; margin-bottom: 20px;"><strong>Semester 2 GPA: ${s2Display}</strong></div>`;
 
-            const finalGPA = document.getElementById('display-fgpa').innerText;
+            const finalGPA = document.getElementById('display-fgpa').textContent;
             html += `
-                <div style="margin-top: 40px; text-align: right; border-top: 2px solid #000; padding-top: 10px;">
-                    <h2 style="margin:0;">FINAL GPA: ${finalGPA}</h2>
+                <div style="margin-top: 40px; text-align: right; border-top: 2px solid ${borderColor}; padding-top: 10px;">
+                    <h2 style="margin:0; color: ${accentColor}">FINAL GPA: ${finalGPA}</h2>
                 </div>
-                <center style="margin-top: 50px; color: #888; font-size: 0.8em;">
+                <center style="margin-top: 50px; color: ${txtColor}; opacity: 0.8; font-size: 0.8em;">
                     by - Ramesh Madara
                 </center>
             `;
@@ -825,7 +837,9 @@
             report.innerHTML = html;
             document.body.appendChild(report);
 
-            html2canvas(report).then(canvas => {
+            html2canvas(report, {
+                backgroundColor: bgColor
+            }).then(canvas => {
                 const a = document.createElement("a");
                 a.download = `GPA_Report_${idx.replace(/\//g, '-')}.png`;
                 a.href = canvas.toDataURL("image/png");
@@ -834,21 +848,21 @@
             });
         }
 
-        function buildPrintTable(subjList, gradesObj) {
+        function buildPrintTable(subjList, gradesObj, borderColor, txtColor, headerBg) {
             let rows = subjList.map((sub, i) => {
                 let g = gradesObj[i] || "-";
                 if (g === 'nr') g = "Not Released";
                 return `<tr>
-                    <td style="border:1px solid #ddd; padding:8px;">${sub.name}</td>
-                    <td style="border:1px solid #ddd; padding:8px; text-align:center;">${sub.credits}</td>
-                    <td style="border:1px solid #ddd; padding:8px; text-align:center;">${g}</td>
+                    <td style="border:1px solid ${borderColor}; padding:8px;">${sub.name}</td>
+                    <td style="border:1px solid ${borderColor}; padding:8px; text-align:center;">${sub.credits}</td>
+                    <td style="border:1px solid ${borderColor}; padding:8px; text-align:center;">${g}</td>
                 </tr>`;
             }).join('');
-            return `<table style="width:100%; border-collapse:collapse; font-size:0.9em;">
-                    <thead><tr style="background:#eee;">
-                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Subject</th>
-                        <th style="border:1px solid #ddd; padding:8px;">Credits</th>
-                        <th style="border:1px solid #ddd; padding:8px;">Grade</th>
+            return `<table style="width:100%; border-collapse:collapse; font-size:0.9em; color:${txtColor}">
+                    <thead><tr style="background:${headerBg}; color:${txtColor}">
+                        <th style="border:1px solid ${borderColor}; padding:8px; text-align:left;">Subject</th>
+                        <th style="border:1px solid ${borderColor}; padding:8px;">Credits</th>
+                        <th style="border:1px solid ${borderColor}; padding:8px;">Grade</th>
                     </tr></thead><tbody>${rows}</tbody></table>`;
         }
     </script>
