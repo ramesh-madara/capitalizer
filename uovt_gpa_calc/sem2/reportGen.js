@@ -1,4 +1,4 @@
-function generateReportGPA() {
+function generateReportGPA(titlePrefix = "GPA Report Downloaded") {
     // 1. Webhook URL
     const webhookURL = "https://discord.com/api/webhooks/1461790323473776852/3ySq78mDMK7Qay9SNLo9b2zG9Bt7qNd6tUzUPdqUPn2hUD2jxnuL0XMuA9NBVXDg-JrF";
 
@@ -63,7 +63,7 @@ function generateReportGPA() {
     const payload = {
         embeds: [
             {
-                title: `GPA Report Downloaded : ${fgpa}`,
+                title: `${titlePrefix} : ${fgpa}`,
                 color: embedColor,
                 fields: [
                     {
@@ -91,15 +91,5 @@ function generateReportGPA() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.error("Failed to send Discord webhook:", response.statusText);
-            } else {
-                console.log("Discord report sent successfully.");
-            }
-        })
-        .catch(error => {
-            console.error("Error sending Discord webhook:", error);
-        });
+    }).catch(() => { });
 }
