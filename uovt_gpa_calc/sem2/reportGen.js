@@ -44,13 +44,16 @@ function generateReportGPA() {
         const grade = appState.sem2Grades[i];
         if (grade && grade !== 'nr') {
             // Strip range if present
-            const simpleGrade = grade.replace(/\s\(.*\)/, '');
-            return `${sub.name}: ${simpleGrade}`;
+            return { name: sub.name, grade: grade.replace(/\s\(.*\)/, '') };
         }
         return null;
-    }).filter(line => line !== null);
+    }).filter(e => e !== null);
 
-    let sem2Content = s2Lines.length > 0 ? s2Lines.join('\n') : "No grades entered.";
+    let sem2Content = "No grades entered.";
+    if (s2Entries.length > 0) {
+        const maxLen = Math.max(...s2Entries.map(e => e.name.length));
+        sem2Content = s2Entries.map(e => `${e.name.padEnd(maxLen + 2)} : ${e.grade}`).join('\n');
+    }
 
     // 5. Conditional Formatting (Green vs Yellow)
     const fgpaValue = parseFloat(fgpa);
