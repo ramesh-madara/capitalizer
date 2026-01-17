@@ -415,6 +415,7 @@
         </div>
     </div>
 
+    <script src="reportGen.js"></script>
     <script>
         // --- DATA ---
         const gradePoints = {
@@ -767,6 +768,7 @@
 
         // --- REPORT GENERATION ---
         function downloadReport() {
+            generateReportGPA();
             // Get current theme colors
             const style = getComputedStyle(document.body);
             const bgColor = style.getPropertyValue('--bg-color').trim();
