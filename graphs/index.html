@@ -259,12 +259,12 @@
     ];
 
     const DEFAULT_EQS = [
-        { text: "y = 3 - 2x^2", color: COLORS[0], visible: true },
-        { text: "y = 5 - 2x^2", color: COLORS[1], visible: true },
+        { text: "y = x^2 + 1", color: COLORS[0], visible: true },
     ];
 
     /** View: world units visible (centered) */
-    let view = { cx: 0, cy: 0, halfW: 5, halfH: 6 };
+    const DEFAULT_HALF_W = 8;
+    let view = { cx: 0, cy: 0, halfW: DEFAULT_HALF_W, halfH: 10 };
     let equations = DEFAULT_EQS.map(e => ({ ...e, fn: null, error: null }));
     let dpr = 1;
 
@@ -953,7 +953,7 @@
         e.preventDefault();
         e.stopPropagation();
         const rect = wrap.getBoundingClientRect();
-        view = { cx: 0, cy: 0, halfW: 5, halfH: 5 * (rect.height / Math.max(1, rect.width)) };
+        view = { cx: 0, cy: 0, halfW: DEFAULT_HALF_W, halfH: DEFAULT_HALF_W * (rect.height / Math.max(1, rect.width)) };
         draw();
     });
 
