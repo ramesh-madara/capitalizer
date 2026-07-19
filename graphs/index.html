@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equation Graph Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --panel: #1a222d;
+            --panel-2: #232d3b;
+            --border: #2e3a4a;
+            --text: #e8eef6;
+            --muted: #8b9bb0;
+            --accent: #3d8bfd;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: "DM Sans", system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+        .eq-row {
+            display: grid;
+            grid-template-columns: 28px 1fr 32px;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            transition: border-color 0.15s;
+        }
+        .eq-row:focus-within { border-color: var(--accent); }
+        .eq-row.error { border-color: #e85d5d; }
+        .color-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .color-dot.off { opacity: 0.25; }
+        .eq-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: "JetBrains Mono", ui-monospace, monospace;
+            font-size: 14px;
+            padding: 4px 0;
+        }
+        .eq-input::placeholder { color: #5a6a7e; }
+        .eq-status {
+            font-size: 10px;
+            min-height: 14px;
+            color: #e85d5d;
+            padding-left: 36px;
+            margin-top: 2px;
+        }
+        .kbd {
+            display: inline-block;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 11px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 5px;
+            color: var(--muted);
+        }
+        .chip {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+        }
+        .chip:hover { background: #2c3848; color: var(--text); }
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .icon-btn:hover { background: #2c3848; color: var(--text); }
+        #graph-wrap {
+            position: relative;
+            flex: 1;
+            min-height: 360px;
+            background: #0b0f14;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            cursor: grab;
+            touch-action: none;
+        }
+        #graph-wrap.dragging { cursor: grabbing; }
+        #graph-canvas { width: 100%; height: 100%; display: block; }
+        .zoom-bar {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            z-index: 5;
+            display: flex;
+            gap: 4px;
+            background: rgba(26, 34, 45, 0.92);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            backdrop-filter: blur(6px);
+            pointer-events: auto;
+        }
+        .zoom-bar button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text);
+            font-size: 16px;
+            cursor: pointer;
+            font-family: "JetBrains Mono", monospace;
+            pointer-events: auto;
+        }
+        .zoom-bar button:hover { background: #2c3848; }
+        .legend {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(26, 34, 45, 0.92);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            backdrop-filter: blur(6px);
+            max-width: min(280px, 70%);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .legend-swatch {
+            width: 12px;
+            height: 3px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="px-4 py-4 border-b border-[var(--border)]" style="background: var(--panel);">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-semibold tracking-tight">Equation Graph Explorer</h1>
+                <p class="text-sm mt-0.5" style="color: var(--muted);">
+                    Type equations like Desmos — graphs update as you type. Compare multiple curves on one plane.
+                </p>
+            </div>
+            <div class="text-xs mono" style="color: var(--muted);">
+                Tip: use <span class="kbd">^</span> for powers · <span class="kbd">*</span> optional before <span class="kbd">x</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4">
+
+        <!-- Equations panel -->
+        <aside class="flex flex-col gap-3" style="background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px;">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Equations</h2>
+                <button id="add-eq" class="chip mono" title="Add another equation">+ add</button>
+            </div>
+
+            <div id="eq-list" class="flex flex-col gap-2"></div>
+
+            <div class="pt-1">
+                <p class="text-[11px] mb-2" style="color: var(--muted);">Try these</p>
+                <div class="flex flex-wrap gap-1.5">
+                    <button class="chip" data-preset="y=x^2">y = x²</button>
+                    <button class="chip" data-preset="y=3-2x^2">y = 3 − 2x²</button>
+                    <button class="chip" data-preset="y=5-2x^2">y = 5 − 2x²</button>
+                    <button class="chip" data-preset="y=sin(x)">y = sin(x)</button>
+                    <button class="chip" data-preset="y=2x+1">y = 2x + 1</button>
+                    <button class="chip" data-preset="y=abs(x)">y = |x|</button>
+                    <button class="chip" data-preset="y=sqrt(x)">y = √x</button>
+                    <button class="chip" data-preset="y=e^(-x^2)">y = e^(−x²)</button>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-3 border-t border-[var(--border)] text-[11px] leading-relaxed" style="color: var(--muted);">
+                <p class="mb-1 font-medium" style="color: #a8b8cc;">Supported</p>
+                <p>+ − * / ^ · parentheses · sin cos tan · asin acos atan · sinh cosh tanh · abs · sqrt · ln log · floor ceil · exp · π · e · |x|</p>
+                <p class="mt-2">Drag the graph to pan · scroll to zoom · click a color dot to hide/show</p>
+            </div>
+        </aside>
+
+        <!-- Graph -->
+        <section class="flex flex-col gap-2 min-h-[420px]" style="background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 12px;">
+            <div class="flex items-center justify-between gap-2 px-1 flex-wrap">
+                <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Graph</h2>
+                <div class="flex items-center gap-2">
+                    <span id="view-range" class="text-[11px] mono" style="color: var(--muted);"></span>
+                    <button id="export-png" class="chip mono" type="button" title="Download graph as PNG">⬇ PNG</button>
+                </div>
+            </div>
+            <div id="graph-wrap">
+                <canvas id="graph-canvas"></canvas>
+                <div id="legend" class="legend" hidden></div>
+                <div class="zoom-bar" id="zoom-bar">
+                    <button type="button" id="zoom-in" title="Zoom in">+</button>
+                    <button type="button" id="zoom-out" title="Zoom out">−</button>
+                    <button type="button" id="zoom-reset" title="Reset view">⌂</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-3 text-center text-xs border-t border-[var(--border)]" style="color: var(--muted);">
+        Type freely · live update · compare curves side by side
+    </footer>
+
+<script>
+(() => {
+    const COLORS = [
+        "#3d8bfd", // blue
+        "#f0a03c", // amber
+        "#34d399", // green
+        "#f472b6", // pink
+        "#a78bfa", // violet
+        "#22d3ee", // cyan
+        "#fb7185", // rose
+        "#a3e635", // lime
+    ];
+
+    const DEFAULT_EQS = [
+        { text: "y = 3 - 2x^2", color: COLORS[0], visible: true },
+        { text: "y = 5 - 2x^2", color: COLORS[1], visible: true },
+    ];
+
+    /** View: world units visible (centered) */
+    let view = { cx: 0, cy: 0, halfW: 5, halfH: 6 };
+    let equations = DEFAULT_EQS.map(e => ({ ...e, fn: null, error: null }));
+    let dpr = 1;
+
+    const canvas = document.getElementById("graph-canvas");
+    const ctx = canvas.getContext("2d");
+    const wrap = document.getElementById("graph-wrap");
+    const eqList = document.getElementById("eq-list");
+    const legend = document.getElementById("legend");
+    const viewRange = document.getElementById("view-range");
+
+    function nextUniqueColor(skipIndex = -1) {
+        const used = new Set(
+            equations
+                .filter((_, i) => i !== skipIndex)
+                .map(e => e.color.toLowerCase())
+        );
+        for (const c of COLORS) {
+            if (!used.has(c.toLowerCase())) return c;
+        }
+        // Fallback: distinct HSL hue
+        const hue = (equations.length * 47) % 360;
+        return `hsl(${hue} 78% 58%)`;
+    }
+
+    function assignUniqueColors() {
+        const used = new Set();
+        equations.forEach((eq) => {
+            const key = (eq.color || "").toLowerCase();
+            if (!eq.color || used.has(key)) {
+                eq.color = nextUniqueColor(equations.indexOf(eq));
+            }
+            used.add(eq.color.toLowerCase());
+        });
+    }
+
+    function formatLabel(text) {
+        let t = text.trim();
+        if (!t) return "";
+        if (!/^\s*(y|f\s*\(\s*x\s*\))\s*=/i.test(t)) t = "y = " + t;
+        return t.replace(/\s+/g, " ");
+    }
+    // ---------- Expression parser (Desmos-like) ----------
+
+    function preprocess(raw) {
+        let s = String(raw).trim();
+        if (!s) throw new Error("Empty");
+
+        // Strip y = / f(x) = leading assignment
+        s = s.replace(/^(y|f\s*\(\s*x\s*\))\s*=\s*/i, "");
+        if (!s.trim()) throw new Error("Enter an expression after y =");
+
+        // Unicode / nice math → ASCII
+        s = s
+            .replace(/π/gi, "pi")
+            .replace(/√/g, "sqrt")
+            .replace(/·/g, "*")
+            .replace(/×/g, "*")
+            .replace(/÷/g, "/")
+            .replace(/−/g, "-")
+            .replace(/–/g, "-")
+            .replace(/\u2212/g, "-")
+            .replace(/²/g, "^2")
+            .replace(/³/g, "^3")
+            .replace(/\|([^|]+)\|/g, "abs($1)");
+
+        // Absolute value bars if unpaired leftover |...|
+        // already handled simple cases
+
+        // Implicit multiplication helpers
+        // 2x → 2*x, 2( → 2*(, )( → )*(, x( → x*(
+        // pi x → pi*x, e x → e*x
+        s = s.replace(/\s+/g, "");
+
+        // Insert * between number and identifier/paren
+        s = s.replace(/(\d)([a-zA-Z(])/g, "$1*$2");
+        // )( or )x or )number
+        s = s.replace(/(\))(\()/g, "$1*$2");
+        s = s.replace(/(\))([a-zA-Z])/g, "$1*$2");
+        s = s.replace(/(\))(\d)/g, "$1*$2");
+        // x( or pi( — but not function names followed by (
+        // Handle identifier followed by identifier: xx is rare; xpi → x*pi
+        // Function names must stay: sin(, cos(, etc.
+        const funcs = "asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|abs|sqrt|cbrt|ln|log|floor|ceil|exp|min|max";
+        // x2 not allowed typically — skip
+        // identifier then number: x2 → invalid usually; leave
+        // )pi
+        s = s.replace(/(\d)(pi|e)\b/gi, "$1*$2");
+        s = s.replace(/\b(pi|e)(\()/gi, "$1*$2");
+        s = s.replace(/\b(pi|e)([a-zA-Z])/gi, (m, a, b) => {
+            if (funcs.split("|").some(f => (a + b).toLowerCase().startsWith(f))) return m;
+            return a + "*" + b;
+        });
+        // x followed by ( when not a function — x is single letter
+        s = s.replace(/\bx\(/gi, "x*(");
+        // number after closing of function already handled
+
+        // Protect function names from implicit * insertion between letters
+        // Convert ^ to **
+        s = s.replace(/\^/g, "**");
+
+        // Protect scientific notation (1e-3) before replacing constant e
+        const sci = [];
+        s = s.replace(/(\d+(?:\.\d+)?)[eE]([+-]?\d+)/g, (_, a, b) => {
+            const key = `__SCI${sci.length}__`;
+            sci.push(`${a}e${b}`);
+            return key;
+        });
+
+        // Replace known constants & functions with Math.*
+        // Order matters: longer names first
+        const replacements = [
+            [/\basin\b/gi, "Math.asin"],
+            [/\bacos\b/gi, "Math.acos"],
+            [/\batan\b/gi, "Math.atan"],
+            [/\bsinh\b/gi, "Math.sinh"],
+            [/\bcosh\b/gi, "Math.cosh"],
+            [/\btanh\b/gi, "Math.tanh"],
+            [/\bsin\b/gi, "Math.sin"],
+            [/\bcos\b/gi, "Math.cos"],
+            [/\btan\b/gi, "Math.tan"],
+            [/\babs\b/gi, "Math.abs"],
+            [/\bsqrt\b/gi, "Math.sqrt"],
+            [/\bcbrt\b/gi, "Math.cbrt"],
+            [/\bfloor\b/gi, "Math.floor"],
+            [/\bceil\b/gi, "Math.ceil"],
+            [/\bexp\b/gi, "Math.exp"],
+            [/\bln\b/gi, "Math.log"],
+            [/\blog\b/gi, "Math.log10"],
+            [/\bpi\b/gi, "Math.PI"],
+            [/\be\b/g, "Math.E"],
+        ];
+        for (const [re, rep] of replacements) s = s.replace(re, rep);
+
+        sci.forEach((val, i) => { s = s.replace(`__SCI${i}__`, val); });
+
+        // Allow only safe characters
+        if (!/^[\d\s+\-*/().,Math_PIExa-zA-Z]+$/.test(s) && !/^[0-9+\-*/().,Math_PIEa-zA-Z\s]+$/.test(s)) {
+            // After replacements we expect Math.xxx and operators
+        }
+        const allowed = /^[0-9+\-*/().,\sA-Za-z_]+$/;
+        if (!allowed.test(s)) throw new Error("Unsupported characters");
+
+        // Ban dangerous identifiers
+        if (/\b(window|document|Function|eval|globalThis|constructor|prototype|__proto__)\b/i.test(s)) {
+            throw new Error("Invalid expression");
+        }
+
+        return s;
+    }
+
+    function compile(raw) {
+        try {
+            const expr = preprocess(raw);
+            // eslint-disable-next-line no-new-func
+            const fn = new Function("x", `"use strict"; const Math = globalThis.Math; return (${expr});`);
+            // smoke test
+            const t = fn(0.5);
+            if (typeof t !== "number") throw new Error("Must return a number");
+            return { fn, error: null };
+        } catch (e) {
+            return { fn: null, error: e.message || "Invalid equation" };
+        }
+    }
+
+    function recompileAll() {
+        equations.forEach((eq) => {
+            const { fn, error } = compile(eq.text);
+            eq.fn = fn;
+            eq.error = error;
+        });
+        renderEqList();
+        draw();
+    }
+
+    // ---------- UI ----------
+
+    function renderEqList() {
+        assignUniqueColors();
+        eqList.innerHTML = "";
+        equations.forEach((eq, i) => {
+            const wrapEl = document.createElement("div");
+
+            const row = document.createElement("div");
+            row.className = "eq-row" + (eq.error && eq.text.trim() ? " error" : "");
+
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "color-dot" + (eq.visible ? "" : " off");
+            dot.style.background = eq.color;
+            dot.title = "Click: hide/show · Shift+click: change color";
+            dot.addEventListener("click", (e) => {
+                if (e.shiftKey) {
+                    const idx = COLORS.findIndex(c => c.toLowerCase() === eq.color.toLowerCase());
+                    // Pick next unused color from palette
+                    for (let k = 1; k <= COLORS.length; k++) {
+                        const cand = COLORS[(idx + k + COLORS.length) % COLORS.length];
+                        const taken = equations.some((o, j) => j !== i && o.color.toLowerCase() === cand.toLowerCase());
+                        if (!taken) {
+                            eq.color = cand;
+                            break;
+                        }
+                    }
+                    if (equations.some((o, j) => j !== i && o.color.toLowerCase() === eq.color.toLowerCase())) {
+                        eq.color = nextUniqueColor(i);
+                    }
+                } else {
+                    eq.visible = !eq.visible;
+                }
+                renderEqList();
+                draw();
+            });
+
+            const input = document.createElement("input");
+            input.className = "eq-input";
+            input.value = eq.text;
+            input.placeholder = "y = ...";
+            input.spellcheck = false;
+            input.autocomplete = "off";
+            input.addEventListener("input", () => {
+                eq.text = input.value;
+                const { fn, error } = compile(eq.text);
+                eq.fn = fn;
+                eq.error = error;
+                const status = wrapEl.querySelector(".eq-status");
+                status.textContent = eq.error && eq.text.trim() ? eq.error : "";
+                row.classList.toggle("error", !!(eq.error && eq.text.trim()));
+                draw();
+            });
+
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "icon-btn";
+            remove.title = "Remove";
+            remove.textContent = "×";
+            remove.disabled = equations.length <= 1;
+            remove.style.opacity = equations.length <= 1 ? "0.3" : "1";
+            remove.addEventListener("click", () => {
+                if (equations.length <= 1) return;
+                equations.splice(i, 1);
+                renderEqList();
+                draw();
+            });
+
+            row.append(dot, input, remove);
+            const status = document.createElement("div");
+            status.className = "eq-status";
+            status.textContent = eq.error && eq.text.trim() ? eq.error : "";
+            wrapEl.append(row, status);
+            eqList.appendChild(wrapEl);
+        });
+        updateLegend();
+    }
+
+    function updateLegend() {
+        // Labels are drawn on the canvas (and included in PNG export)
+        legend.hidden = true;
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    document.getElementById("add-eq").addEventListener("click", () => {
+        const color = nextUniqueColor();
+        equations.push({ text: "y = ", color, visible: true, fn: null, error: null });
+        const { fn, error } = compile("y = ");
+        equations[equations.length - 1].fn = fn;
+        equations[equations.length - 1].error = error;
+        renderEqList();
+        const inputs = eqList.querySelectorAll(".eq-input");
+        const last = inputs[inputs.length - 1];
+        last.focus();
+        last.setSelectionRange(last.value.length, last.value.length);
+        draw();
+    });
+
+    document.querySelectorAll("[data-preset]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const expr = btn.getAttribute("data-preset");
+            // Fill first empty-ish slot, else first equation, or add if both filled and user might want compare
+            let target = equations.find(e => !e.text.trim() || e.text.trim() === "y =" || e.text.trim() === "y=");
+            if (!target) {
+                // if only one equation, put in first; if clicking while comparing, put in first empty after add? Prefer update first that matches differently
+                // Put into first equation if second empty, else cycle: set the focused or first
+                target = equations[0];
+                // If first already equals this, put in second
+                if (equations.length > 1 && normalizeEq(equations[0].text) === normalizeEq(expr)) {
+                    target = equations[1];
+                } else if (equations.length > 1 && equations[0].text.trim() && normalizeEq(equations[0].text) !== normalizeEq(expr)) {
+                    // Prefer filling second for comparison when first is already set
+                    if (!equations[1].text.trim() || equations[1].text.trim() === "y =" || normalizeEq(equations[1].text) === normalizeEq(equations[0].text)) {
+                        target = equations[1];
+                    }
+                }
+            }
+            target.text = expr.includes("=") ? expr : "y = " + expr;
+            // ensure y = form
+            if (!/^\s*(y|f\s*\(\s*x\s*\))\s*=/i.test(target.text)) {
+                target.text = "y = " + target.text;
+            }
+            const { fn, error } = compile(target.text);
+            target.fn = fn;
+            target.error = error;
+            target.visible = true;
+            renderEqList();
+            draw();
+        });
+    });
+
+    function normalizeEq(t) {
+        return t.replace(/\s+/g, "").toLowerCase().replace(/²/g, "^2");
+    }
+
+    // ---------- Graph ----------
+
+    function resize() {
+        const rect = wrap.getBoundingClientRect();
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // Keep aspect: adjust halfH from halfW
+        const aspect = rect.height / rect.width;
+        view.halfH = view.halfW * aspect;
+        draw();
+    }
+
+    function worldToScreen(x, y, w, h) {
+        const sx = ((x - view.cx) / view.halfW + 1) * 0.5 * w;
+        const sy = (1 - (y - view.cy) / view.halfH) * 0.5 * h;
+        return [sx, sy];
+    }
+
+    function screenToWorld(sx, sy, w, h) {
+        const x = view.cx + ((sx / w) * 2 - 1) * view.halfW;
+        const y = view.cy + (1 - (sy / h) * 2) * view.halfH;
+        return [x, y];
+    }
+
+    function niceStep(range) {
+        const raw = range / 8;
+        const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+        const n = raw / pow;
+        let step;
+        if (n < 1.5) step = 1;
+        else if (n < 3.5) step = 2;
+        else if (n < 7.5) step = 5;
+        else step = 10;
+        return step * pow;
+    }
+
+    function drawGrid(w, h) {
+        const xMin = view.cx - view.halfW;
+        const xMax = view.cx + view.halfW;
+        const yMin = view.cy - view.halfH;
+        const yMax = view.cy + view.halfH;
+        const stepX = niceStep(view.halfW * 2);
+        const stepY = niceStep(view.halfH * 2);
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#1c2530";
+        ctx.fillStyle = "#5a6a7e";
+        ctx.font = "11px JetBrains Mono, monospace";
+
+        const startX = Math.ceil(xMin / stepX) * stepX;
+        for (let x = startX; x <= xMax + 1e-9; x += stepX) {
+            const [sx] = worldToScreen(x, 0, w, h);
+            ctx.beginPath();
+            ctx.moveTo(sx, 0);
+            ctx.lineTo(sx, h);
+            ctx.stroke();
+            if (Math.abs(x) > stepX * 0.01) {
+                const [, sy0] = worldToScreen(0, 0, w, h);
+                ctx.textAlign = "center";
+                ctx.fillText(formatTick(x), sx, Math.min(h - 4, Math.max(12, sy0 + 14)));
+            }
+        }
+
+        const startY = Math.ceil(yMin / stepY) * stepY;
+        for (let y = startY; y <= yMax + 1e-9; y += stepY) {
+            const [, sy] = worldToScreen(0, y, w, h);
+            ctx.beginPath();
+            ctx.moveTo(0, sy);
+            ctx.lineTo(w, sy);
+            ctx.stroke();
+            if (Math.abs(y) > stepY * 0.01) {
+                const [sx0] = worldToScreen(0, 0, w, h);
+                ctx.textAlign = "left";
+                ctx.fillText(formatTick(y), Math.min(w - 28, Math.max(4, sx0 + 6)), sy + 3);
+            }
+        }
+
+        // Axes
+        ctx.strokeStyle = "#3d4f63";
+        ctx.lineWidth = 1.5;
+        const [ox, oy] = worldToScreen(0, 0, w, h);
+        ctx.beginPath();
+        ctx.moveTo(0, oy);
+        ctx.lineTo(w, oy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ox, 0);
+        ctx.lineTo(ox, h);
+        ctx.stroke();
+
+        ctx.fillStyle = "#8b9bb0";
+        ctx.font = "bold 12px DM Sans, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("x", w - 14, oy - 8);
+        ctx.fillText("y", ox + 8, 14);
+    }
+
+    function formatTick(v) {
+        if (Math.abs(v) < 1e-9) return "0";
+        const a = Math.abs(v);
+        if (a >= 1000 || (a < 0.01 && a > 0)) return v.toExponential(1).replace(/\.0e/, "e");
+        return Number(v.toPrecision(4)).toString();
+    }
+
+    function drawCurve(fn, color, w, h) {
+        const samples = Math.min(2200, Math.max(600, Math.floor(w * 2)));
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.25;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+
+        let drawing = false;
+        let prevY = null;
+        const points = [];
+        ctx.beginPath();
+
+        for (let i = 0; i <= samples; i++) {
+            const sx = (i / samples) * w;
+            const [x] = screenToWorld(sx, 0, w, h);
+            let y;
+            try {
+                y = fn(x);
+            } catch {
+                drawing = false;
+                prevY = null;
+                continue;
+            }
+            if (!Number.isFinite(y)) {
+                drawing = false;
+                prevY = null;
+                continue;
+            }
+            const [, sy] = worldToScreen(x, y, w, h);
+            if (prevY !== null && Math.abs(y - prevY) > view.halfH * 3) {
+                drawing = false;
+            }
+            if (sy >= -20 && sy <= h + 20) {
+                points.push({ sx, sy, x, y });
+            }
+            if (sy < -50 || sy > h + 50) {
+                if (drawing) ctx.lineTo(sx, sy);
+                else {
+                    ctx.moveTo(sx, sy);
+                    drawing = true;
+                }
+                prevY = y;
+                continue;
+            }
+            if (!drawing) {
+                ctx.moveTo(sx, sy);
+                drawing = true;
+            } else {
+                ctx.lineTo(sx, sy);
+            }
+            prevY = y;
+        }
+        ctx.stroke();
+        return points;
+    }
+
+    function pickLabelAnchor(points, w, h, occupied) {
+        if (!points.length) return null;
+        // Prefer a point around 55–75% across the visible curve
+        const target = 0.62;
+        const mid = points[Math.min(points.length - 1, Math.floor(points.length * target))];
+        const candidates = [
+            mid,
+            points[Math.floor(points.length * 0.4)],
+            points[Math.floor(points.length * 0.75)],
+            points[Math.floor(points.length * 0.25)],
+            points[Math.floor(points.length * 0.85)],
+        ].filter(Boolean);
+
+        for (const p of candidates) {
+            const pad = 28;
+            if (p.sx < pad || p.sx > w - pad || p.sy < pad || p.sy > h - pad) continue;
+            const clash = occupied.some(o => Math.hypot(o.sx - p.sx, o.sy - p.sy) < 36);
+            if (!clash) return p;
+        }
+        return candidates[0] || points[Math.floor(points.length / 2)];
+    }
+
+    function drawCurveLabel(label, color, anchor, w, h, occupied) {
+        if (!anchor || !label) return;
+        ctx.font = "600 12px JetBrains Mono, monospace";
+        const tw = ctx.measureText(label).width;
+        let lx = anchor.sx + 10;
+        let ly = anchor.sy - 10;
+        // Keep on canvas
+        if (lx + tw + 8 > w) lx = anchor.sx - tw - 10;
+        if (ly < 16) ly = anchor.sy + 18;
+        if (ly > h - 8) ly = h - 8;
+
+        // Nudge away from other labels
+        for (let n = 0; n < 6; n++) {
+            const clash = occupied.some(o => Math.abs(o.ly - ly) < 16 && Math.abs(o.lx - lx) < Math.max(o.tw, tw) * 0.6);
+            if (!clash) break;
+            ly += (n % 2 === 0 ? 1 : -1) * (14 + n * 2);
+            if (ly < 16) ly = 16;
+            if (ly > h - 8) ly = h - 8;
+        }
+
+        // Soft pill behind text
+        const padX = 5;
+        const padY = 3;
+        ctx.fillStyle = "rgba(11, 15, 20, 0.78)";
+        roundRect(ctx, lx - padX, ly - 11 - padY, tw + padX * 2, 14 + padY * 2, 4);
+        ctx.fill();
+
+        ctx.fillStyle = color;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(label, lx, ly);
+
+        occupied.push({ sx: anchor.sx, sy: anchor.sy, lx, ly, tw });
+    }
+
+    function roundRect(c, x, y, w, h, r) {
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.arcTo(x + w, y, x + w, y + h, r);
+        c.arcTo(x + w, y + h, x, y + h, r);
+        c.arcTo(x, y + h, x, y, r);
+        c.arcTo(x, y, x + w, y, r);
+        c.closePath();
+    }
+
+    function drawCanvasLegend(w, visibleEqs) {
+        if (!visibleEqs.length) return;
+        ctx.font = "600 11px JetBrains Mono, monospace";
+        let maxW = 0;
+        const rows = visibleEqs.map(eq => {
+            const label = formatLabel(eq.text);
+            maxW = Math.max(maxW, ctx.measureText(label).width);
+            return { label, color: eq.color };
+        });
+        const boxW = Math.min(w - 24, maxW + 36);
+        const boxH = rows.length * 18 + 14;
+        const x0 = 12;
+        const y0 = 12;
+
+        ctx.fillStyle = "rgba(26, 34, 45, 0.92)";
+        ctx.strokeStyle = "#2e3a4a";
+        ctx.lineWidth = 1;
+        roundRect(ctx, x0, y0, boxW, boxH, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        rows.forEach((r, i) => {
+            const yy = y0 + 12 + i * 18;
+            ctx.fillStyle = r.color;
+            ctx.fillRect(x0 + 10, yy - 2, 14, 3);
+            ctx.fillStyle = "#e8eef6";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(r.label, x0 + 30, yy);
+        });
+    }
+
+    function draw() {
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+        if (w < 2 || h < 2) return;
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#0b0f14";
+        ctx.fillRect(0, 0, w, h);
+
+        drawGrid(w, h);
+
+        assignUniqueColors();
+        const occupied = [];
+        const visibleEqs = [];
+
+        equations.forEach(eq => {
+            if (!eq.visible || !eq.fn || !eq.text.trim()) return;
+            visibleEqs.push(eq);
+            const points = drawCurve(eq.fn, eq.color, w, h);
+            const label = formatLabel(eq.text);
+            const anchor = pickLabelAnchor(points, w, h, occupied);
+            drawCurveLabel(label, eq.color, anchor, w, h, occupied);
+        });
+
+        drawCanvasLegend(w, visibleEqs);
+        updateLegend();
+
+        const x0 = view.cx - view.halfW;
+        const x1 = view.cx + view.halfW;
+        const y0 = view.cy - view.halfH;
+        const y1 = view.cy + view.halfH;
+        viewRange.textContent = `x ∈ [${formatTick(x0)}, ${formatTick(x1)}]  ·  y ∈ [${formatTick(y0)}, ${formatTick(y1)}]`;
+    }
+
+    // Pan / zoom — ignore clicks on overlay controls
+    let dragging = false;
+    let lastPtr = null;
+
+    function isOverlayControl(target) {
+        return !!(target && target.closest && target.closest(".zoom-bar, #legend, button, a"));
+    }
+
+    wrap.addEventListener("pointerdown", (e) => {
+        if (isOverlayControl(e.target)) return;
+        dragging = true;
+        lastPtr = { x: e.clientX, y: e.clientY };
+        wrap.classList.add("dragging");
+        wrap.setPointerCapture(e.pointerId);
+    });
+    wrap.addEventListener("pointermove", (e) => {
+        if (!dragging || !lastPtr) return;
+        const rect = wrap.getBoundingClientRect();
+        const dx = e.clientX - lastPtr.x;
+        const dy = e.clientY - lastPtr.y;
+        lastPtr = { x: e.clientX, y: e.clientY };
+        view.cx -= (dx / rect.width) * view.halfW * 2;
+        view.cy += (dy / rect.height) * view.halfH * 2;
+        draw();
+    });
+    function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        lastPtr = null;
+        wrap.classList.remove("dragging");
+        try { wrap.releasePointerCapture(e.pointerId); } catch {}
+    }
+    wrap.addEventListener("pointerup", endDrag);
+    wrap.addEventListener("pointercancel", endDrag);
+
+    wrap.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const rect = wrap.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        const [wx, wy] = screenToWorld(sx, sy, rect.width, rect.height);
+        const factor = e.deltaY > 0 ? 1.12 : 1 / 1.12;
+        view.halfW = Math.min(500, Math.max(0.5, view.halfW * factor));
+        view.halfH = view.halfW * (rect.height / rect.width);
+        const [wx2, wy2] = screenToWorld(sx, sy, rect.width, rect.height);
+        view.cx += wx - wx2;
+        view.cy += wy - wy2;
+        draw();
+    }, { passive: false });
+
+    function zoomBy(factor) {
+        const rect = wrap.getBoundingClientRect();
+        const aspect = rect.height / Math.max(1, rect.width);
+        view.halfW = Math.min(500, Math.max(0.5, view.halfW * factor));
+        view.halfH = view.halfW * aspect;
+        draw();
+    }
+
+    const zoomBar = document.getElementById("zoom-bar");
+    zoomBar.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+    });
+    zoomBar.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
+
+    document.getElementById("zoom-in").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zoomBy(1 / 1.25);
+    });
+    document.getElementById("zoom-out").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zoomBy(1.25);
+    });
+    document.getElementById("zoom-reset").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = wrap.getBoundingClientRect();
+        view = { cx: 0, cy: 0, halfW: 5, halfH: 5 * (rect.height / Math.max(1, rect.width)) };
+        draw();
+    });
+
+    document.getElementById("export-png").addEventListener("click", () => {
+        draw(); // ensure labels + legend are painted
+        const link = document.createElement("a");
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+        link.download = `graph-${stamp}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+
+    window.addEventListener("resize", resize);
+
+    // Init
+    equations.forEach(eq => {
+        const { fn, error } = compile(eq.text);
+        eq.fn = fn;
+        eq.error = error;
+    });
+    assignUniqueColors();
+    renderEqList();
+    requestAnimationFrame(resize);
+})();
+</script>
+</body>
+</html>
