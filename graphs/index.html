@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Equation Graph Explorer</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script>
         (function () {
             try {
@@ -321,10 +322,20 @@
             overflow: visible;
         }
         .theme-cloud {
+            filter: blur(1.1px);
             transition:
                 transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.45s ease;
+                opacity 0.45s ease,
+                filter 0.45s ease;
         }
+        .theme-cloud-a { filter: blur(1.15px); }
+        .theme-cloud-b { filter: blur(0.95px); }
+        .theme-cloud-c { filter: blur(1.35px); }
+        .theme-cloud-d { filter: blur(0.85px); }
+        .theme-toggle-sm .theme-cloud-a { filter: blur(0.85px); }
+        .theme-toggle-sm .theme-cloud-b { filter: blur(0.7px); }
+        .theme-toggle-sm .theme-cloud-c { filter: blur(1px); }
+        .theme-toggle-sm .theme-cloud-d { filter: blur(0.65px); }
         .theme-toggle[data-mode="light"] .theme-cloud-a { opacity: 0.92; transform: translate(0, 0); }
         .theme-toggle[data-mode="light"] .theme-cloud-b { opacity: 0.85; transform: translate(0, 0); }
         .theme-toggle[data-mode="light"] .theme-cloud-c { opacity: 0.78; transform: translate(0, 0); }
@@ -377,6 +388,103 @@
                 0 0 0 2px rgba(120, 150, 220, 0.18),
                 0 4px 10px rgba(0, 0, 0, 0.28);
         }
+        .theme-birds {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .theme-toggle[data-mode="light"] .theme-birds {
+            opacity: 1;
+        }
+        .theme-bird {
+            position: absolute;
+            width: 9px;
+            height: 5px;
+            overflow: visible;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+        .theme-toggle-sm .theme-bird {
+            width: 7px;
+            height: 4px;
+        }
+        .theme-bird path {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 1.05;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform-origin: center;
+            transform-box: fill-box;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-1 {
+            animation: bird-fly-1 8.5s linear infinite;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-2 {
+            animation: bird-fly-2 11s linear infinite;
+            animation-delay: -3.2s;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-3 {
+            animation: bird-fly-3 9.5s linear infinite;
+            animation-delay: -6s;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-1 path {
+            animation: bird-flap 0.45s ease-in-out infinite;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-2 path {
+            animation: bird-flap 0.38s ease-in-out infinite;
+        }
+        .theme-toggle[data-mode="light"] .theme-bird-3 path {
+            animation: bird-flap 0.5s ease-in-out infinite;
+            animation-delay: 0.1s;
+        }
+        .theme-toggle[data-mode="dark"] .theme-bird {
+            animation: none;
+            opacity: 0;
+        }
+        .theme-toggle[data-mode="dark"] .theme-bird path {
+            animation: none;
+        }
+        @keyframes bird-flap {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.45); }
+        }
+        @keyframes bird-fly-1 {
+            0%   { transform: translate(-10px, 20px) rotate(-8deg); opacity: 0; }
+            8%   { opacity: 0.95; }
+            45%  { transform: translate(18px, 7px) rotate(4deg); opacity: 0.9; }
+            85%  { opacity: 0.75; }
+            100% { transform: translate(50px, 16px) rotate(10deg); opacity: 0; }
+        }
+        @keyframes bird-fly-2 {
+            0%   { transform: translate(48px, 12px) rotate(12deg) scaleX(-1); opacity: 0; }
+            12%  { opacity: 0.85; }
+            55%  { transform: translate(16px, 22px) rotate(-2deg) scaleX(-1); opacity: 0.8; }
+            100% { transform: translate(-12px, 10px) rotate(-14deg) scaleX(-1); opacity: 0; }
+        }
+        @keyframes bird-fly-3 {
+            0%   { transform: translate(-8px, 28px) rotate(-4deg); opacity: 0; }
+            15%  { opacity: 0.7; }
+            40%  { transform: translate(12px, 14px) rotate(6deg); opacity: 0.75; }
+            70%  { transform: translate(30px, 6px) rotate(2deg); opacity: 0.65; }
+            100% { transform: translate(52px, 18px) rotate(8deg); opacity: 0; }
+        }
+        .theme-toggle-sm .theme-bird-3 { display: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .theme-toggle[data-mode="light"] .theme-bird {
+                animation: none;
+                opacity: 0.7;
+            }
+            .theme-toggle[data-mode="light"] .theme-bird path {
+                animation: none;
+            }
+            .theme-toggle[data-mode="light"] .theme-bird-1 { transform: translate(11px, 11px); }
+            .theme-toggle[data-mode="light"] .theme-bird-2 { transform: translate(22px, 17px) scaleX(-1); }
+            .theme-toggle[data-mode="light"] .theme-bird-3 { transform: translate(16px, 22px); }
+        }
         .graph-theme-reset {
             width: 18px;
             height: 18px;
@@ -421,7 +529,7 @@
                 <div class="text-xs mono" style="color: var(--muted);">
                     Tip: use <span class="kbd">^</span> for powers · <span class="kbd">*</span> optional before <span class="kbd">x</span>
                 </div>
-                <button type="button" id="theme-toggle" class="theme-toggle" data-mode="dark" aria-label="Switch to light mode" title="Toggle dark / light">
+                    <button type="button" id="theme-toggle" class="theme-toggle" data-mode="dark" aria-label="Switch to light mode" title="Toggle dark / light">
                     <span class="theme-sky" aria-hidden="true">
                         <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
                             <g class="theme-cloud theme-cloud-a" fill="#fff">
@@ -444,6 +552,11 @@
                                 <ellipse cx="11.5" cy="10.8" rx="3" ry="1.9"/>
                             </g>
                         </svg>
+                    </span>
+                    <span class="theme-birds" aria-hidden="true">
+                        <svg class="theme-bird theme-bird-1" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
+                        <svg class="theme-bird theme-bird-2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
+                        <svg class="theme-bird theme-bird-3" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                     </span>
                     <span class="theme-orb" aria-hidden="true">
                         <svg class="theme-icon theme-icon-sun" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
@@ -576,6 +689,11 @@
                                     <ellipse cx="11.5" cy="10.8" rx="3" ry="1.9"/>
                                 </g>
                             </svg>
+                        </span>
+                        <span class="theme-birds" aria-hidden="true">
+                            <svg class="theme-bird theme-bird-1" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
+                            <svg class="theme-bird theme-bird-2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
+                            <svg class="theme-bird theme-bird-3" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                         </span>
                         <span class="theme-orb" aria-hidden="true">
                             <svg class="theme-icon theme-icon-sun" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
