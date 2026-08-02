@@ -242,7 +242,8 @@
     </main>
 
     <footer class="py-3 text-center text-xs border-t border-[var(--border)]" style="color: var(--muted);">
-        Type freely · live update · compare curves side by side
+        <p>Type freely · live update · compare curves side by side</p>
+        <p class="mt-1">created by <a href="https://www.instagram.com/ramesh_madara" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:opacity-90" style="color: var(--text);">Ramesh Madara</a></p>
     </footer>
 
 <script>
@@ -957,13 +958,34 @@
         draw();
     });
 
+    const GRAPH_URL = "https://ramesh-madara.github.io/capitalizer/graphs/";
+    const CREDIT_LINE = "created by Ramesh Madara";
+
+    function drawExportCredit(w, h) {
+        const url = GRAPH_URL;
+        const credit = CREDIT_LINE;
+        ctx.save();
+        ctx.font = "500 10px DM Sans, system-ui, sans-serif";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = "rgba(139, 155, 176, 0.85)";
+        const pad = 10;
+        ctx.fillText(url, w - pad, h - pad - 12);
+        ctx.fillText(credit, w - pad, h - pad);
+        ctx.restore();
+    }
+
     document.getElementById("export-png").addEventListener("click", () => {
         draw(); // ensure labels + legend are painted
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+        drawExportCredit(w, h);
         const link = document.createElement("a");
         const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
         link.download = `graph-${stamp}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
+        draw(); // clear export-only credit from live canvas
     });
 
     window.addEventListener("resize", resize);
