@@ -473,6 +473,156 @@
             100% { transform: translate(52px, 18px) rotate(8deg); opacity: 0; }
         }
         .theme-toggle-sm .theme-bird-3 { display: none; }
+        .theme-comets {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .theme-toggle[data-mode="dark"] .theme-comets {
+            opacity: 1;
+        }
+        .theme-comet {
+            position: absolute;
+            width: 26px;
+            height: 2px;
+            opacity: 0;
+            border-radius: 2px;
+            background: linear-gradient(
+                90deg,
+                rgba(158, 201, 255, 0) 0%,
+                rgba(201, 228, 255, 0.35) 35%,
+                rgba(255, 255, 255, 0.95) 88%,
+                #fff 100%
+            );
+            box-shadow:
+                0 0 3px rgba(200, 230, 255, 0.55),
+                1px 0 0 0.5px rgba(255, 255, 255, 0.8);
+            will-change: transform, opacity;
+            transform-origin: left center;
+        }
+        .theme-toggle-sm .theme-comet {
+            width: 18px;
+            height: 1.5px;
+        }
+        .theme-comet svg { display: none; }
+        .theme-toggle[data-mode="dark"] .theme-comet-1 {
+            animation: comet-streak-1 13s linear infinite;
+        }
+        .theme-toggle[data-mode="dark"] .theme-comet-2 {
+            animation: comet-streak-2 17s linear infinite;
+            animation-delay: -7.5s;
+        }
+        .theme-toggle[data-mode="light"] .theme-comet {
+            animation: none;
+            opacity: 0;
+        }
+        .theme-toggle-sm .theme-comet-2 { display: none; }
+        .theme-comet-1 { top: 9px; left: 6px; }
+        .theme-comet-2 { top: 12px; left: 20px; }
+        .theme-toggle-sm .theme-comet-1 { top: 6px; left: 4px; }
+        @keyframes comet-streak-1 {
+            0%, 88% {
+                transform: translate(0, 0) rotate(34deg) scaleX(0.15);
+                opacity: 0;
+            }
+            88.5% {
+                transform: translate(1px, 1px) rotate(34deg) scaleX(0.55);
+                opacity: 1;
+            }
+            90.5% {
+                transform: translate(18px, 15px) rotate(34deg) scaleX(1);
+                opacity: 1;
+            }
+            92%, 100% {
+                transform: translate(26px, 22px) rotate(34deg) scaleX(0.2);
+                opacity: 0;
+            }
+        }
+        @keyframes comet-streak-2 {
+            0%, 90% {
+                transform: translate(0, 0) rotate(142deg) scaleX(0.15);
+                opacity: 0;
+            }
+            90.5% {
+                transform: translate(-1px, 1px) rotate(142deg) scaleX(0.55);
+                opacity: 0.95;
+            }
+            92.5% {
+                transform: translate(-14px, 14px) rotate(142deg) scaleX(1);
+                opacity: 0.95;
+            }
+            94%, 100% {
+                transform: translate(-20px, 20px) rotate(142deg) scaleX(0.2);
+                opacity: 0;
+            }
+        }
+        .theme-stars {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .theme-toggle[data-mode="dark"] .theme-stars {
+            opacity: 1;
+        }
+        .theme-toggle[data-mode="light"] .theme-stars {
+            opacity: 0;
+        }
+        .theme-stars svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+        }
+        .theme-star {
+            transform-origin: center;
+            transform-box: fill-box;
+        }
+        .theme-toggle[data-mode="dark"] .theme-star-1 { animation: star-twinkle 3.8s ease-in-out infinite; }
+        .theme-toggle[data-mode="dark"] .theme-star-2 { animation: star-twinkle 4.6s ease-in-out infinite; animation-delay: -1.4s; }
+        .theme-toggle[data-mode="dark"] .theme-star-3 { animation: star-twinkle 5.2s ease-in-out infinite; animation-delay: -2.8s; }
+        .theme-toggle[data-mode="dark"] .theme-star-4 { animation: star-twinkle 4.1s ease-in-out infinite; animation-delay: -0.7s; }
+        .theme-toggle[data-mode="dark"] .theme-star-5 { animation: star-twinkle 5.8s ease-in-out infinite; animation-delay: -3.5s; }
+        .theme-toggle[data-mode="dark"] .theme-star-6 { animation: star-twinkle 4.4s ease-in-out infinite; animation-delay: -2.1s; }
+        .theme-toggle[data-mode="dark"] .theme-star-7 { animation: star-twinkle 5.5s ease-in-out infinite; animation-delay: -0.3s; }
+        .theme-toggle[data-mode="dark"] .theme-star-8 { animation: star-twinkle 3.6s ease-in-out infinite; animation-delay: -4.2s; }
+        .theme-toggle[data-mode="dark"] .theme-star-9 { animation: star-twinkle 6.1s ease-in-out infinite; animation-delay: -1.9s; }
+        .theme-toggle[data-mode="dark"] .theme-star-10 { animation: star-twinkle 4.9s ease-in-out infinite; animation-delay: -3.1s; }
+        .theme-toggle[data-mode="dark"] .theme-star-11 { animation: star-twinkle 5.3s ease-in-out infinite; animation-delay: -2.5s; }
+        .theme-toggle[data-mode="dark"] .theme-star-12 { animation: star-twinkle 3.9s ease-in-out infinite; animation-delay: -0.9s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far {
+            animation: star-twinkle-far 7.5s ease-in-out infinite;
+        }
+        .theme-toggle[data-mode="dark"] .theme-star-far-1 { animation-delay: -0.5s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-2 { animation-delay: -1.8s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-3 { animation-delay: -3.2s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-4 { animation-delay: -4.6s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-5 { animation-delay: -2.4s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-6 { animation-delay: -5.1s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-7 { animation-delay: -0.9s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-8 { animation-delay: -3.8s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-9 { animation-delay: -6.2s; }
+        .theme-toggle[data-mode="dark"] .theme-star-far-10 { animation-delay: -1.3s; }
+        .theme-toggle[data-mode="light"] .theme-star {
+            animation: none;
+        }
+        @keyframes star-twinkle {
+            0%, 100% { opacity: 0.45; }
+            40% { opacity: 1; }
+            55% { opacity: 0.6; }
+            70% { opacity: 0.9; }
+        }
+        @keyframes star-twinkle-far {
+            0%, 100% { opacity: 0.2; }
+            45% { opacity: 0.55; }
+            60% { opacity: 0.28; }
+            80% { opacity: 0.48; }
+        }
         @media (prefers-reduced-motion: reduce) {
             .theme-toggle[data-mode="light"] .theme-bird {
                 animation: none;
@@ -484,6 +634,17 @@
             .theme-toggle[data-mode="light"] .theme-bird-1 { transform: translate(11px, 11px); }
             .theme-toggle[data-mode="light"] .theme-bird-2 { transform: translate(22px, 17px) scaleX(-1); }
             .theme-toggle[data-mode="light"] .theme-bird-3 { transform: translate(16px, 22px); }
+            .theme-toggle[data-mode="dark"] .theme-comet {
+                animation: none;
+                opacity: 0;
+            }
+            .theme-toggle[data-mode="dark"] .theme-star {
+                animation: none;
+                opacity: 0.75;
+            }
+            .theme-toggle[data-mode="dark"] .theme-star-far {
+                opacity: 0.35;
+            }
         }
         .graph-theme-reset {
             width: 18px;
@@ -558,6 +719,67 @@
                         <svg class="theme-bird theme-bird-2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                         <svg class="theme-bird theme-bird-3" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                     </span>
+                    <span class="theme-stars" aria-hidden="true">
+                        <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                            <circle class="theme-star theme-star-1" cx="7" cy="10" r="0.7" fill="#ffe9a8"/>
+                            <circle class="theme-star theme-star-2" cx="16" cy="5" r="0.5" fill="#c9d7ff"/>
+                            <circle class="theme-star theme-star-3" cx="28" cy="7" r="0.55" fill="#ffd4a8"/>
+                            <circle class="theme-star theme-star-4" cx="38" cy="11" r="0.65" fill="#b8c9ff"/>
+                            <circle class="theme-star theme-star-5" cx="42" cy="20" r="0.45" fill="#ffc4ef"/>
+                            <circle class="theme-star theme-star-6" cx="5" cy="22" r="0.5" fill="#9ad7ff"/>
+                            <circle class="theme-star theme-star-7" cx="12" cy="30" r="0.4" fill="#fff"/>
+                            <circle class="theme-star theme-star-8" cx="40" cy="30" r="0.55" fill="#d4dcff"/>
+                            <circle class="theme-star theme-star-9" cx="8" cy="38" r="0.6" fill="#ffe9a8"/>
+                            <circle class="theme-star theme-star-10" cx="22" cy="40" r="0.45" fill="#b8c9ff"/>
+                            <circle class="theme-star theme-star-11" cx="34" cy="38" r="0.5" fill="#ffc4ef"/>
+                            <circle class="theme-star theme-star-12" cx="41" cy="40" r="0.4" fill="#9ad7ff"/>
+                            <circle class="theme-star theme-star-far theme-star-far-1" cx="11" cy="7" r="0.28" fill="#e8eef8"/>
+                            <circle class="theme-star theme-star-far theme-star-far-2" cx="21" cy="11" r="0.22" fill="#dce6f5"/>
+                            <circle class="theme-star theme-star-far theme-star-far-3" cx="33" cy="4" r="0.25" fill="#eef2ff"/>
+                            <circle class="theme-star theme-star-far theme-star-far-4" cx="44" cy="14" r="0.2" fill="#dde6f7"/>
+                            <circle class="theme-star theme-star-far theme-star-far-5" cx="3" cy="15" r="0.24" fill="#e8eef8"/>
+                            <circle class="theme-star theme-star-far theme-star-far-6" cx="18" cy="18" r="0.2" fill="#d4dcef"/>
+                            <circle class="theme-star theme-star-far theme-star-far-7" cx="31" cy="22" r="0.26" fill="#eef2ff"/>
+                            <circle class="theme-star theme-star-far theme-star-far-8" cx="44" cy="26" r="0.22" fill="#dce6f5"/>
+                            <circle class="theme-star theme-star-far theme-star-far-9" cx="15" cy="35" r="0.2" fill="#e8eef8"/>
+                            <circle class="theme-star theme-star-far theme-star-far-10" cx="27" cy="33" r="0.24" fill="#d4dcef"/>
+                            <circle class="theme-star theme-star-far theme-star-far-1" cx="36" cy="43" r="0.2" fill="#eef2ff"/>
+                            <circle class="theme-star theme-star-far theme-star-far-3" cx="4" cy="33" r="0.22" fill="#dce6f5"/>
+                            <circle class="theme-star theme-star-far theme-star-far-5" cx="24" cy="8" r="0.18" fill="#e8eef8"/>
+                            <circle class="theme-star theme-star-far theme-star-far-7" cx="10" cy="24" r="0.2" fill="#d4dcef"/>
+                            <circle class="theme-star theme-star-far theme-star-far-9" cx="39" cy="35" r="0.18" fill="#eef2ff"/>
+                        </svg>
+                    </span>
+                    <span class="theme-comets" aria-hidden="true">
+                        <span class="theme-comet theme-comet-1">
+                            <svg viewBox="0 0 40 8" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="cometTail" x1="0" y1="0.5" x2="1" y2="0.5">
+                                        <stop offset="0%" stop-color="#9ec9ff" stop-opacity="0"/>
+                                        <stop offset="55%" stop-color="#c9e4ff" stop-opacity="0.55"/>
+                                        <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+                                    </linearGradient>
+                                </defs>
+                                <line x1="1" y1="4" x2="31" y2="4" stroke="url(#cometTail)" stroke-width="1.6" stroke-linecap="round"/>
+                                <circle cx="33.5" cy="4" r="2.1" fill="#fff"/>
+                                <circle cx="33.5" cy="4" r="3.2" fill="#b8d9ff" opacity="0.35"/>
+                            </svg>
+                        </span>
+                        <span class="theme-comet theme-comet-2">
+                            <svg viewBox="0 0 40 8" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="cometTail2" x1="0" y1="0.5" x2="1" y2="0.5">
+                                        <stop offset="0%" stop-color="#a8b8ff" stop-opacity="0"/>
+                                        <stop offset="55%" stop-color="#d4dcff" stop-opacity="0.5"/>
+                                        <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+                                    </linearGradient>
+                                </defs>
+                                <line x1="1" y1="4" x2="31" y2="4" stroke="url(#cometTail2)" stroke-width="1.3" stroke-linecap="round"/>
+                                <circle cx="33.2" cy="4" r="1.7" fill="#fff"/>
+                                <circle cx="33.2" cy="4" r="2.7" fill="#c5d0ff" opacity="0.3"/>
+                            </svg>
+                        </span>
+                    </span>
                     <span class="theme-orb" aria-hidden="true">
                         <svg class="theme-icon theme-icon-sun" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -609,11 +831,6 @@
                                     <stop offset="100%" stop-color="#2a3874" stop-opacity="0.42"/>
                                 </radialGradient>
                             </defs>
-                            <circle cx="13" cy="15" r="1.15" fill="#ffe9a8"/>
-                            <circle cx="53" cy="13" r="0.95" fill="#b8c9ff"/>
-                            <circle cx="56" cy="30" r="0.8" fill="#ffd4a8"/>
-                            <circle cx="9" cy="42" r="0.95" fill="#9ad7ff"/>
-                            <circle cx="49" cy="52" r="1.1" fill="#ffc4ef"/>
                             <!-- Crescent via intersecting arcs so both tips stay sharp -->
                             <path fill="url(#moonBody)" d="M42.2 11.4A20.8 20.8 0 1 0 51.6 45.1 16.4 16.4 0 1 1 42.2 11.4Z"/>
                             <path fill="url(#moonShade)" d="M42.2 11.4A20.8 20.8 0 1 0 51.6 45.1 16.4 16.4 0 1 1 42.2 11.4Z"/>
@@ -695,6 +912,67 @@
                             <svg class="theme-bird theme-bird-2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                             <svg class="theme-bird theme-bird-3" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.2 C2.4 2.2 3.4 1.6 4.3 2.6 C5.2 1.6 6.3 2.2 7.8 4.2"/></svg>
                         </span>
+                        <span class="theme-stars" aria-hidden="true">
+                            <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="theme-star theme-star-1" cx="7" cy="10" r="0.7" fill="#ffe9a8"/>
+                                <circle class="theme-star theme-star-2" cx="16" cy="5" r="0.5" fill="#c9d7ff"/>
+                                <circle class="theme-star theme-star-3" cx="28" cy="7" r="0.55" fill="#ffd4a8"/>
+                                <circle class="theme-star theme-star-4" cx="38" cy="11" r="0.65" fill="#b8c9ff"/>
+                                <circle class="theme-star theme-star-5" cx="42" cy="20" r="0.45" fill="#ffc4ef"/>
+                                <circle class="theme-star theme-star-6" cx="5" cy="22" r="0.5" fill="#9ad7ff"/>
+                                <circle class="theme-star theme-star-7" cx="12" cy="30" r="0.4" fill="#fff"/>
+                                <circle class="theme-star theme-star-8" cx="40" cy="30" r="0.55" fill="#d4dcff"/>
+                                <circle class="theme-star theme-star-9" cx="8" cy="38" r="0.6" fill="#ffe9a8"/>
+                                <circle class="theme-star theme-star-10" cx="22" cy="40" r="0.45" fill="#b8c9ff"/>
+                                <circle class="theme-star theme-star-11" cx="34" cy="38" r="0.5" fill="#ffc4ef"/>
+                                <circle class="theme-star theme-star-12" cx="41" cy="40" r="0.4" fill="#9ad7ff"/>
+                                <circle class="theme-star theme-star-far theme-star-far-1" cx="11" cy="7" r="0.28" fill="#e8eef8"/>
+                                <circle class="theme-star theme-star-far theme-star-far-2" cx="21" cy="11" r="0.22" fill="#dce6f5"/>
+                                <circle class="theme-star theme-star-far theme-star-far-3" cx="33" cy="4" r="0.25" fill="#eef2ff"/>
+                                <circle class="theme-star theme-star-far theme-star-far-4" cx="44" cy="14" r="0.2" fill="#dde6f7"/>
+                                <circle class="theme-star theme-star-far theme-star-far-5" cx="3" cy="15" r="0.24" fill="#e8eef8"/>
+                                <circle class="theme-star theme-star-far theme-star-far-6" cx="18" cy="18" r="0.2" fill="#d4dcef"/>
+                                <circle class="theme-star theme-star-far theme-star-far-7" cx="31" cy="22" r="0.26" fill="#eef2ff"/>
+                                <circle class="theme-star theme-star-far theme-star-far-8" cx="44" cy="26" r="0.22" fill="#dce6f5"/>
+                                <circle class="theme-star theme-star-far theme-star-far-9" cx="15" cy="35" r="0.2" fill="#e8eef8"/>
+                                <circle class="theme-star theme-star-far theme-star-far-10" cx="27" cy="33" r="0.24" fill="#d4dcef"/>
+                                <circle class="theme-star theme-star-far theme-star-far-1" cx="36" cy="43" r="0.2" fill="#eef2ff"/>
+                                <circle class="theme-star theme-star-far theme-star-far-3" cx="4" cy="33" r="0.22" fill="#dce6f5"/>
+                                <circle class="theme-star theme-star-far theme-star-far-5" cx="24" cy="8" r="0.18" fill="#e8eef8"/>
+                                <circle class="theme-star theme-star-far theme-star-far-7" cx="10" cy="24" r="0.2" fill="#d4dcef"/>
+                                <circle class="theme-star theme-star-far theme-star-far-9" cx="39" cy="35" r="0.18" fill="#eef2ff"/>
+                            </svg>
+                        </span>
+                        <span class="theme-comets" aria-hidden="true">
+                            <span class="theme-comet theme-comet-1">
+                                <svg viewBox="0 0 40 8" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="cometTailG" x1="0" y1="0.5" x2="1" y2="0.5">
+                                            <stop offset="0%" stop-color="#9ec9ff" stop-opacity="0"/>
+                                            <stop offset="55%" stop-color="#c9e4ff" stop-opacity="0.55"/>
+                                            <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <line x1="1" y1="4" x2="31" y2="4" stroke="url(#cometTailG)" stroke-width="1.6" stroke-linecap="round"/>
+                                    <circle cx="33.5" cy="4" r="2.1" fill="#fff"/>
+                                    <circle cx="33.5" cy="4" r="3.2" fill="#b8d9ff" opacity="0.35"/>
+                                </svg>
+                            </span>
+                            <span class="theme-comet theme-comet-2">
+                                <svg viewBox="0 0 40 8" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="cometTailG2" x1="0" y1="0.5" x2="1" y2="0.5">
+                                            <stop offset="0%" stop-color="#a8b8ff" stop-opacity="0"/>
+                                            <stop offset="55%" stop-color="#d4dcff" stop-opacity="0.5"/>
+                                            <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <line x1="1" y1="4" x2="31" y2="4" stroke="url(#cometTailG2)" stroke-width="1.3" stroke-linecap="round"/>
+                                    <circle cx="33.2" cy="4" r="1.7" fill="#fff"/>
+                                    <circle cx="33.2" cy="4" r="2.7" fill="#c5d0ff" opacity="0.3"/>
+                                </svg>
+                            </span>
+                        </span>
                         <span class="theme-orb" aria-hidden="true">
                             <svg class="theme-icon theme-icon-sun" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -746,11 +1024,6 @@
                                         <stop offset="100%" stop-color="#2a3874" stop-opacity="0.42"/>
                                     </radialGradient>
                                 </defs>
-                                <circle cx="13" cy="15" r="1.15" fill="#ffe9a8"/>
-                                <circle cx="53" cy="13" r="0.95" fill="#b8c9ff"/>
-                                <circle cx="56" cy="30" r="0.8" fill="#ffd4a8"/>
-                                <circle cx="9" cy="42" r="0.95" fill="#9ad7ff"/>
-                                <circle cx="49" cy="52" r="1.1" fill="#ffc4ef"/>
                                 <path fill="url(#moonBodyG)" d="M42.2 11.4A20.8 20.8 0 1 0 51.6 45.1 16.4 16.4 0 1 1 42.2 11.4Z"/>
                                 <path fill="url(#moonShadeG)" d="M42.2 11.4A20.8 20.8 0 1 0 51.6 45.1 16.4 16.4 0 1 1 42.2 11.4Z"/>
                                 <circle cx="26" cy="26" r="2.8" fill="#94a6d8" opacity="0.42"/>
@@ -1664,34 +1937,13 @@
         draw();
     });
 
-    const GRAPH_URL = "https://ramesh-madara.github.io/capitalizer/graphs/";
-    const CREDIT_LINE = "created by Ramesh Madara";
-
-    function drawExportCredit(w, h) {
-        const url = GRAPH_URL;
-        const credit = CREDIT_LINE;
-        ctx.save();
-        ctx.font = "500 10px DM Sans, system-ui, sans-serif";
-        ctx.textAlign = "right";
-        ctx.textBaseline = "bottom";
-        ctx.fillStyle = themePalette().muted;
-        const pad = 10;
-        ctx.fillText(url, w - pad, h - pad - 12);
-        ctx.fillText(credit, w - pad, h - pad);
-        ctx.restore();
-    }
-
     document.getElementById("export-png").addEventListener("click", () => {
         draw(); // ensure labels + legend are painted
-        const w = canvas.width / dpr;
-        const h = canvas.height / dpr;
-        drawExportCredit(w, h);
         const link = document.createElement("a");
         const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
         link.download = `graph-${stamp}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
-        draw(); // clear export-only credit from live canvas
     });
 
     window.addEventListener("resize", resize);
