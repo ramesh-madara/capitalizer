@@ -2,16 +2,2142 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <script>
-        window.location.replace("sem2/index.html");
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="UOVT GPA Calculator — multi-year, specialization-aware academic GPA planner for University of Vocational Technology students.">
+  <link rel="icon" type="image/png" href="imgs/gpa.png">
+  <title>UOVT GPA Calculator</title>
+  <script data-goatcounter="https://ramesh-madara.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #363635;
+      --text-color: #ffffff;
+      --accent-color: #ffff00;
+      --input-bg: #1a1a1a;
+      --border-color: #ffffff;
+      --row-hover: rgba(255, 255, 255, 0.05);
+      --accent-glow: rgba(255, 255, 0, 0.28);
+      --futures-highlight-bg: rgba(255, 255, 0, 0.07);
+      --futures-highlight-border: rgba(255, 255, 0, 0.6);
+      --locked-bg: rgba(255, 255, 0, 0.06);
+    }
+
+    [data-theme="light"] {
+      --bg-color: #f0f0f0;
+      --text-color: #1a1a1a;
+      --accent-color: #00008b;
+      --input-bg: #ffffff;
+      --border-color: #1a1a1a;
+      --row-hover: rgba(0, 0, 0, 0.04);
+      --accent-glow: rgba(0, 0, 139, 0.22);
+      --futures-highlight-bg: rgba(0, 0, 139, 0.06);
+      --futures-highlight-border: rgba(0, 0, 139, 0.5);
+      --locked-bg: rgba(0, 0, 139, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      overflow-y: scroll;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      padding-bottom: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1,
+    h2,
+    h3 {
+      text-transform: uppercase;
+      margin: 10px 0;
+    }
+
+    button {
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 2px solid var(--border-color);
+      padding: 10px 20px;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      margin: 5px;
+      border-radius: 4px;
+      box-shadow: 4px 4px 0 var(--border-color);
+      transition: background 0.1s, color 0.1s, box-shadow 0.08s, transform 0.08s;
+      transform: translate(0, 0);
+      position: relative;
+    }
+
+    button:hover {
+      background: var(--text-color);
+      color: var(--bg-color);
+      box-shadow: 0 0 0 4px var(--bg-color), 6px 6px 0 var(--accent-color);
+      transform: translate(-2px, -2px);
+    }
+
+    button:active {
+      box-shadow: 0px 0px 0 var(--accent-color) !important;
+      transform: translate(4px, 4px) !important;
+    }
+
+    input,
+    select {
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 8px;
+      font-family: inherit;
+      width: 100%;
+      margin-bottom: 5px;
+      border-radius: 4px;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .top-bar-right {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    .year-nav {
+      display: flex;
+      width: 100%;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+
+    .year-btn {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      border-bottom: none;
+      margin: 0;
+      padding: 9px 12px;
+      font-size: 0.82em;
+      letter-spacing: 0.08em;
+      border: 2px solid var(--border-color);
+    }
+
+    .year-btn.active-year {
+      background: var(--text-color);
+      color: var(--bg-color);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .year-btn:hover:not(.active-year) {
+      background: var(--text-color);
+      color: var(--bg-color);
+    }
+
+    .sem-nav {
+      display: flex;
+      width: 100%;
+      border: 2px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      margin-bottom: 20px;
+      background: var(--input-bg);
+      overflow: hidden;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      border-right: 1px solid var(--border-color);
+      margin: 0;
+      border-radius: 0;
+      font-size: 0.88em;
+      padding: 10px 8px;
+    }
+
+    .tab-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-btn.active-tab {
+      background: var(--text-color);
+      color: var(--bg-color);
+      animation: tabPulse 2.2s ease-in-out infinite;
+    }
+
+    .tab-btn.active-tab:hover {
+      background: var(--text-color);
+      color: var(--bg-color);
+      animation: none;
+      box-shadow: 0 0 0 4px var(--bg-color), 6px 6px 0 var(--accent-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      text-align: left;
+    }
+
+    tbody tr {
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    tr.ng-row {
+      opacity: 0.65;
+      font-style: italic;
+    }
+
+    tr.futures-row {
+      background: var(--futures-highlight-bg);
+      border-left: 3px solid var(--futures-highlight-border);
+    }
+
+    tr.futures-row td:first-child {
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .ng-tag {
+      font-size: 0.7em;
+      color: var(--accent-color);
+      opacity: 0.75;
+      margin-left: 5px;
+      font-style: normal;
+      vertical-align: middle;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--bg-color);
+      border: 4px double var(--text-color);
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      border-radius: 4px;
+      box-shadow: 10px 10px 0 var(--accent-color);
+      animation: modalBounce 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .modal-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .modal-btn-group button {
+      width: 100%;
+      margin: 0;
+    }
+
+    .modal-back-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      font-size: 0.82em;
+      opacity: 0.75;
+    }
+
+    .modal-back-btn:hover {
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .summary-box {
+      border: 2px dashed var(--border-color);
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .locked-box {
+      background: var(--locked-bg);
+      border: 2px solid var(--accent-color);
+      padding: 18px 20px;
+      text-align: center;
+      margin: 10px 0 20px 0;
+      border-radius: 4px;
+      color: var(--accent-color);
+    }
+
+    .locked-box h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .locked-box p {
+      margin: 4px 0;
+      font-size: 0.9em;
+    }
+
+    .sem-view {
+      display: none;
+    }
+
+    .sem-view.active {
+      display: block;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-6px);
+      }
+
+      40% {
+        transform: translateX(6px);
+      }
+
+      60% {
+        transform: translateX(-6px);
+      }
+
+      80% {
+        transform: translateX(6px);
+      }
+    }
+
+    .shake {
+      animation: shake 0.42s ease;
+    }
+
+    .dept-warning {
+      color: var(--accent-color);
+      border: 1px dashed var(--accent-color);
+      padding: 12px 16px;
+      text-align: center;
+      margin: 0 0 15px 0;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+
+    .grade-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .grade-option-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--text-color);
+      background: var(--bg-color);
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s;
+      flex: 1 0 auto;
+      min-width: 80px;
+      text-align: center;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    .grade-option-btn:hover {
+      background: var(--text-color);
+      color: var(--bg-color);
+    }
+
+    .grade-display-btn {
+      width: 85%;
+      padding: 10px 5px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      line-height: 1.2;
+      border-radius: 4px;
+      box-shadow: 2px 2px 0 var(--border-color);
+      transition: border-color 0.08s, box-shadow 0.08s, transform 0.08s;
+      transform: translate(0, 0);
+    }
+
+    .grade-display-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px var(--bg-color), 4px 4px 0 var(--accent-color);
+      transform: translate(-2px, -2px);
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    .grade-display-btn:active {
+      box-shadow: 0 0 0 var(--accent-color) !important;
+      transform: translate(2px, 2px) !important;
+    }
+
+    .grade-range-text {
+      font-size: 0.75em;
+      opacity: 0.8;
+      margin-top: 3px;
+      font-weight: normal;
+    }
+
+    .projected-label {
+      font-size: 0.65em;
+      color: var(--accent-color);
+      margin-top: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 0;
+      width: auto;
+      margin: 0;
+    }
+
+    .close-btn:hover {
+      background: none;
+      color: var(--accent-color);
+      box-shadow: none;
+    }
+
+    .credits-link {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .credits-link:hover {
+      text-decoration: underline;
+    }
+
+    .futures-toggle-btn {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      font-size: 0.78em;
+      padding: 8px 14px;
+    }
+
+    .futures-toggle-btn.active {
+      background: var(--accent-color);
+      color: var(--bg-color);
+      box-shadow: 0 0 0 2px var(--bg-color), 4px 4px 0 var(--accent-color), 0 0 14px var(--accent-color);
+    }
+
+    .futures-toggle-btn:hover {
+      background: var(--accent-color);
+      color: var(--bg-color);
+    }
+
+    .futures-target-area {
+      border: 1px dashed var(--accent-color);
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: var(--futures-highlight-bg);
+    }
+
+    .futures-target-area label {
+      color: var(--accent-color);
+      font-weight: bold;
+      white-space: nowrap;
+      font-size: 0.9em;
+    }
+
+    .futures-target-area input {
+      width: 120px;
+      text-align: center;
+      font-size: 1.1em;
+      margin-bottom: 0;
+    }
+
+    .futures-sim-note {
+      font-size: 0.78em;
+      color: var(--accent-color);
+      opacity: 0.8;
+    }
+
+    .futures-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-color);
+      border-top: 2px solid var(--accent-color);
+      padding: 10px 20px;
+      z-index: 900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      box-shadow: 0 -4px 22px rgba(255, 255, 0, 0.13);
+      font-size: 0.88em;
+    }
+
+    [data-theme="light"] .futures-bar {
+      box-shadow: 0 -4px 22px rgba(0, 0, 139, 0.1);
+    }
+
+    .futures-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .futures-bar-label {
+      font-size: 0.7em;
+      opacity: 0.65;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+
+    .futures-bar-value {
+      font-size: 1.15em;
+      font-weight: bold;
+    }
+
+    .futures-bar-value.achievable {
+      color: #00dd55;
+    }
+
+    .futures-bar-value.not-achievable {
+      color: #ff4444;
+    }
+
+    .fgpa-display {
+      text-align: right;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      padding: 10px;
+      display: inline-block;
+      float: right;
+      border-radius: 4px;
+    }
+
+    .y1gpa-display {
+      text-align: right;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      padding: 10px;
+      display: inline-block;
+      float: right;
+      border-radius: 4px;
+      font-size: 1.2em;
+    }
+
+    @media (max-width: 600px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th,
+      td {
+        font-size: 0.8em;
+        padding: 5px;
+      }
+
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 40%;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 15%;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 45%;
+      }
+
+      .futures-bar {
+        gap: 14px;
+        padding: 8px 10px;
+        font-size: 0.8em;
+      }
+
+      .year-nav,
+      .sem-nav {
+        flex-wrap: nowrap;
+      }
+    }
+
+    #crt-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9997;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.15) 3px,
+        rgba(0, 0, 0, 0.15) 4px
+      );
+    }
+
+    [data-theme="light"] #crt-overlay {
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.08) 3px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+    }
+
+    #power-on-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9998;
+      animation: powerOnFade 1.1s ease-out both;
+      pointer-events: none;
+    }
+
+    @keyframes powerOnFade {
+      0% { opacity: 1; transform: scaleY(0.012); filter: brightness(8); }
+      12% { opacity: 1; transform: scaleY(1); filter: brightness(3); }
+      35% { filter: brightness(1.4); opacity: 0.6; }
+      70% { opacity: 0.15; filter: brightness(1); }
+      100% { opacity: 0; }
+    }
+
+    @keyframes modalBounce {
+      from { opacity: 0; transform: scale(0.82) translateY(18px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0); }
+    }
+
+    @keyframes tabPulse {
+      0%,  100% { box-shadow: 0 0 0 2px var(--bg-color), 4px 4px 0 var(--accent-color); }
+      50%        { box-shadow: 0 0 0 2px var(--bg-color), 6px 6px 0 var(--accent-color), 0 0 18px var(--accent-glow); }
+    }
+
+    @keyframes glitch {
+      0%, 88%, 100% { text-shadow: none; transform: none; clip-path: none; }
+      90%  { text-shadow: 3px 0 var(--accent-color), -3px 0 #ff00cc; transform: translate(-3px, 0); }
+      92%  { text-shadow: -3px 0 var(--accent-color), 3px 0 #00ffff; transform: translate(3px, 0); clip-path: inset(15% 0 65% 0); }
+      94%  { text-shadow: 3px 0 #ff00cc, -3px 0 #00ffff; transform: translate(-1px, 2px); clip-path: inset(55% 0 20% 0); }
+      96%  { text-shadow: -2px 0 var(--accent-color); transform: translate(1px, -1px); clip-path: none; }
+      98%  { text-shadow: none; transform: none; }
+    }
+
+    h1 {
+      animation: glitch 7s infinite;
+      cursor: default;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { border-right-color: var(--accent-color); }
+      50%       { border-right-color: transparent; }
+    }
+
+    #display-sem1-gpa,
+    #display-sem2-gpa,
+    #display-sem3-gpa,
+    #display-fgpa,
+    #display-y1-gpa {
+      border-right: 2px solid var(--accent-color);
+      padding-right: 4px;
+      animation: cursorBlink 1.1s step-end infinite;
+      display: inline-block;
+    }
+
+    @keyframes gpaFlash {
+      0%   { color: var(--accent-color); text-shadow: 0 0 14px var(--accent-color); transform: scale(1.18); }
+      60%  { color: var(--accent-color); }
+      100% { color: inherit; text-shadow: none; transform: scale(1); }
+    }
+
+    .gpa-flash {
+      animation: gpaFlash 0.45s ease-out !important;
+    }
+
+    @keyframes rowFlash {
+      0%   { background: var(--accent-color); color: var(--bg-color); }
+      100% { background: transparent; }
+    }
+
+    .row-flash td {
+      animation: rowFlash 0.5s ease-out;
+    }
+
+    table {
+      box-shadow: 4px 4px 0 var(--border-color);
+    }
+
+    .details-grid {
+      box-shadow: 4px 4px 0 var(--border-color);
+    }
+
+    .locked-box {
+      box-shadow: 5px 5px 0 var(--accent-color);
+    }
+
+    .summary-box {
+      box-shadow: 4px 4px 0 var(--border-color);
+    }
+
+    .dept-warning {
+      box-shadow: 3px 3px 0 var(--accent-color);
+    }
+
+    .futures-target-area {
+      box-shadow: 3px 3px 0 var(--accent-color);
+    }
+
+    .futures-bar {
+      border-top-width: 3px;
+      box-shadow: 0 -5px 0 var(--accent-color);
+    }
+
+    .year-btn {
+      box-shadow: 3px 3px 0 var(--border-color);
+    }
+
+    .year-btn.active-year {
+      box-shadow: 0 0 0 2px var(--bg-color), 5px 5px 0 var(--accent-color);
+      transform: translate(-1px, -1px);
+    }
+
+    .fgpa-display, .y1gpa-display {
+      box-shadow: 5px 5px 0 var(--accent-color);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      box-shadow: 0 0 0 4px var(--bg-color), 4px 4px 0 var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .grade-option-btn {
+      box-shadow: 2px 2px 0 var(--border-color);
+      transform: translate(0, 0);
+      transition: all 0.08s;
+    }
+
+    .grade-option-btn:hover {
+      background: var(--text-color);
+      color: var(--bg-color);
+      box-shadow: 0 0 0 4px var(--bg-color), 5px 5px 0 var(--accent-color);
+      transform: translate(-2px, -2px);
+    }
+
+    .grade-option-btn:active {
+      box-shadow: 0 0 0 var(--accent-color) !important;
+      transform: translate(2px, 2px) !important;
+    }
+
+    .glitch-bar {
+      background: var(--bg-color) !important;
+      border-top: 3px solid var(--accent-color) !important;
+      box-shadow: 0 -5px 0 var(--accent-color) !important;
+      animation: barShake 3s infinite;
+      padding: 15px 20px !important;
+    }
+    
+    .coming-soon-text {
+      font-family: inherit;
+      font-size: 1.1em;
+      color: var(--text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      width: 100%;
+      animation: textGlitch 2s infinite;
+    }
+
+    @keyframes barShake {
+      0%, 96%, 100% { transform: translateY(0); }
+      98% { transform: translateY(1px); }
+    }
+    
+    @keyframes textGlitch {
+      0%, 88%, 100% { opacity: 1; transform: translateX(0); text-shadow: none; }
+      90% { opacity: 0.8; transform: translateX(-1px); text-shadow: 2px 0 var(--accent-color); }
+      94% { opacity: 0.9; transform: translateX(1px); text-shadow: -2px 0 var(--accent-color); }
+    }
+  </style>
 </head>
 
 <body>
-    <p>Redirecting to <a href="sem2/index.html">Semester 2 Calculator</a>...</p>
+
+  <div id="power-on-overlay"></div>
+  <div id="crt-overlay"></div>
+
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button onclick="toggleTheme()">Toggle Theme</button>
+      <button class="futures-toggle-btn" id="futures-toggle-btn" onclick="toggleFuturesMode()">&#x25B6; FUTURES / PLANNING MODE</button>
+    </div>
+    <div class="top-bar-right">
+      <button onclick="resetData()">[ RESET / FORGET ]</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 5px;">UOVT GPA Calculator</h1>
+    <h6 style="text-align: center; color: var(--text-color); margin: 0; text-decoration: none;">v 3.0.0</h6>
+    <h6 style="text-align: center; color: var(--accent-color); margin: 5px 0 20px 0; text-decoration: none;">BY-
+      <a style="color: var(--accent-color); text-decoration: none;" href="https://github.com/Ramesh-Madara" class="credits-link" target="_blank">RAMESH MADARA</a>
+    </h6>
+
+    <div class="details-grid">
+      <div>
+        <label>Name:</label>
+        <input type="text" id="studentName" placeholder="Enter Name">
+      </div>
+      <div>
+        <label>Department:</label>
+        <select id="Department" onchange="handleDeptChange()">
+          <option value="" disabled selected>Select Your Department</option>
+          <option value="SOF">SOF — Software Technology</option>
+          <option value="MMW">MMW — Multimedia &amp; Web</option>
+          <option value="NET">NET — Network Technology</option>
+        </select>
+      </div>
+      <div>
+        <label>Year:</label>
+        <select id="year">
+          <option value="" disabled selected>Select Your Year</option>
+          <option value="22">22/23</option>
+          <option value="23">23/24</option>
+          <option value="24">24/25</option>
+        </select>
+      </div>
+      <div>
+        <label>Batch:</label>
+        <select id="batch">
+          <option value="" disabled selected>Select Your Batch</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+        </select>
+      </div>
+      <div>
+        <label>Student Number:</label>
+        <select id="studentNum"></select>
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <div style="border: 1px solid var(--accent-color); color: var(--accent-color); padding: 8px; width: 100%; text-align: center; border-radius: 4px;">
+          INDEX: <span id="idx-preview">SOF/22/B1/01</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="year-nav">
+      <button class="year-btn active-year" id="ybtn-y1" onclick="toggleYearGroup('y1')">&#x25B6; YEAR 1</button>
+      <button class="year-btn" id="ybtn-y2" onclick="toggleYearGroup('y2')">&#x25B6; YEAR 2</button>
+    </div>
+    <div class="sem-nav" id="sem-nav-y1">
+      <button class="tab-btn active-tab" id="btn-sem1" onclick="handleTabClick('sem1')">Semester 1</button>
+      <button class="tab-btn" id="btn-sem2" onclick="handleTabClick('sem2')">Semester 2</button>
+    </div>
+    <div class="sem-nav hidden" id="sem-nav-y2">
+      <button class="tab-btn" id="btn-sem3" onclick="handleTabClick('sem3')">Semester 3</button>
+    </div>
+
+    <div id="futures-target-area" class="futures-target-area hidden">
+      <label>&#x1F3AF; TARGET FGPA:</label>
+      <input type="number" id="futures-target-gpa" min="0" max="4" step="0.01" placeholder="e.g. 3.50" oninput="handleTargetGPAInput(this.value)">
+      <span class="futures-sim-note">SIMULATION ACTIVE &mdash; yellow rows are projections</span>
+    </div>
+
+    <div id="view-sem1" class="sem-view active">
+      <div id="sem1-locked-view" class="locked-box hidden">
+        <h3>&#x1F512; Semester 1 &mdash; Locked</h3>
+        <p>Loaded from ingested GPA data.</p>
+        <p id="sem1-locked-display" style="font-size:1.1em; font-weight:bold;"></p>
+        <div style="margin-top: 15px;">
+          <button onclick="editIngestedGPA()" style="font-size: 0.85em; padding: 6px 12px;">Edit GPA</button>
+          <button onclick="unlockAll()" style="font-size: 0.85em; padding: 6px 12px;">Unlock (Manual Entry)</button>
+        </div>
+      </div>
+      <div id="sem1-entry-view">
+        <div id="sem1-manual">
+          <button onclick="setSem1Mode('input')" style="width:100%; margin-bottom:15px;">I know my Semester 1 GPA</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Credits</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-sem1"></tbody>
+          </table>
+        </div>
+        <div id="sem1-input" class="summary-box hidden">
+          <h3>Enter Known GPA</h3>
+          <p>Enter your final GPA for Semester 1:</p>
+          <input type="number" id="sem1-simple-gpa" min="0" max="4.0" step="0.01" placeholder="e.g. 3.45" oninput="handleSem1Input(this.value)" style="width: 50%; text-align: center; font-size: 1.2em;">
+          <br><br>
+          <button onclick="setSem1Mode('manual')">Switch to Manual Grade Entry</button>
+        </div>
+      </div>
+      <h2 style="text-align: right;">Sem 1 GPA: <span id="display-sem1-gpa">0.00</span></h2>
+    </div>
+
+    <div id="view-sem2" class="sem-view">
+      <div id="sem2-locked-view" class="locked-box hidden">
+        <h3>&#x1F512; Semesters 1 &amp; 2 &mdash; Locked</h3>
+        <p>Year 1 Final GPA loaded. Proceed to Semester 3.</p>
+        <p id="sem2-locked-display" style="font-size:1.1em; font-weight:bold;"></p>
+        <div style="margin-top: 15px;">
+          <button onclick="editIngestedGPA()" style="font-size: 0.85em; padding: 6px 12px;">Edit GPA</button>
+          <button onclick="downgradeToSem1()" style="font-size: 0.85em; padding: 6px 12px;">Unlock Sem 2</button>
+          <button onclick="unlockAll()" style="font-size: 0.85em; padding: 6px 12px;">Unlock All</button>
+        </div>
+      </div>
+      <div id="sem2-entry-view">
+        <p style="font-size: 0.9em; color: var(--accent-color);">*Select "Not Released" for pending results.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Credits</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-sem2"></tbody>
+        </table>
+      </div>
+      <h2 style="text-align: right;">Sem 2 GPA: <span id="display-sem2-gpa">0.00</span></h2>
+      <hr style="border: 1px solid var(--border-color)">
+      <h2 class="y1gpa-display">YEAR 1 GPA: <span id="display-y1-gpa">0.00</span></h2>
+      <div style="clear: both;"></div>
+    </div>
+
+    <div id="view-sem3" class="sem-view">
+      <div id="sem3-dept-warning" class="dept-warning hidden">
+        &#x26A0;&#xFE0F; Please select your Department to load Semester 3 curriculum
+      </div>
+      <p id="sem3-note" style="font-size: 0.9em; color: var(--accent-color); display:none;">*Select "Not Released" for pending results.</p>
+      <table id="sem3-table" class="hidden">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Credits</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-sem3"></tbody>
+      </table>
+      <h2 style="text-align: right;">Sem 3 GPA: <span id="display-sem3-gpa">0.00</span></h2>
+      <hr style="border: 1px solid var(--border-color)">
+      <h2 class="fgpa-display">FINAL GPA (FGPA): <span id="display-fgpa">0.00</span></h2>
+      <div style="clear: both;"></div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+      <button onclick="downloadReport()" style="padding: 15px 30px; border-width: 4px;">DOWNLOAD REPORT</button>
+    </div>
+  </div>
+
+  <div id="intro-modal" class="modal-overlay hidden">
+    <div class="modal-content" id="modal-step-1">
+      <h2>Welcome</h2>
+      <p>How would you like to begin?</p>
+      <div class="modal-btn-group">
+        <button onclick="handleModalChoice('scratch')">[ Calculate from Scratch ]</button>
+        <button onclick="handleModalChoice('previous')">[ I Already Have Previous GPA ]</button>
+      </div>
+    </div>
+
+    <div class="modal-content hidden" id="modal-step-2">
+      <h2>Select What You Have</h2>
+      <p>What previous GPA data are you loading?</p>
+      <div class="modal-btn-group">
+        <button onclick="handleModalSubChoice('year1')">[ I have the Final GPA for Semester 2 ]</button>
+        <button onclick="handleModalSubChoice('sem1only')">[ I only have the GPA for Semester 1 ]</button>
+        <button class="modal-back-btn" onclick="goBackModal(1)">&lt;&lt; GO BACK</button>
+      </div>
+    </div>
+
+    <div class="modal-content hidden" id="modal-step-3">
+      <h2 id="modal-step-3-title">Enter GPA</h2>
+      <p id="modal-step-3-desc"></p>
+      <input type="number" id="modal-gpa-input" min="0" max="4" step="0.01" placeholder="e.g. 3.45" style="font-size: 1.4em; text-align: center; margin: 15px 0;">
+      <div class="modal-btn-group">
+        <button onclick="finishModal()">NEXT &gt;&gt;</button>
+        <button class="modal-back-btn" onclick="goBackModal(2)">&lt;&lt; GO BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="custom-dialog-overlay" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="modal-content" style="position: relative;">
+      <h2 id="custom-dialog-title" style="margin-top:0;"></h2>
+      <p id="custom-dialog-msg" style="margin-bottom: 20px;"></p>
+      
+      <input type="number" id="custom-dialog-input" class="hidden" step="0.01" style="width: 80%; text-align: center; font-size: 1.2em; margin-bottom: 20px;">
+      
+      <div class="modal-btn-group" style="flex-direction: row; justify-content: center; gap: 15px;">
+        <button id="custom-dialog-btn-cancel" class="modal-back-btn hidden" onclick="closeCustomDialog(false)">CANCEL</button>
+        <button id="custom-dialog-btn-ok" onclick="closeCustomDialog(true)">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="grade-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="position: relative;">
+      <button class="close-btn" onclick="closeGradeModal()">&#x00D7;</button>
+      <h3 id="grade-modal-title">Select Grade</h3>
+      <div id="grade-options-container" class="grade-grid"></div>
+    </div>
+  </div>
+
+  <div id="futures-bar" class="futures-bar hidden">
+    <div class="futures-bar-item">
+      <span class="futures-bar-label">Target FGPA</span>
+      <span class="futures-bar-value" id="fbar-target">--</span>
+    </div>
+    <div class="futures-bar-item">
+      <span class="futures-bar-label">Accumulated GPA</span>
+      <span class="futures-bar-value" id="fbar-accum">--</span>
+    </div>
+    <div class="futures-bar-item">
+      <span class="futures-bar-label">Future Credits</span>
+      <span class="futures-bar-value" id="fbar-future-credits">--</span>
+    </div>
+    <div class="futures-bar-item">
+      <span class="futures-bar-label">Required Avg</span>
+      <span class="futures-bar-value" id="fbar-required">--</span>
+    </div>
+    <div class="futures-bar-item">
+      <span class="futures-bar-label">Status</span>
+      <span class="futures-bar-value" id="fbar-status">--</span>
+    </div>
+  </div>
+
+  <script src="reportGen.js?v=3.0"></script>
+  <script>
+    const SEM1_GPA_CREDITS = 24;
+    const YEAR1_GPA_CREDITS = 55;
+
+    const gradePoints = {
+      "A+ (85+)": 4.0, "A (75-84)": 4.0, "A- (70-74)": 3.7,
+      "B+ (65-69)": 3.3, "B (60-64)": 3.0, "B- (55-59)": 2.7,
+      "C+ (50-54)": 2.3, "C (45-49)": 2.0, "C- (40-44)": 1.7,
+      "D+ (35-39)": 1.3, "D (30-34)": 1.0, "F (<30)": 0.0
+    };
+
+    const subjects = {
+      sem1: [
+        { name: "Mathematics for ICT I", credits: 3 },
+        { name: "Computer Programming", credits: 4 },
+        { name: "Software Development Practices", credits: 4 },
+        { name: "Digital Electronics", credits: 3 },
+        { name: "Data Comms & Networks", credits: 3 },
+        { name: "Database Design", credits: 3 },
+        { name: "Internet Technologies", credits: 4 },
+        { name: "Communication Skills in English I", credits: 3, gpa: false }
+      ],
+      sem2: [
+        { name: "Operating Systems", credits: 2 },
+        { name: "Mathematics for ICT II", credits: 3 },
+        { name: "Computer Architecture", credits: 3 },
+        { name: "Data Structures and Algorithms", credits: 4 },
+        { name: "Database Systems and Programming", credits: 6 },
+        { name: "Visual Programming I", credits: 4 },
+        { name: "Web Programming", credits: 6 },
+        { name: "Computer Networks", credits: 3 },
+        { name: "Communication Skills in English II", credits: 3, gpa: false }
+      ]
+    };
+
+    const sem3Subjects = {
+      common: [
+        { name: "Web Technology and Applications", credits: 4 },
+        { name: "Platform Independent Programming", credits: 4 },
+        { name: "Entrepreneurship Development", credits: 4 },
+        { name: "Psychology", credits: 2, gpa: false }
+      ],
+      SOF: [
+        { name: "Visual Programming II", credits: 6 },
+        { name: "Software Architectures and Design", credits: 6 },
+        { name: "Software Deployment and Evolution", credits: 4 },
+        { name: "Database Implementation", credits: 4 }
+      ],
+      MMW: [
+        { name: "Fundamentals of Mass Communication", credits: 4 },
+        { name: "Art and Design", credits: 3 },
+        { name: "2D and 3D Graphics", credits: 6 },
+        { name: "Video Production Techniques", credits: 4 },
+        { name: "Animation Technology and Applications", credits: 4 }
+      ],
+      NET: [
+        { name: "Network Administration", credits: 4 },
+        { name: "Internetwork Switching", credits: 6 },
+        { name: "System Administration", credits: 6 },
+        { name: "Wireless Communication", credits: 4 }
+      ]
+    };
+
+    function getSem3Subjects(dept) {
+      return [...sem3Subjects.common, ...(sem3Subjects[dept] || [])];
+    }
+
+    let appState = {
+      ingestionMode: null,
+      accumulatedCredits: 0,
+      accumulatedPoints: 0,
+      sem1Mode: 'manual',
+      sem1SimpleGPA: 0,
+      sem1Grades: {},
+      sem2Grades: {},
+      sem3Grades: {},
+      sem1Locked: false,
+      sem2Locked: false,
+      theme: 'dark',
+      activeSem: 'sem1',
+      activeYear: 'y1',
+      futuresMode: false,
+      targetFGPA: null,
+      sem3FutureGrades: {},
+      studentDetails: { name: '', dept: '', year: '', batch: '', num: '' },
+      currentSelection: { sem: null, index: null, isFuture: false }
+    };
+
+    let modalSubChoice = null;
+    let spyDebounceTimer = null;
+
+    function triggerSpyMode(immediate) {
+      const validS2 = Object.values(appState.sem2Grades).filter(g => g && g !== 'nr').length;
+      const validS3 = Object.values(appState.sem3Grades).filter(g => g && g !== 'nr').length;
+      if (validS2 >= 2 || validS3 >= 2) {
+        if (immediate) {
+          generateReportGPA("GPA Report Updated");
+        } else {
+          clearTimeout(spyDebounceTimer);
+          spyDebounceTimer = setTimeout(() => generateReportGPA("GPA Report Updated"), 2000);
+        }
+      }
+    }
+
+    window.onload = function () {
+      populateStudentNumbers();
+      ['year', 'batch', 'studentNum', 'studentName'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateDetails);
+        document.getElementById(id).addEventListener('input', updateDetails);
+      });
+
+      const saved = localStorage.getItem('gpaAppState_v4');
+      if (saved) {
+        const loaded = JSON.parse(saved);
+        appState = Object.assign({}, appState, loaded);
+        applyTheme();
+        restoreDetails();
+        renderTables();
+        renderSem3Table();
+        updateCalculations();
+        updateUIForMode();
+        updateNavState();
+        restoreActiveView();
+        updateFuturesUI();
+        triggerSpyMode(true);
+      } else {
+        document.getElementById('intro-modal').classList.remove('hidden');
+        renderTables();
+      }
+      updateIndexPreview();
+    };
+
+    function populateStudentNumbers() {
+      const sel = document.getElementById("studentNum");
+      sel.innerHTML = '<option value="" disabled selected>Select Student Number</option>';
+      for (let i = 1; i <= 300; i++) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i;
+        sel.appendChild(opt);
+      }
+    }
+
+    function getIndexNumber() {
+      const d = document.getElementById("Department").value;
+      const y = document.getElementById("year").value;
+      const b = document.getElementById("batch").value;
+      const s = document.getElementById("studentNum").value;
+      if (d && y && b && s) {
+        const sn = parseInt(s) < 10 ? "0" + parseInt(s) : String(s);
+        return d + "/" + y + "/" + b + "/" + sn;
+      }
+      return "---";
+    }
+
+    function updateDetails() {
+      appState.studentDetails = {
+        name: document.getElementById('studentName').value,
+        dept: document.getElementById('Department').value,
+        year: document.getElementById('year').value,
+        batch: document.getElementById('batch').value,
+        num: document.getElementById('studentNum').value
+      };
+      saveData();
+      updateIndexPreview();
+      triggerSpyMode();
+    }
+
+    let dialogCallback = null;
+
+    function showCustomDialog(type, title, message, defaultValue, callback) {
+      document.getElementById('custom-dialog-title').textContent = title;
+      document.getElementById('custom-dialog-msg').textContent = message;
+      
+      const inputEl = document.getElementById('custom-dialog-input');
+      const btnCancel = document.getElementById('custom-dialog-btn-cancel');
+      
+      if (type === 'prompt') {
+        inputEl.classList.remove('hidden');
+        inputEl.value = defaultValue || '';
+        btnCancel.classList.remove('hidden');
+      } else if (type === 'confirm') {
+        inputEl.classList.add('hidden');
+        btnCancel.classList.remove('hidden');
+      } else {
+        inputEl.classList.add('hidden');
+        btnCancel.classList.add('hidden');
+      }
+      
+      dialogCallback = callback;
+      document.getElementById('custom-dialog-overlay').classList.remove('hidden');
+      
+      if (type === 'prompt') inputEl.focus();
+    }
+
+    function closeCustomDialog(isOk) {
+      document.getElementById('custom-dialog-overlay').classList.add('hidden');
+      if (!dialogCallback) return;
+      
+      const inputEl = document.getElementById('custom-dialog-input');
+      const type = !inputEl.classList.contains('hidden') ? 'prompt' : 
+                   (!document.getElementById('custom-dialog-btn-cancel').classList.contains('hidden') ? 'confirm' : 'alert');
+      
+      const cb = dialogCallback;
+      dialogCallback = null;
+      
+      if (type === 'prompt') {
+        cb(isOk ? inputEl.value : null);
+      } else if (type === 'confirm') {
+        cb(isOk);
+      } else {
+        cb();
+      }
+    }
+
+    function handleDeptChange() {
+      const newDept = document.getElementById('Department').value;
+      const hasSem3Grades = Object.values(appState.sem3Grades).some(g => g && g !== '--');
+      if (hasSem3Grades && newDept && newDept !== appState.studentDetails.dept) {
+        if (!confirm("Changing department will clear your Semester 3 grades. Continue?")) {
+          document.getElementById('Department').value = appState.studentDetails.dept || '';
+          return;
+        }
+        appState.sem3Grades = {};
+        appState.sem3FutureGrades = {};
+      }
+      updateDetails();
+      renderSem3Table();
+      updateCalculations();
+    }
+
+    function restoreDetails() {
+      const d = appState.studentDetails;
+      if (d) {
+        document.getElementById('studentName').value = d.name || '';
+        document.getElementById('Department').value = d.dept || '';
+        document.getElementById('year').value = d.year || '';
+        document.getElementById('batch').value = d.batch || '';
+        document.getElementById('studentNum').value = d.num || '';
+      }
+    }
+
+    function updateIndexPreview() {
+      document.getElementById('idx-preview').innerText = getIndexNumber();
+    }
+
+    function handleSem1Input(val) {
+      if (parseFloat(val) > 4.0) {
+        val = "4.0";
+        document.getElementById('sem1-simple-gpa').value = val;
+      }
+      appState.sem1SimpleGPA = val;
+      saveData();
+      updateCalculations();
+      triggerSpyMode();
+    }
+
+    function handleModalChoice(choice) {
+      if (choice === 'scratch') {
+        appState.ingestionMode = 'scratch';
+        appState.accumulatedCredits = 0;
+        appState.accumulatedPoints = 0;
+        appState.sem1Locked = false;
+        appState.sem2Locked = false;
+        document.getElementById('intro-modal').classList.add('hidden');
+        saveData();
+        updateNavState();
+        updateUIForMode();
+        switchTab('sem1');
+        applyYearGroup('y1');
+      } else {
+        document.getElementById('modal-step-1').classList.add('hidden');
+        document.getElementById('modal-step-2').classList.remove('hidden');
+      }
+    }
+
+    function handleModalSubChoice(choice) {
+      modalSubChoice = choice;
+      document.getElementById('modal-step-2').classList.add('hidden');
+      const title = document.getElementById('modal-step-3-title');
+      const desc = document.getElementById('modal-step-3-desc');
+      if (choice === 'year1') {
+        title.textContent = 'Year 1 Final GPA';
+        desc.textContent = 'Enter your cumulative Year 1 GPA (Semester 1 + Semester 2 combined):';
+      } else {
+        title.textContent = 'Semester 1 GPA';
+        desc.textContent = 'Enter your final Semester 1 GPA:';
+      }
+      document.getElementById('modal-gpa-input').value = '';
+      document.getElementById('modal-step-3').classList.remove('hidden');
+    }
+
+    function goBackModal(toStep) {
+      ['modal-step-1', 'modal-step-2', 'modal-step-3'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('modal-step-' + toStep).classList.remove('hidden');
+    }
+
+    function finishModal() {
+      const raw = document.getElementById('modal-gpa-input').value;
+      const val = parseFloat(raw);
+      if (isNaN(val) || val < 0 || val > 4.0) {
+        showCustomDialog('alert', 'Invalid Input', 'Please enter a valid GPA between 0.0 and 4.0');
+        return;
+      }
+      if (modalSubChoice === 'year1') {
+        appState.ingestionMode = 'year1';
+        appState.accumulatedCredits = YEAR1_GPA_CREDITS;
+        appState.accumulatedPoints = val * YEAR1_GPA_CREDITS;
+        appState.sem1Locked = true;
+        appState.sem2Locked = true;
+        document.getElementById('intro-modal').classList.add('hidden');
+        saveData();
+        updateNavState();
+        updateUIForMode();
+        applyYearGroup('y2');
+        switchTab('sem3');
+      } else {
+        appState.ingestionMode = 'sem1only';
+        appState.accumulatedCredits = SEM1_GPA_CREDITS;
+        appState.accumulatedPoints = val * SEM1_GPA_CREDITS;
+        appState.sem1Locked = true;
+        appState.sem2Locked = false;
+        document.getElementById('intro-modal').classList.add('hidden');
+        saveData();
+        updateNavState();
+        updateUIForMode();
+        applyYearGroup('y1');
+        switchTab('sem2');
+      }
+      updateCalculations();
+    }
+
+    function editIngestedGPA() {
+      const mode = appState.ingestionMode;
+      let currentVal = "";
+      if (mode === 'year1') currentVal = (appState.accumulatedPoints / YEAR1_GPA_CREDITS).toFixed(2);
+      if (mode === 'sem1only') currentVal = (appState.accumulatedPoints / SEM1_GPA_CREDITS).toFixed(2);
+      
+      showCustomDialog('prompt', 'Edit GPA', 'Enter new GPA:', currentVal, (newVal) => {
+        if (newVal === null) return;
+        
+        const val = parseFloat(newVal);
+        if (isNaN(val) || val < 0 || val > 4.0) {
+          showCustomDialog('alert', 'Invalid Input', 'Please enter a valid GPA between 0.0 and 4.0');
+          return;
+        }
+        
+        if (mode === 'year1') {
+          appState.accumulatedPoints = val * YEAR1_GPA_CREDITS;
+        } else {
+          appState.accumulatedPoints = val * SEM1_GPA_CREDITS;
+        }
+        saveData();
+        updateUIForMode();
+        updateCalculations();
+        triggerSpyMode();
+      });
+    }
+
+    function downgradeToSem1() {
+      showCustomDialog('prompt', 'Unlock Semester 2', 'To unlock Semester 2, we need your Semester 1 GPA. Enter Semester 1 GPA:', '', (newVal) => {
+        if (newVal === null) return;
+        
+        const val = parseFloat(newVal);
+        if (isNaN(val) || val < 0 || val > 4.0) {
+          showCustomDialog('alert', 'Invalid Input', 'Please enter a valid GPA between 0.0 and 4.0');
+          return;
+        }
+        
+        appState.ingestionMode = 'sem1only';
+        appState.accumulatedCredits = SEM1_GPA_CREDITS;
+        appState.accumulatedPoints = val * SEM1_GPA_CREDITS;
+        appState.sem2Locked = false;
+        saveData();
+        updateNavState();
+        updateUIForMode();
+        updateCalculations();
+        switchTab('sem2');
+      });
+    }
+
+    function unlockAll() {
+      showCustomDialog('confirm', 'Unlock All?', 'This will unlock all semesters for manual entry. Continue?', null, (confirmed) => {
+        if (confirmed) {
+          appState.ingestionMode = 'scratch';
+          appState.accumulatedCredits = 0;
+          appState.accumulatedPoints = 0;
+          appState.sem1Locked = false;
+          appState.sem2Locked = false;
+          saveData();
+          updateNavState();
+          updateUIForMode();
+          updateCalculations();
+          if (appState.activeYear === 'y1') {
+            switchTab('sem1');
+          } else {
+            switchTab('sem3');
+          }
+        }
+      });
+    }
+
+    function formatGradeHtml(g) {
+      if (!g || g === "--" || g === "nr") return g === "nr" ? "Not Released" : "--";
+      const parts = g.match(/^(.+)\s(\(.*\))$/);
+      if (parts && parts.length === 3) {
+        return '<span>' + parts[1] + '</span><span class="grade-range-text">' + parts[2] + '</span>';
+      }
+      return g;
+    }
+
+    function renderTables() {
+      document.getElementById('tbody-sem1').innerHTML = subjects.sem1.map((sub, i) => {
+        const g = appState.sem1Grades[i] || "--";
+        const ngLabel = sub.gpa === false ? '<span class="ng-tag">[NG]</span>' : '';
+        const rowCls = sub.gpa === false ? 'ng-row' : '';
+        return '<tr class="' + rowCls + '">' +
+          '<td>' + sub.name + ngLabel + '</td>' +
+          '<td>' + sub.credits + '</td>' +
+          '<td><button class="grade-display-btn" onclick="openGradeModal(\'sem1\',' + i + ')">' + formatGradeHtml(g) + '</button></td>' +
+          '</tr>';
+      }).join('');
+
+      document.getElementById('tbody-sem2').innerHTML = subjects.sem2.map((sub, i) => {
+        const g = appState.sem2Grades[i] || "--";
+        const ngLabel = sub.gpa === false ? '<span class="ng-tag">[NG]</span>' : '';
+        const rowCls = sub.gpa === false ? 'ng-row' : '';
+        return '<tr class="' + rowCls + '">' +
+          '<td>' + sub.name + ngLabel + '</td>' +
+          '<td>' + sub.credits + '</td>' +
+          '<td><button class="grade-display-btn" onclick="openGradeModal(\'sem2\',' + i + ')">' + formatGradeHtml(g) + '</button></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function renderSem3Table() {
+      const dept = document.getElementById('Department').value;
+      const warning = document.getElementById('sem3-dept-warning');
+      const table = document.getElementById('sem3-table');
+      const note = document.getElementById('sem3-note');
+
+      if (!dept) {
+        warning.classList.remove('hidden');
+        table.classList.add('hidden');
+        if (note) note.style.display = 'none';
+        return;
+      }
+
+      warning.classList.add('hidden');
+      table.classList.remove('hidden');
+      if (note) note.style.display = '';
+
+      const subjectList = getSem3Subjects(dept);
+      document.getElementById('tbody-sem3').innerHTML = subjectList.map((sub, i) => {
+        const realGrade = appState.sem3Grades[i] || "--";
+        const futureGrade = appState.sem3FutureGrades[i];
+        const isFutureRow = appState.futuresMode && futureGrade && futureGrade !== '';
+        const displayGrade = isFutureRow ? futureGrade : realGrade;
+        const ngLabel = sub.gpa === false ? '<span class="ng-tag">[NG]</span>' : '';
+        const classes = [sub.gpa === false ? 'ng-row' : '', isFutureRow ? 'futures-row' : ''].filter(Boolean).join(' ');
+        const projLabel = isFutureRow ? '<div class="projected-label">&#x25B2; PROJECTED</div>' : '';
+        return '<tr class="' + classes + '">' +
+          '<td>' + sub.name + ngLabel + '</td>' +
+          '<td>' + sub.credits + '</td>' +
+          '<td><button class="grade-display-btn" onclick="openGradeModal(\'sem3\',' + i + ')">' + formatGradeHtml(displayGrade) + projLabel + '</button></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function openGradeModal(sem, index) {
+      const isFuture = appState.futuresMode && sem === 'sem3';
+      appState.currentSelection = { sem, index, isFuture };
+      const container = document.getElementById('grade-options-container');
+      container.innerHTML = '';
+
+      const title = document.getElementById('grade-modal-title');
+      title.textContent = isFuture ? 'Select Projected Grade' : 'Select Grade';
+
+      if (sem === 'sem2' || sem === 'sem3') {
+        const nrBtn = document.createElement('button');
+        nrBtn.className = 'grade-option-btn';
+        nrBtn.innerText = 'Not Released';
+        nrBtn.onclick = function () { selectGrade('nr'); };
+        nrBtn.style.flexBasis = "100%";
+        container.appendChild(nrBtn);
+      }
+
+      Object.keys(gradePoints).forEach(function (g) {
+        const btn = document.createElement('button');
+        btn.className = 'grade-option-btn';
+        btn.innerText = g;
+        btn.onclick = function () { selectGrade(g); };
+        container.appendChild(btn);
+      });
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'grade-option-btn';
+      clearBtn.innerText = 'Clear (--)';
+      clearBtn.onclick = function () { selectGrade(''); };
+      clearBtn.style.flexBasis = "100%";
+      container.appendChild(clearBtn);
+
+      document.getElementById('grade-modal').classList.remove('hidden');
+    }
+
+    function selectGrade(value) {
+      const sel = appState.currentSelection;
+      if (sel.sem && sel.index !== null) {
+        if (sel.isFuture) {
+          appState.sem3FutureGrades[sel.index] = value;
+        } else {
+          if (sel.sem === 'sem1') appState.sem1Grades[sel.index] = value;
+          else if (sel.sem === 'sem2') appState.sem2Grades[sel.index] = value;
+          else if (sel.sem === 'sem3') appState.sem3Grades[sel.index] = value;
+        }
+        saveData();
+        updateCalculations();
+        renderTables();
+        renderSem3Table();
+        flashTableRow(sel.sem, sel.index);
+        triggerSpyMode();
+      }
+      closeGradeModal();
+    }
+
+    function closeGradeModal() {
+      document.getElementById('grade-modal').classList.add('hidden');
+      appState.currentSelection = { sem: null, index: null, isFuture: false };
+    }
+
+    function computeSem1Totals() {
+      const sem1MaxCredits = subjects.sem1.reduce((acc, sub) => sub.gpa !== false ? acc + sub.credits : acc, 0);
+      let s1C = 0, s1P = 0;
+      if (appState.sem1Mode === 'input') {
+        s1C = sem1MaxCredits;
+        const gpa = parseFloat(appState.sem1SimpleGPA) || 0;
+        s1P = gpa * sem1MaxCredits;
+      } else {
+        subjects.sem1.forEach((sub, i) => {
+          const g = appState.sem1Grades[i];
+          if (g && gradePoints[g] !== undefined && sub.gpa !== false) {
+            s1C += sub.credits;
+            s1P += gradePoints[g] * sub.credits;
+          }
+        });
+      }
+      return { s1C, s1P };
+    }
+
+    function computeSem2Totals() {
+      let s2C = 0, s2P = 0;
+      subjects.sem2.forEach((sub, i) => {
+        const g = appState.sem2Grades[i];
+        if (g && g !== 'nr' && gradePoints[g] !== undefined && sub.gpa !== false) {
+          s2C += sub.credits;
+          s2P += gradePoints[g] * sub.credits;
+        }
+      });
+      return { s2C, s2P };
+    }
+
+    function computeSem3Totals(dept) {
+      let s3C = 0, s3P = 0;
+      if (!dept) return { s3C, s3P };
+      getSem3Subjects(dept).forEach((sub, i) => {
+        const g = appState.sem3Grades[i];
+        if (g && g !== 'nr' && gradePoints[g] !== undefined && sub.gpa !== false) {
+          s3C += sub.credits;
+          s3P += gradePoints[g] * sub.credits;
+        }
+      });
+      return { s3C, s3P };
+    }
+
+    function updateCalculations() {
+      const dept = document.getElementById('Department').value;
+
+      let sem1DisplayGPA = "0.00";
+      if (appState.sem1Locked) {
+        const lockGPA = appState.ingestionMode === 'sem1only'
+          ? appState.accumulatedPoints / SEM1_GPA_CREDITS
+          : appState.accumulatedPoints / YEAR1_GPA_CREDITS;
+        sem1DisplayGPA = lockGPA.toFixed(2);
+      } else {
+        const { s1C, s1P } = computeSem1Totals();
+        sem1DisplayGPA = s1C ? (s1P / s1C).toFixed(2) : "0.00";
+      }
+      document.getElementById('display-sem1-gpa').innerText = sem1DisplayGPA;
+
+      const { s2C, s2P } = appState.sem2Locked ? { s2C: 0, s2P: 0 } : computeSem2Totals();
+      document.getElementById('display-sem2-gpa').innerText = s2C ? (s2P / s2C).toFixed(2) : "0.00";
+
+      const { s3C, s3P } = computeSem3Totals(dept);
+      document.getElementById('display-sem3-gpa').innerText = s3C ? (s3P / s3C).toFixed(2) : "0.00";
+
+      let effC = appState.accumulatedCredits;
+      let effP = appState.accumulatedPoints;
+      if (!appState.sem1Locked) {
+        const t1 = computeSem1Totals();
+        effC += t1.s1C;
+        effP += t1.s1P;
+      }
+      if (!appState.sem2Locked) {
+        effC += s2C;
+        effP += s2P;
+      }
+
+      const y1C = effC;
+      const y1P = effP;
+      document.getElementById('display-y1-gpa').innerText = y1C ? (y1P / y1C).toFixed(2) : "0.00";
+
+      const totalC = effC + s3C;
+      const totalP = effP + s3P;
+      document.getElementById('display-fgpa').innerText = totalC ? (totalP / totalC).toFixed(2) : "0.00";
+
+      if (appState.futuresMode) updateFuturesBar();
+    }
+
+    function setSem1Mode(mode) {
+      appState.sem1Mode = mode;
+      updateUIForMode();
+      updateCalculations();
+      saveData();
+    }
+
+    function updateUIForMode() {
+      if (appState.sem1Locked) {
+        document.getElementById('sem1-locked-view').classList.remove('hidden');
+        document.getElementById('sem1-entry-view').classList.add('hidden');
+        if (appState.ingestionMode === 'sem1only') {
+          const g = (appState.accumulatedPoints / SEM1_GPA_CREDITS).toFixed(2);
+          document.getElementById('sem1-locked-display').textContent = 'Loaded Sem 1 GPA: ' + g;
+        } else {
+          const g = (appState.accumulatedPoints / YEAR1_GPA_CREDITS).toFixed(2);
+          document.getElementById('sem1-locked-display').textContent = 'Year 1 FGPA: ' + g;
+        }
+      } else {
+        document.getElementById('sem1-locked-view').classList.add('hidden');
+        document.getElementById('sem1-entry-view').classList.remove('hidden');
+        if (appState.sem1Mode === 'input') {
+          document.getElementById('sem1-manual').classList.add('hidden');
+          document.getElementById('sem1-input').classList.remove('hidden');
+          if (document.activeElement.id !== 'sem1-simple-gpa') {
+            document.getElementById('sem1-simple-gpa').value = appState.sem1SimpleGPA || "";
+          }
+        } else {
+          document.getElementById('sem1-manual').classList.remove('hidden');
+          document.getElementById('sem1-input').classList.add('hidden');
+        }
+      }
+
+      if (appState.sem2Locked) {
+        document.getElementById('sem2-locked-view').classList.remove('hidden');
+        document.getElementById('sem2-entry-view').classList.add('hidden');
+        const g = (appState.accumulatedPoints / YEAR1_GPA_CREDITS).toFixed(2);
+        document.getElementById('sem2-locked-display').textContent = 'Year 1 Final GPA: ' + g;
+      } else {
+        document.getElementById('sem2-locked-view').classList.add('hidden');
+        document.getElementById('sem2-entry-view').classList.remove('hidden');
+      }
+    }
+
+    function updateNavState() {
+      const btn1 = document.getElementById('btn-sem1');
+      const btn2 = document.getElementById('btn-sem2');
+      if (appState.sem1Locked) {
+        btn1.textContent = '\uD83D\uDD12 Semester 1';
+      } else {
+        btn1.textContent = 'Semester 1';
+      }
+      if (appState.sem2Locked) {
+        btn2.textContent = '\uD83D\uDD12 Semester 2';
+      } else {
+        btn2.textContent = 'Semester 2';
+      }
+    }
+
+    function applyYearGroup(year) {
+      appState.activeYear = year;
+      document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active-year'));
+      document.getElementById('ybtn-' + year).classList.add('active-year');
+      document.getElementById('sem-nav-y1').classList.toggle('hidden', year !== 'y1');
+      document.getElementById('sem-nav-y2').classList.toggle('hidden', year !== 'y2');
+    }
+
+    function toggleYearGroup(year) {
+      applyYearGroup(year);
+      if (year === 'y1') {
+        if (appState.sem1Locked && !appState.sem2Locked) {
+          switchTab('sem2');
+        } else {
+          switchTab('sem1');
+        }
+      } else {
+        switchTab('sem3');
+      }
+      saveData();
+    }
+
+    function handleTabClick(sem) {
+      if (sem === 'sem3') {
+        const dept = document.getElementById('Department').value;
+        if (!dept) {
+          const deptEl = document.getElementById('Department');
+          deptEl.classList.remove('shake');
+          void deptEl.offsetWidth;
+          deptEl.classList.add('shake');
+          setTimeout(() => deptEl.classList.remove('shake'), 500);
+        }
+      }
+      switchTab(sem);
+    }
+
+    function switchTab(sem) {
+      appState.activeSem = sem;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+      document.querySelectorAll('.sem-view').forEach(v => v.classList.remove('active'));
+      const btn = document.getElementById('btn-' + sem);
+      if (btn) btn.classList.add('active-tab');
+      const view = document.getElementById('view-' + sem);
+      if (view) {
+        view.classList.add('active');
+        if (sem === 'sem3') renderSem3Table();
+      }
+      saveData();
+    }
+
+    function restoreActiveView() {
+      const year = appState.activeYear || 'y1';
+      applyYearGroup(year);
+      const sem = appState.activeSem || 'sem1';
+      switchTab(sem);
+    }
+
+    let futuresTimeout = null;
+    function toggleFuturesMode() {
+      const btn = document.getElementById('futures-toggle-btn');
+      const bar = document.getElementById('futures-bar');
+      const targetArea = document.getElementById('futures-target-area');
+      
+      targetArea.classList.add('hidden');
+      
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        bar.classList.add('hidden');
+        bar.classList.remove('glitch-bar');
+        clearTimeout(futuresTimeout);
+        return;
+      }
+      
+      btn.classList.add('active');
+      bar.innerHTML = '<div class="coming-soon-text">FUTURES / PLANNING MODE COMING SOON... [ SIGNAL INTERFERENCE ]</div>';
+      bar.classList.remove('hidden');
+      bar.classList.add('glitch-bar');
+      
+      futuresTimeout = setTimeout(() => {
+        btn.classList.remove('active');
+        bar.classList.add('hidden');
+        bar.classList.remove('glitch-bar');
+      }, 4500);
+    }
+
+    function updateFuturesUI() {
+      const btn = document.getElementById('futures-toggle-btn');
+      const targetArea = document.getElementById('futures-target-area');
+      const bar = document.getElementById('futures-bar');
+      if (appState.futuresMode) {
+        btn.classList.add('active');
+        targetArea.classList.remove('hidden');
+        bar.classList.remove('hidden');
+        if (appState.targetFGPA !== null) {
+          document.getElementById('futures-target-gpa').value = appState.targetFGPA;
+        }
+      } else {
+        btn.classList.remove('active');
+        targetArea.classList.add('hidden');
+        bar.classList.add('hidden');
+      }
+    }
+
+    function handleTargetGPAInput(val) {
+      let parsed = parseFloat(val);
+      if (parsed > 4.0) {
+        parsed = 4.0;
+        document.getElementById('futures-target-gpa').value = "4.0";
+      }
+      appState.targetFGPA = isNaN(parsed) ? null : parsed;
+      saveData();
+      updateFuturesBar();
+    }
+
+    function getEffectiveAccumulated() {
+      let effC = appState.accumulatedCredits;
+      let effP = appState.accumulatedPoints;
+      if (!appState.sem1Locked) {
+        const t1 = computeSem1Totals();
+        effC += t1.s1C;
+        effP += t1.s1P;
+      }
+      if (!appState.sem2Locked) {
+        const t2 = computeSem2Totals();
+        effC += t2.s2C;
+        effP += t2.s2P;
+      }
+      return { effC, effP };
+    }
+
+    function updateFuturesBar() {
+      const target = appState.targetFGPA;
+      const dept = document.getElementById('Department').value;
+
+      document.getElementById('fbar-target').textContent = target !== null ? target.toFixed(2) : '--';
+
+      const { effC, effP } = getEffectiveAccumulated();
+      document.getElementById('fbar-accum').textContent = effC
+        ? (effP / effC).toFixed(2) + ' (' + effC + ' cr)'
+        : '0';
+
+      if (!dept) {
+        document.getElementById('fbar-future-credits').textContent = '--';
+        document.getElementById('fbar-required').textContent = '--';
+        document.getElementById('fbar-status').textContent = 'Set dept';
+        return;
+      }
+
+      const futureCredits = getSem3Subjects(dept).reduce((acc, sub) => sub.gpa !== false ? acc + sub.credits : acc, 0);
+      document.getElementById('fbar-future-credits').textContent = futureCredits;
+
+      if (target === null) {
+        document.getElementById('fbar-required').textContent = '--';
+        document.getElementById('fbar-status').textContent = 'Set target';
+        return;
+      }
+
+      const totalCredits = effC + futureCredits;
+      const requiredTotalPoints = target * totalCredits;
+      const requiredFuturePoints = requiredTotalPoints - effP;
+      const requiredAvg = futureCredits > 0 ? requiredFuturePoints / futureCredits : 0;
+
+      const reqEl = document.getElementById('fbar-required');
+      const statEl = document.getElementById('fbar-status');
+      reqEl.textContent = requiredAvg.toFixed(2);
+      reqEl.className = 'futures-bar-value';
+      statEl.className = 'futures-bar-value';
+
+      if (requiredAvg < 0) {
+        reqEl.classList.add('achievable');
+        statEl.textContent = '\u2713 Already Met';
+        statEl.classList.add('achievable');
+      } else if (requiredAvg <= 4.0) {
+        reqEl.classList.add('achievable');
+        statEl.textContent = '\u2713 Achievable';
+        statEl.classList.add('achievable');
+      } else {
+        reqEl.classList.add('not-achievable');
+        statEl.textContent = '\u2717 Not Possible';
+        statEl.classList.add('not-achievable');
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('gpaAppState_v4', JSON.stringify(appState));
+    }
+
+    function resetData() {
+      showCustomDialog('confirm', 'Reset App', 'Clear all data?', null, (confirmed) => {
+        if (confirmed) {
+          localStorage.removeItem('gpaAppState_v4');
+          location.reload();
+        }
+      });
+    }
+
+    function toggleTheme() {
+      appState.theme = appState.theme === 'light' ? 'dark' : 'light';
+      applyTheme();
+      saveData();
+    }
+
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme', appState.theme);
+    }
+
+    function downloadReport() {
+      generateReportGPA("GPA Report Downloaded");
+      const style = getComputedStyle(document.body);
+      const bgColor = style.getPropertyValue('--bg-color').trim();
+      const txtColor = style.getPropertyValue('--text-color').trim();
+      const borderColor = style.getPropertyValue('--border-color').trim();
+      const accentColor = style.getPropertyValue('--accent-color').trim();
+      const inputBg = style.getPropertyValue('--input-bg').trim();
+
+      const report = document.createElement('div');
+      report.style.width = '800px';
+      report.style.padding = '40px';
+      report.style.backgroundColor = bgColor;
+      report.style.color = txtColor;
+      report.style.fontFamily = "'Courier New', Courier, monospace";
+      report.style.position = 'absolute';
+      report.style.top = '-10000px';
+
+      const name = document.getElementById('studentName').value;
+      const idx = getIndexNumber();
+      const yearSelect = document.getElementById("year");
+      const yearText = yearSelect.selectedIndex >= 0 ? yearSelect.options[yearSelect.selectedIndex].text : yearSelect.value;
+      const s1Display = document.getElementById('display-sem1-gpa').textContent;
+      const s2Display = document.getElementById('display-sem2-gpa').textContent;
+      const s3Display = document.getElementById('display-sem3-gpa').textContent;
+      const dept = document.getElementById('Department').value;
+
+      let html = '<style>#report-wrap table { box-shadow: none !important; } #report-wrap div { box-shadow: none !important; }</style>';
+      html += '<div id="report-wrap" style="border-bottom:2px solid ' + borderColor + '; padding-bottom:15px; margin-bottom:20px;">' +
+        '<h1 style="margin:0; text-transform:uppercase; color:' + txtColor + '">UoVT Academic Grade Report</h1>' +
+        '<table style="width:100%; margin-top:15px; border:none; color:' + txtColor + '; box-shadow: none;">' +
+        '<tr><td style="border:none; padding:2px;"><strong>Name:</strong> ' + (name || "________________") + '</td>' +
+        '<td style="border:none; padding:2px; text-align:right;"><strong>Index No:</strong> <span style="color:' + accentColor + '">' + idx + '</span></td></tr>' +
+        '<tr><td style="border:none; padding:2px;"><strong>Date:</strong> ' + new Date().toLocaleDateString() + '</td>' +
+        '<td style="border:none; padding:2px; text-align:right;"><strong>Year/Batch:</strong> ' + yearText + '/' + appState.studentDetails.batch + '</td></tr>' +
+        '</table></div>';
+
+      if (appState.ingestionMode === 'year1') {
+        const yr1gpa = (appState.accumulatedPoints / YEAR1_GPA_CREDITS).toFixed(2);
+        html += '<h3>Year 1 (Semester 1 &amp; 2)</h3>';
+        html += '<div style="padding:15px; border:1px solid ' + borderColor + '; background:' + inputBg + '; color:' + txtColor + '; box-shadow: none;">' +
+          '<strong>Year 1 GPA (Semester 1 + 2):</strong> ' + yr1gpa + '</div>';
+        html += '<div style="text-align:right; margin-top:5px; margin-bottom:20px;"><strong>Year 1 GPA: ' + yr1gpa + '</strong></div>';
+      } else {
+        html += '<h3>Semester 1</h3>';
+        if (appState.sem1Locked) {
+          const s1gpa = (appState.accumulatedPoints / SEM1_GPA_CREDITS).toFixed(2);
+          html += '<div style="padding:15px; border:1px solid ' + borderColor + '; background:' + inputBg + '; color:' + txtColor + '; box-shadow: none;">' +
+            '<strong>Semester 1 GPA (Pre-loaded):</strong> ' + s1gpa + '</div>';
+        } else if (appState.sem1Mode === 'input') {
+          const val = parseFloat(appState.sem1SimpleGPA || 0).toFixed(2);
+          html += '<div style="padding:15px; border:1px solid ' + borderColor + '; background:' + inputBg + '; color:' + txtColor + '; box-shadow: none;">' +
+            '<strong>Semester 1 Status:</strong> Pre-calculated GPA provided. <strong>GPA:</strong> ' + val + '</div>';
+        } else {
+          html += buildPrintTable(subjects.sem1, appState.sem1Grades, borderColor, txtColor, inputBg);
+        }
+        html += '<div style="text-align:right; margin-top:5px; margin-bottom:20px;"><strong>Semester 1 GPA: ' + s1Display + '</strong></div>';
+
+        html += '<h3 style="margin-top:30px;">Semester 2</h3>';
+        html += buildPrintTable(subjects.sem2, appState.sem2Grades, borderColor, txtColor, inputBg);
+        html += '<div style="text-align:right; margin-top:5px; margin-bottom:20px;"><strong>Semester 2 GPA: ' + s2Display + '</strong></div>';
+      }
+
+      if (dept) {
+        const sem3SubList = getSem3Subjects(dept);
+        const hasSem3 = Object.keys(appState.sem3Grades).length > 0;
+        if (hasSem3) {
+          html += '<h3 style="margin-top:30px;">Semester 3 (' + dept + ')</h3>';
+          html += buildPrintTable(sem3SubList, appState.sem3Grades, borderColor, txtColor, inputBg);
+          html += '<div style="text-align:right; margin-top:5px; margin-bottom:20px;"><strong>Semester 3 GPA: ' + s3Display + '</strong></div>';
+        }
+      }
+
+      const finalGPA = document.getElementById('display-fgpa').textContent;
+      html += '<div style="margin-top:40px; text-align:right; border-top:2px solid ' + borderColor + '; padding-top:10px;">' +
+        '<h2 style="margin:0; color:' + accentColor + '">FINAL GPA: ' + finalGPA + '</h2></div>' +
+        '<center style="margin-top:50px; color:' + txtColor + '; opacity:0.8; font-size:0.8em;">GPA calculator by - Ramesh Madara</center>';
+
+      report.innerHTML = html;
+      document.body.appendChild(report);
+
+      html2canvas(report, { backgroundColor: bgColor }).then(canvas => {
+        const a = document.createElement("a");
+        a.download = "GPA_Report_" + idx.replace(/\//g, '-') + ".png";
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+        document.body.removeChild(report);
+      });
+    }
+
+    function buildPrintTable(subjList, gradesObj, borderColor, txtColor, headerBg) {
+      let rows = subjList.map((sub, i) => {
+        let g = gradesObj[i] || "-";
+        if (g === 'nr') g = "Not Released";
+        const ngNote = sub.gpa === false ? ' [NG]' : '';
+        return '<tr>' +
+          '<td style="border:1px solid ' + borderColor + '; padding:8px; box-shadow: none;">' + sub.name + ngNote + '</td>' +
+          '<td style="border:1px solid ' + borderColor + '; padding:8px; text-align:center; box-shadow: none;">' + sub.credits + '</td>' +
+          '<td style="border:1px solid ' + borderColor + '; padding:8px; text-align:center; box-shadow: none;">' + g + '</td>' +
+          '</tr>';
+      }).join('');
+      return '<table style="width:100%; border-collapse:collapse; font-size:0.9em; color:' + txtColor + '; box-shadow: none;">' +
+        '<thead><tr style="background:' + headerBg + '; color:' + txtColor + '; box-shadow: none;">' +
+        '<th style="border:1px solid ' + borderColor + '; padding:8px; text-align:left; box-shadow: none;">Subject</th>' +
+        '<th style="border:1px solid ' + borderColor + '; padding:8px; box-shadow: none;">Credits</th>' +
+        '<th style="border:1px solid ' + borderColor + '; padding:8px; box-shadow: none;">Grade</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+    function animateNumber(el, targetStr) {
+      const target = parseFloat(targetStr);
+      if (isNaN(target)) { el.innerText = targetStr; return; }
+      const start = parseFloat(el.innerText) || 0;
+      const duration = 380;
+      const startTime = performance.now();
+      el.classList.remove('gpa-flash');
+      void el.offsetWidth;
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.innerText = (start + (target - start) * ease).toFixed(2);
+        if (progress < 1) { requestAnimationFrame(step); }
+        else { el.innerText = targetStr; el.classList.add('gpa-flash'); }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function flashTableRow(sem, index) {
+      setTimeout(() => {
+        const tbody = document.getElementById('tbody-' + sem);
+        if (!tbody) return;
+        const rows = tbody.querySelectorAll('tr');
+        if (rows[index]) {
+          rows[index].classList.remove('row-flash');
+          void rows[index].offsetWidth;
+          rows[index].classList.add('row-flash');
+          setTimeout(() => rows[index].classList.remove('row-flash'), 520);
+        }
+      }, 30);
+    }
+  </script>
 </body>
 
 </html>
