@@ -41,6 +41,7 @@
 
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html {
@@ -82,6 +83,10 @@
       transition: background 0.1s, color 0.1s, box-shadow 0.08s, transform 0.08s;
       transform: translate(0, 0);
       position: relative;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     button:hover {
@@ -89,6 +94,12 @@
       color: var(--bg-color);
       box-shadow: 0 0 0 4px var(--bg-color), 6px 6px 0 var(--accent-color);
       transform: translate(-2px, -2px);
+    }
+
+    button:focus,
+    button:focus-visible,
+    button:active {
+      outline: none;
     }
 
     button:active {
