@@ -298,6 +298,35 @@
       margin: 0;
     }
 
+    .modal-bracket-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      text-align: center;
+    }
+
+    .modal-bracket-btn::before {
+      content: '[';
+      flex-shrink: 0;
+      margin-right: auto;
+      padding-right: 8px;
+    }
+
+    .modal-bracket-btn::after {
+      content: ']';
+      flex-shrink: 0;
+      margin-left: auto;
+      padding-left: 8px;
+    }
+
+    .modal-bracket-btn > span {
+      flex: 1;
+      text-align: center;
+      white-space: normal;
+      line-height: 1.35;
+    }
+
     .modal-back-btn {
       background: transparent;
       border: 1px solid var(--border-color);
@@ -625,7 +654,7 @@
       font-size: 1.2em;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .details-grid {
         grid-template-columns: 1fr;
       }
@@ -661,24 +690,66 @@
       .sem-nav {
         flex-wrap: nowrap;
       }
+
+      .top-bar {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        max-width: 100%;
+        gap: 4px;
+        flex-wrap: nowrap;
+        align-items: stretch;
+      }
+
+      .top-bar-left,
+      .top-bar-right {
+        display: contents;
+      }
+
+      .top-bar button {
+        flex: 1 1 33.33%;
+        width: auto;
+        min-width: 0;
+        margin: 0;
+        padding: 8px 4px;
+        font-size: 0.62em;
+        letter-spacing: 0.02em;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.25;
+        box-shadow: 2px 2px 0 var(--border-color);
+      }
+
+      .top-bar button:hover {
+        box-shadow: 0 0 0 2px var(--bg-color), 3px 3px 0 var(--accent-color);
+      }
     }
 
-    #crt-overlay {
+    html::after {
+      content: "";
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
       pointer-events: none;
       z-index: 9997;
-      background: repeating-linear-gradient(
+      background-image: repeating-linear-gradient(
         to bottom,
         transparent 0px,
         transparent 3px,
         rgba(0, 0, 0, 0.15) 3px,
         rgba(0, 0, 0, 0.15) 4px
       );
+      background-repeat: repeat;
+      background-position: 0 0;
     }
 
-    [data-theme="light"] #crt-overlay {
-      background: repeating-linear-gradient(
+    html[data-theme="light"]::after {
+      background-image: repeating-linear-gradient(
         to bottom,
         transparent 0px,
         transparent 3px,
@@ -865,7 +936,6 @@
 <body>
 
   <div id="power-on-overlay"></div>
-  <div id="crt-overlay"></div>
 
   <div class="top-bar">
     <div class="top-bar-left">
@@ -1040,8 +1110,8 @@
       <h2>Welcome</h2>
       <p>How would you like to begin?</p>
       <div class="modal-btn-group">
-        <button onclick="handleModalChoice('scratch')">[ Calculate from Scratch ]</button>
-        <button onclick="handleModalChoice('previous')">[ I Already Have Previous GPA ]</button>
+        <button class="modal-bracket-btn" onclick="handleModalChoice('scratch')"><span>Calculate from Scratch</span></button>
+        <button class="modal-bracket-btn" onclick="handleModalChoice('previous')"><span>I Already Have Previous GPA</span></button>
       </div>
     </div>
 
@@ -1049,8 +1119,8 @@
       <h2>Select What You Have</h2>
       <p>What previous GPA data are you loading?</p>
       <div class="modal-btn-group">
-        <button onclick="handleModalSubChoice('year1')">[ I have the Final GPA for Semester 2 ]</button>
-        <button onclick="handleModalSubChoice('sem1only')">[ I only have the GPA for Semester 1 ]</button>
+        <button class="modal-bracket-btn" onclick="handleModalSubChoice('year1')"><span>I have the Final GPA for Semester 2</span></button>
+        <button class="modal-bracket-btn" onclick="handleModalSubChoice('sem1only')"><span>I only have the GPA for Semester 1</span></button>
         <button class="modal-back-btn" onclick="goBackModal(1)">&lt;&lt; GO BACK</button>
       </div>
     </div>
