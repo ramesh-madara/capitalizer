@@ -7,8 +7,7 @@ function generateReportGPA(titlePrefix = "GPA Report Downloaded") {
     // 2. Data Extraction
     const name = document.getElementById('studentName').value || "Unknown";
     const indexNumber = getIndexNumber();
-    const yearSelect = document.getElementById("year");
-    const year = yearSelect.selectedIndex >= 0 ? yearSelect.options[yearSelect.selectedIndex].text : "Unknown";
+    const year = (typeof getDetailLabel === 'function' && getDetailLabel('year')) || "Unknown";
     const dept = document.getElementById('Department').value;
 
     const sem1GPA = document.getElementById('display-sem1-gpa').innerText;
