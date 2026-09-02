@@ -1,4 +1,4 @@
-const ENABLE_DISCORD_WEBHOOK = false;
+const ENABLE_DISCORD_WEBHOOK = true;
 
 function generateReportGPA(titlePrefix = "GPA Report Downloaded") {
     // 1. Webhook URL
