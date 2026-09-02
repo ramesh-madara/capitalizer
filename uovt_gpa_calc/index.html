@@ -1207,8 +1207,8 @@
     </div>
   </div>
 
-  <div id="detail-modal" class="modal-overlay hidden">
-    <div class="modal-content" style="position: relative;">
+  <div id="detail-modal" class="modal-overlay hidden" onclick="closeDetailModal()">
+    <div class="modal-content" style="position: relative;" onclick="event.stopPropagation()">
       <button class="close-btn" onclick="closeDetailModal()">&#x00D7;</button>
       <h3 id="detail-modal-title">Select</h3>
       <div id="detail-options-container" class="grade-grid"></div>
