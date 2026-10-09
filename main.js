@@ -8,7 +8,7 @@ const btnPara = document.querySelector(".btn-para");
 
 const copyText = outputText;
 
-//Events for BOTTONS
+//Events for BOTTONS.
 
 //To Uppercase ALL
 btnUpper.addEventListener("click", (e) => {
