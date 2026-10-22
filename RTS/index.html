@@ -875,21 +875,21 @@
         opacity: 0.35;
         cursor: default;
       }
-      .finish {
+      .finish-section {
         margin-top: 28px;
         padding: 22px;
         border-radius: 23px;
         background: var(--yellow);
         text-align: center;
       }
-      .finish .big {
+      .finish-section .big {
         font-size: 38px;
       }
-      .finish h2 {
+      .finish-section h2 {
         margin: 5px 0;
         font-size: 21px;
       }
-      .finish p {
+      .finish-section p {
         color: #716b84;
         font-size: 12px;
         line-height: 1.5;
@@ -1466,12 +1466,12 @@
             <div>
               <span class="section-number">08 / QUICK CHECK</span>
               <h2>Can you beat the clock?</h2>
-              <p>Three questions. Instant feedback. No pressure.</p>
+              <p>23 questions. Instant feedback. No pressure.</p>
             </div>
             <span style="font-size: 29px">🧠</span>
           </div>
           <div class="quiz" id="quiz">
-            <span class="quiz-count" id="quizCount">QUESTION 1 / 3</span>
+            <span class="quiz-count" id="quizCount">QUESTION 1 / 23</span>
             <h3 id="quizQuestion"></h3>
             <div class="answers" id="answers"></div>
             <div
@@ -1486,7 +1486,7 @@
           </div>
         </section>
 
-        <section class="finish reveal" id="finish">
+        <section class="finish-section reveal" id="finish">
           <div class="big">🌈</div>
           <h2>Your brain did a little dance.</h2>
           <p>
@@ -1643,6 +1643,177 @@
           explain:
             "Real-time success is measured against the worst case, not just the average.",
         },
+        {
+          q: "A control system always produces the right value, but sometimes after its deadline. Is it successful?",
+          a: [
+            "Yes, because the calculation is logically correct",
+            "No, because it is not temporally correct",
+            "Yes, as long as its average response time is low",
+          ],
+          correct: 1,
+          explain:
+            "Real-time correctness requires both the right answer and delivery before the deadline.",
+        },
+        {
+          q: "What is the main measure of success for batch processing?",
+          a: [
+            "How many jobs finish over time",
+            "Whether every input gets an immediate response",
+            "Whether every task meets a strict deadline",
+          ],
+          correct: 0,
+          explain:
+            "Batch processing gathers work and is commonly judged by throughput.",
+        },
+        {
+          q: "A user submits a search and waits for results. Which processing model is this?",
+          a: ["Batch", "Interactive", "Real-time"],
+          correct: 1,
+          explain:
+            "Interactive processing responds to a user's command; a slow response may be annoying without being incorrect.",
+        },
+        {
+          q: "When does a task's response time begin?",
+          a: [
+            "When the task is released and becomes ready",
+            "When the CPU first executes an instruction",
+            "When the task's deadline expires",
+          ],
+          correct: 0,
+          explain:
+            "Response time is measured from release until completion, including any waiting.",
+        },
+        {
+          q: "A task spends 4 ms waiting and 6 ms running on the CPU. What is its execution time?",
+          a: ["4 ms", "6 ms", "10 ms"],
+          correct: 1,
+          explain:
+            "Execution time counts CPU work only; waiting is included in response time instead.",
+        },
+        {
+          q: "A task is released at 20 ms and must finish no later than 35 ms. What is 35 ms?",
+          a: ["Its release time", "Its execution time", "Its deadline"],
+          correct: 2,
+          explain: "The deadline is the latest allowed finish time.",
+        },
+        {
+          q: "A sensor task is usually released every 50 ms, but the interval varies slightly. What is that variation called?",
+          a: ["Throughput", "Jitter", "Execution time"],
+          correct: 1,
+          explain:
+            "Jitter is a small variation in the timing of releases or responses.",
+        },
+        {
+          q: "A button can be pressed at any time, with no guaranteed gap between presses. What kind of task does it trigger?",
+          a: ["Periodic", "Aperiodic", "Sporadic"],
+          correct: 1,
+          explain:
+            "Aperiodic events are irregular and have no guaranteed minimum gap.",
+        },
+        {
+          q: "An emergency event is irregular but is guaranteed not to occur more than once every 100 ms. What kind of task is it?",
+          a: ["Periodic", "Aperiodic", "Sporadic"],
+          correct: 2,
+          explain:
+            "A sporadic task is irregular but has a known minimum gap between releases.",
+        },
+        {
+          q: "Which task type repeats at a fixed interval?",
+          a: ["Periodic", "Aperiodic", "Sporadic"],
+          correct: 0,
+          explain:
+            "Periodic tasks repeat according to a fixed period, such as reading a sensor every 100 ms.",
+        },
+        {
+          q: "A late result could cause serious damage or loss of life. Which deadline class best fits?",
+          a: ["Soft real-time", "Firm real-time", "Hard real-time"],
+          correct: 2,
+          explain:
+            "A missed hard real-time deadline can cause catastrophic failure or harm.",
+        },
+        {
+          q: "A result arriving after its deadline is discarded and has no remaining value. Which class is this?",
+          a: ["Soft real-time", "Firm real-time", "Hard real-time"],
+          correct: 1,
+          explain:
+            "Firm real-time results lose all value after the deadline, but are not described as causing harm.",
+        },
+        {
+          q: "After a deadline, a late result is still useful, but becomes less useful over time. Which class is this?",
+          a: ["Soft real-time", "Firm real-time", "Hard real-time"],
+          correct: 0,
+          explain:
+            "Soft real-time results may retain some value after the deadline, with usefulness degrading gradually.",
+        },
+        {
+          q: "In a real-time control loop, what does a sensor do?",
+          a: [
+            "Changes the physical environment",
+            "Measures the environment and supplies input",
+            "Chooses the system's next action",
+          ],
+          correct: 1,
+          explain:
+            "Sensors measure the physical world and send that information to the computer.",
+        },
+        {
+          q: "Which component carries out the computer's decision by changing the physical world?",
+          a: ["Sensor", "Actuator", "Deadline"],
+          correct: 1,
+          explain:
+            "Actuators perform the action that changes the environment.",
+        },
+        {
+          q: "Which sequence describes the real-time control loop?",
+          a: [
+            "Actuators → computer → sensors → environment",
+            "Environment → sensors → computer → actuators → environment",
+            "Computer → environment → deadline → sensors",
+          ],
+          correct: 1,
+          explain:
+            "The system senses the environment, decides in the computer, then acts through actuators.",
+        },
+        {
+          q: "What best describes an embedded system?",
+          a: [
+            "A general-purpose computer used for many unrelated tasks",
+            "A dedicated computer inside a larger machine for a specific job",
+            "A computer that processes only large batches of data",
+          ],
+          correct: 1,
+          explain:
+            "An embedded system is a dedicated computer built into a larger physical system.",
+        },
+        {
+          q: "Why can a low average response time still be insufficient for a real-time system?",
+          a: [
+            "The average does not show whether the slowest response misses a deadline",
+            "Average response time includes throughput",
+            "Real-time systems do not have response times",
+          ],
+          correct: 0,
+          explain:
+            "A good average cannot guarantee that the worst-case response meets its deadline.",
+        },
+        {
+          q: "What does temporal correctness mean?",
+          a: [
+            "The system uses the least CPU time",
+            "The correct result arrives before its deadline",
+            "The system completes the most jobs per hour",
+          ],
+          correct: 1,
+          explain:
+            "Temporal correctness means delivering the right answer within the required time.",
+        },
+        {
+          q: "In the fault–error–failure chain, what is the externally observable system deviation?",
+          a: ["Fault", "Error", "Failure"],
+          correct: 2,
+          explain:
+            "A fault can create an incorrect internal state (an error), which may then appear as an observable failure.",
+        },
       ];
       let questionIndex = 0,
         score = 0,
@@ -1708,7 +1879,7 @@
           quizFinished = true;
           quizQuestion.textContent = `You scored ${score} out of ${questions.length}!`;
           document.getElementById("quizCount").textContent = "QUIZ COMPLETE";
-          answersEl.innerHTML = `<div class="callout">${score === 3 ? "🌟 Perfect score! You’re deadline-ready." : "✨ Nice effort! Revisit a section, then try again."}</div>`;
+          answersEl.innerHTML = `<div class="callout">${score === questions.length ? "🌟 Perfect score! You’re deadline-ready." : "✨ Nice effort! Revisit a section, then try again."}</div>`;
           document.getElementById("quizFeedback").textContent = "";
           quizNext.textContent = "Try again";
           quizNext.disabled = false;
