@@ -1,516 +1,1849 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fff8ef">
-  <title>Real-Time Systems — Study Garden</title>
-  <style>
-    :root {
-      --ink: #292342;
-      --muted: #716b84;
-      --paper: #fffaf3;
-      --white: #fff;
-      --lilac: #e9ddff;
-      --pink: #ffdce7;
-      --mint: #d9f5e8;
-      --yellow: #fff0b8;
-      --blue: #dceeff;
-      --coral: #ff8e83;
-      --purple: #8061da;
-      --line: rgba(41, 35, 66, .1);
-      --shadow: 0 16px 42px rgba(82, 64, 119, .1);
-      font-family: Inter, ui-rounded, "Avenir Next", Avenir, system-ui, sans-serif;
-      color: var(--ink);
-      scroll-behavior: smooth;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background:
-        radial-gradient(ellipse at 10% 5%, rgba(255,220,231,.58), transparent 28rem),
-        radial-gradient(ellipse at 95% 19%, rgba(220,238,255,.68), transparent 30rem),
-        var(--paper);
-    }
-    button, a { font: inherit; }
-    button { color: inherit; }
-    a { color: inherit; text-decoration: none; }
-    .page { width: min(100% - 30px, 860px); margin: 0 auto; padding-bottom: 100px; }
-    .topbar {
-      position: sticky; top: 0; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      padding: 13px 0;
-      background: rgba(255,250,243,.84); backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(41,35,66,.06);
-    }
-    .brand { display:flex; align-items:center; gap:9px; font-weight: 850; font-size: 14px; letter-spacing:-.03em; }
-    .brand-mark { width:34px; height:34px; display:grid; place-items:center; border-radius:12px; background:var(--yellow); font-size:19px; }
-    .top-actions { display:flex; align-items:center; gap:10px; }
-    .progress-mini { width:74px; height:7px; background:#ece6f0; border-radius:10px; overflow:hidden; }
-    .progress-mini span { display:block; width:0%; height:100%; border-radius:inherit; background:linear-gradient(90deg,#ff9c96,#a985ff); transition:width .45s ease; }
-    .progress-label { color:var(--muted); font-size:11px; font-weight:800; }
-    .sound-btn, .icon-btn {
-      border:0; cursor:pointer; background:var(--white); border-radius:13px;
-      width:38px; height:38px; box-shadow:0 4px 14px rgba(50,34,88,.07);
-      transition:transform .2s, background .2s;
-    }
-    .sound-btn:hover, .icon-btn:hover { transform:translateY(-2px) rotate(-3deg); background:var(--yellow); }
-    .hero { padding:35px 0 24px; position:relative; }
-    .eyebrow { display:inline-flex; align-items:center; gap:7px; padding:7px 11px; background:var(--mint); border-radius:99px; font-size:11px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
-    h1 { max-width:650px; margin:17px 0 10px; font-size:clamp(38px, 11vw, 72px); line-height:.96; letter-spacing:-.07em; }
-    h1 .gradient { background:linear-gradient(100deg,#7453d0,#ed7695 75%); color:transparent; background-clip:text; }
-    .hero-copy { max-width:530px; color:var(--muted); line-height:1.6; font-size:15px; margin:15px 0 20px; }
-    .hero-bottom { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-    .primary-btn, .soft-btn {
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      border:0; border-radius:15px; padding:13px 17px; font-weight:850; cursor:pointer;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .primary-btn { background:var(--ink); color:white; box-shadow:0 7px 0 #bcb1d4; }
-    .soft-btn { background:white; border:1px solid var(--line); }
-    .primary-btn:hover, .soft-btn:hover { transform:translateY(-3px); box-shadow:0 10px 20px rgba(56,40,92,.12); }
-    .hero-art {
-      position:absolute; right:6px; top:50px; width:150px; height:145px;
-      display:grid; place-items:center; font-size:84px; filter:drop-shadow(0 12px 8px rgba(95,70,130,.14));
-      animation:bob 3.2s ease-in-out infinite;
-    }
-    .hero-art:before { content:""; position:absolute; width:125px; height:125px; background:var(--yellow); border-radius:46% 54% 57% 43% / 45% 43% 57% 55%; z-index:-1; transform:rotate(-12deg); }
-    .spark { position:absolute; font-size:22px; animation:twinkle 1.8s ease-in-out infinite alternate; }
-    .spark.one { top:6px; right:9px; } .spark.two { left:1px; bottom:9px; animation-delay:.6s; }
-    @keyframes bob { 50% { transform:translateY(-10px) rotate(3deg); } }
-    @keyframes twinkle { to { transform:scale(.65) rotate(28deg); opacity:.45; } }
-    .section-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin:35px 0 14px; }
-    .section-head h2 { margin:0; font-size:24px; letter-spacing:-.05em; }
-    .section-head p { margin:4px 0 0; color:var(--muted); font-size:13px; }
-    .section-number { color:#9d8bbf; font-weight:900; font-size:12px; letter-spacing:.1em; }
-    .jumpbar { display:flex; gap:8px; overflow:auto; padding:2px 1px 8px; scrollbar-width:none; }
-    .jumpbar::-webkit-scrollbar { display:none; }
-    .jumpbar a { flex:none; padding:9px 12px; border-radius:99px; background:white; border:1px solid var(--line); font-size:12px; font-weight:800; transition:.2s; }
-    .jumpbar a:hover { background:var(--lilac); transform:translateY(-2px); }
-    .definition {
-      background:linear-gradient(110deg,#fff 0%, #fffaf2 100%);
-      border:1px solid rgba(128,97,218,.17); border-left:5px solid #9b7aeb;
-      border-radius:18px; padding:15px 16px; margin:12px 0; box-shadow:0 6px 18px rgba(61,43,93,.04);
-    }
-    .definition strong { display:block; font-size:13px; margin-bottom:5px; }
-    .definition p { margin:0; font-size:13px; color:#5e5871; line-height:1.6; }
-    .highlight { background:linear-gradient(transparent 52%, #fff0a8 52%); font-weight:850; color:var(--ink); }
-    .concept-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .concept-card {
-      min-height:138px; padding:16px; border-radius:20px; position:relative; overflow:hidden;
-      border:1px solid rgba(41,35,66,.06); transition:transform .23s, box-shadow .23s;
-    }
-    .concept-card:hover { transform:translateY(-5px) rotate(-.5deg); box-shadow:var(--shadow); }
-    .concept-card:nth-child(4n+1) { background:var(--pink); }
-    .concept-card:nth-child(4n+2) { background:var(--mint); }
-    .concept-card:nth-child(4n+3) { background:var(--blue); }
-    .concept-card:nth-child(4n) { background:var(--yellow); }
-    .concept-card .emoji { font-size:25px; display:block; margin-bottom:12px; }
-    .concept-card h3 { margin:0 0 5px; font-size:15px; letter-spacing:-.03em; }
-    .concept-card p { margin:0; color:#625d73; font-size:12px; line-height:1.5; }
-    .callout { padding:14px 15px; background:#f1eaff; border-radius:16px; margin-top:12px; font-size:13px; line-height:1.55; }
-    .callout b { color:#6649bd; }
-    .model-tabs { display:flex; gap:8px; margin:14px 0 10px; }
-    .tab {
-      border:1px solid var(--line); background:#fff; border-radius:99px; padding:9px 12px;
-      font-size:12px; font-weight:850; cursor:pointer; transition:.2s;
-    }
-    .tab[aria-selected="true"] { background:var(--ink); color:#fff; border-color:var(--ink); }
-    .model-panel { min-height:220px; background:#fff; border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:var(--shadow); }
-    .model-title { display:flex; justify-content:space-between; gap:10px; align-items:center; }
-    .model-title h3 { margin:0; font-size:18px; }
-    .pill { background:var(--mint); padding:6px 9px; border-radius:99px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; }
-    .model-panel p { color:var(--muted); line-height:1.55; font-size:13px; margin:9px 0 15px; }
-    .timeline { position:relative; height:62px; background:#faf8fc; border-radius:14px; overflow:hidden; }
-    .timeline .axis { position:absolute; height:2px; left:14px; right:14px; top:32px; background:#ddd6e8; }
-    .timeline .dot { width:10px; height:10px; border-radius:50%; position:absolute; top:28px; background:#8264d6; box-shadow:0 0 0 4px #e8dfff; }
-    .timeline .event { position:absolute; top:6px; font-size:9px; color:var(--muted); font-weight:850; }
-    .timeline .bar { position:absolute; height:9px; border-radius:9px; top:29px; background:#ff9b9e; }
-    .timeline .label { position:absolute; bottom:4px; font-size:9px; color:var(--muted); font-weight:750; }
-    .timeline .moving { animation:travel 2.3s ease-in-out infinite alternate; }
-    @keyframes travel { from { transform:translateX(0); } to { transform:translateX(23px); } }
-    .model-note { font-size:11px!important; margin:11px 0 0!important; }
-    .timing-card { background:#fff; border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:var(--shadow); }
-    .timing-track { position:relative; height:80px; margin:22px 5px 14px; }
-    .timing-track:before { content:""; position:absolute; left:3%; right:2%; top:37px; height:3px; border-radius:4px; background:#d9d1e7; }
-    .tick { position:absolute; top:23px; width:14px; height:28px; border-radius:8px; background:#8c6ee0; box-shadow:0 0 0 5px #eee8ff; }
-    .tick.release { left:5%; } .tick.finish { left:68%; background:#58ba8d; box-shadow:0 0 0 5px #e0f5ea; }
-    .tick.deadline { left:89%; background:#ff827d; box-shadow:0 0 0 5px #ffe6e3; }
-    .track-label { position:absolute; top:58px; transform:translateX(-50%); font-size:10px; font-weight:850; color:var(--muted); white-space:nowrap; }
-    .track-label.release { left:5%; } .track-label.finish { left:68%; } .track-label.deadline { left:89%; }
-    .exec { position:absolute; top:29px; left:13%; width:53%; height:18px; border-radius:12px; background:linear-gradient(90deg,#bda8ff,#86d7b0); animation:grow 2s ease-in-out infinite alternate; transform-origin:left; }
-    @keyframes grow { to { transform:scaleX(.86); } }
-    .term-list { display:grid; gap:8px; margin-top:14px; }
-    .term-row { display:grid; grid-template-columns:105px 1fr; gap:10px; padding:9px 10px; border-radius:12px; background:#faf8fc; font-size:11px; line-height:1.45; }
-    .term-row b { color:#6649bd; }
-    .task-types { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .task-card { padding:15px 12px; border-radius:18px; min-height:152px; }
-    .task-card:nth-child(1) { background:var(--blue); }.task-card:nth-child(2) { background:var(--pink); }.task-card:nth-child(3) { background:var(--mint); }
-    .task-card .emoji { font-size:24px; }.task-card h3 { margin:9px 0 4px; font-size:14px; }.task-card p { margin:0; color:#625d73; font-size:11px; line-height:1.5; }
-    .compare { display:grid; gap:10px; }
-    .class-card { position:relative; background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px; }
-    .class-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .class-top h3 { margin:0; font-size:14px; }
-    .class-top span { font-size:11px; color:var(--muted); font-weight:750; }
-    .value-visual { margin-top:11px; height:35px; background:#f7f4fa; border-radius:10px; overflow:hidden; position:relative; }
-    .value-visual svg { display:block; width:100%; height:100%; }
-    .class-card details { margin-top:9px; }
-    .class-card summary { color:#7257c1; cursor:pointer; font-size:11px; font-weight:850; }
-    .class-card details p { color:var(--muted); font-size:12px; line-height:1.5; margin:7px 0 0; }
-    .loop-card { background:linear-gradient(140deg,#edf9f3,#f1ecff); border-radius:22px; padding:16px; overflow:hidden; }
-    .loop-card p { color:var(--muted); font-size:12px; line-height:1.55; margin:0 0 14px; }
-    .loop { display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; }
-    .loop-node { width:90px; min-height:77px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:17px; background:#fff; box-shadow:0 6px 15px rgba(70,52,95,.08); text-align:center; animation:bob 3s ease-in-out infinite; }
-    .loop-node:nth-of-type(2) { animation-delay:.3s; }.loop-node:nth-of-type(3) { animation-delay:.6s; }.loop-node:nth-of-type(4) { animation-delay:.9s; }
-    .loop-node b { font-size:11px; }.loop-node span { font-size:22px; }.arrow { color:#9875db; font-weight:1000; font-size:19px; }
-    .flashcard-wrap { perspective:1000px; }
-    .flashcard {
-      width:100%; min-height:195px; border:0; border-radius:22px; padding:23px;
-      background:linear-gradient(135deg,#e9ddff,#ffe0e9); box-shadow:var(--shadow);
-      text-align:left; cursor:pointer; transition:transform .55s; transform-style:preserve-3d; position:relative;
-    }
-    .flashcard.flipped { transform:rotateY(180deg); }
-    .flash-side { backface-visibility:hidden; position:absolute; inset:0; padding:23px; display:flex; flex-direction:column; justify-content:center; }
-    .flash-side.back { transform:rotateY(180deg); background:linear-gradient(135deg,#ddf5e9,#e4edff); border-radius:22px; }
-    .flash-kicker { color:#7354c6; font-size:10px; text-transform:uppercase; font-weight:900; letter-spacing:.12em; }
-    .flash-text { font-size:20px; letter-spacing:-.04em; font-weight:850; line-height:1.25; margin:9px 0; }
-    .flash-hint { color:#716b84; font-size:11px; margin:0; }
-    .flash-controls { display:flex; gap:8px; margin-top:12px; }
-    .flash-controls button { flex:1; border:1px solid var(--line); background:#fff; border-radius:12px; padding:10px; font-size:12px; font-weight:850; cursor:pointer; }
-    .quiz { background:#fff; border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:var(--shadow); }
-    .quiz-count { color:#896dd1; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
-    .quiz h3 { font-size:17px; letter-spacing:-.04em; margin:8px 0 14px; line-height:1.35; }
-    .answers { display:grid; gap:8px; }
-    .answer { padding:12px; border-radius:13px; border:1px solid var(--line); background:#fffdfa; text-align:left; font-size:12px; font-weight:750; cursor:pointer; transition:.18s; }
-    .answer:hover:not(:disabled) { background:#f0eaff; transform:translateX(3px); }
-    .answer.correct { background:#dcf6e8; border-color:#86d4a9; }.answer.wrong { background:#ffe3e3; border-color:#f39a9b; }
-    .quiz-feedback { min-height:22px; color:var(--muted); font-size:12px; font-weight:750; padding-top:9px; }
-    .quiz-footer { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:5px; }
-    .score { font-size:11px; font-weight:850; color:var(--muted); }
-    .next-btn { background:var(--ink); color:white; border:0; border-radius:11px; padding:10px 14px; font-size:12px; font-weight:850; cursor:pointer; }
-    .next-btn:disabled { opacity:.35; cursor:default; }
-    .finish { margin-top:28px; padding:22px; border-radius:23px; background:var(--yellow); text-align:center; }
-    .finish .big { font-size:38px; }.finish h2 { margin:5px 0; font-size:21px; }.finish p { color:#716b84; font-size:12px; line-height:1.5; margin:7px 0 13px; }
-    .toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:var(--ink); color:white; padding:11px 16px; border-radius:99px; font-size:12px; font-weight:800; transition:.25s; z-index:30; }
-    .toast.show { opacity:1; transform:translate(-50%,0); }
-    .confetti { position:fixed; z-index:50; top:-12px; width:9px; height:14px; border-radius:2px; pointer-events:none; animation:fall 1.8s linear forwards; }
-    @keyframes fall { to { transform:translateY(110vh) rotate(760deg); opacity:.1; } }
-    .reveal { opacity:0; transform:translateY(14px); transition:opacity .55s ease, transform .55s ease; }
-    .reveal.visible { opacity:1; transform:none; }
-    .bottom-nav { display:none; }
-    @media (max-width:600px) {
-      .page { width:min(100% - 26px, 520px); padding-bottom:105px; }
-      .hero { padding-top:28px; }.hero-art { width:100px; height:100px; right:0; top:42px; font-size:58px; opacity:.96; }.hero-art:before { width:91px; height:91px; }
-      h1 { max-width:75%; font-size:clamp(39px, 12vw, 61px); }.hero-copy { max-width:88%; font-size:13px; }
-      .section-head { margin-top:30px; }.section-head h2 { font-size:21px; }
-      .concept-card { min-height:146px; padding:13px; }.concept-card p { font-size:11px; }
-      .task-types { gap:7px; }.task-card { padding:12px 9px; min-height:165px; }.task-card p { font-size:10px; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fff8ef" />
+    <title>Real-Time Systems — Study Garden</title>
+    <style>
+      :root {
+        --ink: #292342;
+        --muted: #716b84;
+        --paper: #fffaf3;
+        --white: #fff;
+        --lilac: #e9ddff;
+        --pink: #ffdce7;
+        --mint: #d9f5e8;
+        --yellow: #fff0b8;
+        --blue: #dceeff;
+        --coral: #ff8e83;
+        --purple: #8061da;
+        --line: rgba(41, 35, 66, 0.1);
+        --shadow: 0 16px 42px rgba(82, 64, 119, 0.1);
+        font-family:
+          Inter, ui-rounded, "Avenir Next", Avenir, system-ui, sans-serif;
+        color: var(--ink);
+        scroll-behavior: smooth;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(
+            ellipse at 10% 5%,
+            rgba(255, 220, 231, 0.58),
+            transparent 28rem
+          ),
+          radial-gradient(
+            ellipse at 95% 19%,
+            rgba(220, 238, 255, 0.68),
+            transparent 30rem
+          ),
+          var(--paper);
+      }
+      button,
+      a {
+        font: inherit;
+      }
+      button {
+        color: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .page {
+        width: min(100% - 30px, 860px);
+        margin: 0 auto;
+        padding-bottom: 100px;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        background: rgba(255, 250, 243, 0.84);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgba(41, 35, 66, 0.06);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 850;
+        font-size: 14px;
+        letter-spacing: -0.03em;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--yellow);
+        font-size: 19px;
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .progress-mini {
+        width: 74px;
+        height: 7px;
+        background: #ece6f0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .progress-mini span {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #ff9c96, #a985ff);
+        transition: width 0.45s ease;
+      }
+      .progress-label {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .sound-btn,
+      .icon-btn {
+        border: 0;
+        cursor: pointer;
+        background: var(--white);
+        border-radius: 13px;
+        width: 38px;
+        height: 38px;
+        box-shadow: 0 4px 14px rgba(50, 34, 88, 0.07);
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      .sound-btn:hover,
+      .icon-btn:hover {
+        transform: translateY(-2px) rotate(-3deg);
+        background: var(--yellow);
+      }
+      .hero {
+        padding: 35px 0 24px;
+        position: relative;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        background: var(--mint);
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1 {
+        max-width: 650px;
+        margin: 17px 0 10px;
+        font-size: clamp(38px, 11vw, 72px);
+        line-height: 0.96;
+        letter-spacing: -0.07em;
+      }
+      h1 .gradient {
+        background: linear-gradient(100deg, #7453d0, #ed7695 75%);
+        color: transparent;
+        background-clip: text;
+      }
+      .hero-copy {
+        max-width: 530px;
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 15px;
+        margin: 15px 0 20px;
+      }
+      .hero-bottom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .primary-btn,
+      .soft-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 0;
+        border-radius: 15px;
+        padding: 13px 17px;
+        font-weight: 850;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .primary-btn {
+        background: var(--ink);
+        color: white;
+        box-shadow: 0 7px 0 #bcb1d4;
+      }
+      .soft-btn {
+        background: white;
+        border: 1px solid var(--line);
+      }
+      .primary-btn:hover,
+      .soft-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(56, 40, 92, 0.12);
+      }
+      .hero-art {
+        position: absolute;
+        right: 6px;
+        top: 50px;
+        width: 150px;
+        height: 145px;
+        display: grid;
+        place-items: center;
+        font-size: 84px;
+        filter: drop-shadow(0 12px 8px rgba(95, 70, 130, 0.14));
+        animation: bob 3.2s ease-in-out infinite;
+      }
+      .hero-art:before {
+        content: "";
+        position: absolute;
+        width: 125px;
+        height: 125px;
+        background: var(--yellow);
+        border-radius: 46% 54% 57% 43% / 45% 43% 57% 55%;
+        z-index: -1;
+        transform: rotate(-12deg);
+      }
+      .spark {
+        position: absolute;
+        font-size: 22px;
+        animation: twinkle 1.8s ease-in-out infinite alternate;
+      }
+      .spark.one {
+        top: 6px;
+        right: 9px;
+      }
+      .spark.two {
+        left: 1px;
+        bottom: 9px;
+        animation-delay: 0.6s;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-10px) rotate(3deg);
+        }
+      }
+      @keyframes twinkle {
+        to {
+          transform: scale(0.65) rotate(28deg);
+          opacity: 0.45;
+        }
+      }
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 35px 0 14px;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: -0.05em;
+      }
+      .section-head p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .section-number {
+        color: #9d8bbf;
+        font-weight: 900;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+      }
+      .jumpbar {
+        display: flex;
+        gap: 8px;
+        overflow: auto;
+        padding: 2px 1px 8px;
+        scrollbar-width: none;
+      }
+      .jumpbar::-webkit-scrollbar {
+        display: none;
+      }
+      .jumpbar a {
+        flex: none;
+        padding: 9px 12px;
+        border-radius: 99px;
+        background: white;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 800;
+        transition: 0.2s;
+      }
+      .jumpbar a:hover {
+        background: var(--lilac);
+        transform: translateY(-2px);
+      }
+      .definition {
+        background: linear-gradient(110deg, #fff 0%, #fffaf2 100%);
+        border: 1px solid rgba(128, 97, 218, 0.17);
+        border-left: 5px solid #9b7aeb;
+        border-radius: 18px;
+        padding: 15px 16px;
+        margin: 12px 0;
+        box-shadow: 0 6px 18px rgba(61, 43, 93, 0.04);
+      }
+      .definition strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 5px;
+      }
+      .definition p {
+        margin: 0;
+        font-size: 13px;
+        color: #5e5871;
+        line-height: 1.6;
+      }
+      .highlight {
+        background: linear-gradient(transparent 52%, #fff0a8 52%);
+        font-weight: 850;
+        color: var(--ink);
+      }
+      .concept-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .concept-card {
+        min-height: 138px;
+        padding: 16px;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(41, 35, 66, 0.06);
+        transition:
+          transform 0.23s,
+          box-shadow 0.23s;
+      }
+      .concept-card:hover {
+        transform: translateY(-5px) rotate(-0.5deg);
+        box-shadow: var(--shadow);
+      }
+      .concept-card:nth-child(4n + 1) {
+        background: var(--pink);
+      }
+      .concept-card:nth-child(4n + 2) {
+        background: var(--mint);
+      }
+      .concept-card:nth-child(4n + 3) {
+        background: var(--blue);
+      }
+      .concept-card:nth-child(4n) {
+        background: var(--yellow);
+      }
+      .concept-card .emoji {
+        font-size: 25px;
+        display: block;
+        margin-bottom: 12px;
+      }
+      .concept-card h3 {
+        margin: 0 0 5px;
+        font-size: 15px;
+        letter-spacing: -0.03em;
+      }
+      .concept-card p {
+        margin: 0;
+        color: #625d73;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .callout {
+        padding: 14px 15px;
+        background: #f1eaff;
+        border-radius: 16px;
+        margin-top: 12px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .callout b {
+        color: #6649bd;
+      }
+      .model-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 14px 0 10px;
+      }
+      .tab {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 99px;
+        padding: 9px 12px;
+        font-size: 12px;
+        font-weight: 850;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .tab[aria-selected="true"] {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+      }
+      .model-panel {
+        min-height: 220px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+      .model-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+      .model-title h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .pill {
+        background: var(--mint);
+        padding: 6px 9px;
+        border-radius: 99px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .model-panel p {
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 13px;
+        margin: 9px 0 15px;
+      }
+      .timeline {
+        position: relative;
+        height: 62px;
+        background: #faf8fc;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .timeline .axis {
+        position: absolute;
+        height: 2px;
+        left: 14px;
+        right: 14px;
+        top: 32px;
+        background: #ddd6e8;
+      }
+      .timeline .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        position: absolute;
+        top: 28px;
+        background: #8264d6;
+        box-shadow: 0 0 0 4px #e8dfff;
+      }
+      .timeline .event {
+        position: absolute;
+        top: 6px;
+        font-size: 9px;
+        color: var(--muted);
+        font-weight: 850;
+      }
+      .timeline .bar {
+        position: absolute;
+        height: 9px;
+        border-radius: 9px;
+        top: 29px;
+        background: #ff9b9e;
+      }
+      .timeline .label {
+        position: absolute;
+        bottom: 4px;
+        font-size: 9px;
+        color: var(--muted);
+        font-weight: 750;
+      }
+      .timeline .moving {
+        animation: travel 2.3s ease-in-out infinite alternate;
+      }
+      @keyframes travel {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(23px);
+        }
+      }
+      .model-note {
+        font-size: 11px !important;
+        margin: 11px 0 0 !important;
+      }
+      .timing-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+      .timing-track {
+        position: relative;
+        height: 80px;
+        margin: 22px 5px 14px;
+      }
+      .timing-track:before {
+        content: "";
+        position: absolute;
+        left: 3%;
+        right: 2%;
+        top: 37px;
+        height: 3px;
+        border-radius: 4px;
+        background: #d9d1e7;
+      }
+      .tick {
+        position: absolute;
+        top: 23px;
+        width: 14px;
+        height: 28px;
+        border-radius: 8px;
+        background: #8c6ee0;
+        box-shadow: 0 0 0 5px #eee8ff;
+      }
+      .tick.release {
+        left: 5%;
+      }
+      .tick.finish {
+        left: 68%;
+        background: #58ba8d;
+        box-shadow: 0 0 0 5px #e0f5ea;
+      }
+      .tick.deadline {
+        left: 89%;
+        background: #ff827d;
+        box-shadow: 0 0 0 5px #ffe6e3;
+      }
+      .track-label {
+        position: absolute;
+        top: 58px;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: 850;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .track-label.release {
+        left: 5%;
+      }
+      .track-label.finish {
+        left: 68%;
+      }
+      .track-label.deadline {
+        left: 89%;
+      }
+      .exec {
+        position: absolute;
+        top: 29px;
+        left: 13%;
+        width: 53%;
+        height: 18px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #bda8ff, #86d7b0);
+        animation: grow 2s ease-in-out infinite alternate;
+        transform-origin: left;
+      }
+      @keyframes grow {
+        to {
+          transform: scaleX(0.86);
+        }
+      }
+      .term-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .term-row {
+        display: grid;
+        grid-template-columns: 105px 1fr;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 12px;
+        background: #faf8fc;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+      .term-row b {
+        color: #6649bd;
+      }
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .task-card {
+        padding: 15px 12px;
+        border-radius: 18px;
+        min-height: 152px;
+      }
+      .task-card:nth-child(1) {
+        background: var(--blue);
+      }
+      .task-card:nth-child(2) {
+        background: var(--pink);
+      }
+      .task-card:nth-child(3) {
+        background: var(--mint);
+      }
+      .task-card .emoji {
+        font-size: 24px;
+      }
+      .task-card h3 {
+        margin: 9px 0 4px;
+        font-size: 14px;
+      }
+      .task-card p {
+        margin: 0;
+        color: #625d73;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+      .compare {
+        display: grid;
+        gap: 10px;
+      }
+      .class-card {
+        position: relative;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+      }
+      .class-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .class-top h3 {
+        margin: 0;
+        font-size: 14px;
+      }
+      .class-top span {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 750;
+      }
+      .value-visual {
+        margin-top: 11px;
+        height: 35px;
+        background: #f7f4fa;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+      .value-visual svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .class-card details {
+        margin-top: 9px;
+      }
+      .class-card summary {
+        color: #7257c1;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 850;
+      }
+      .class-card details p {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 7px 0 0;
+      }
+      .loop-card {
+        background: linear-gradient(140deg, #edf9f3, #f1ecff);
+        border-radius: 22px;
+        padding: 16px;
+        overflow: hidden;
+      }
+      .loop-card p {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+        margin: 0 0 14px;
+      }
+      .loop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .loop-node {
+        width: 90px;
+        min-height: 77px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 6px 15px rgba(70, 52, 95, 0.08);
+        text-align: center;
+        animation: bob 3s ease-in-out infinite;
+      }
+      .loop-node:nth-of-type(2) {
+        animation-delay: 0.3s;
+      }
+      .loop-node:nth-of-type(3) {
+        animation-delay: 0.6s;
+      }
+      .loop-node:nth-of-type(4) {
+        animation-delay: 0.9s;
+      }
+      .loop-node b {
+        font-size: 11px;
+      }
+      .loop-node span {
+        font-size: 22px;
+      }
+      .arrow {
+        color: #9875db;
+        font-weight: 1000;
+        font-size: 19px;
+      }
+      .flashcard-wrap {
+        perspective: 1000px;
+      }
+      .flashcard {
+        width: 100%;
+        min-height: 195px;
+        border: 0;
+        border-radius: 22px;
+        padding: 23px;
+        background: linear-gradient(135deg, #e9ddff, #ffe0e9);
+        box-shadow: var(--shadow);
+        text-align: left;
+        cursor: pointer;
+        transition: transform 0.55s;
+        transform-style: preserve-3d;
+        position: relative;
+      }
+      .flashcard.flipped {
+        transform: rotateY(180deg);
+      }
+      .flash-side {
+        backface-visibility: hidden;
+        position: absolute;
+        inset: 0;
+        padding: 23px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .flash-side.back {
+        transform: rotateY(180deg);
+        background: linear-gradient(135deg, #ddf5e9, #e4edff);
+        border-radius: 22px;
+      }
+      .flash-kicker {
+        color: #7354c6;
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+      }
+      .flash-text {
+        font-size: 20px;
+        letter-spacing: -0.04em;
+        font-weight: 850;
+        line-height: 1.25;
+        margin: 9px 0;
+      }
+      .flash-hint {
+        color: #716b84;
+        font-size: 11px;
+        margin: 0;
+      }
+      .flash-controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .flash-controls button {
+        flex: 1;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 12px;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: 850;
+        cursor: pointer;
+      }
+      .quiz {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+      .quiz-count {
+        color: #896dd1;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .quiz h3 {
+        font-size: 17px;
+        letter-spacing: -0.04em;
+        margin: 8px 0 14px;
+        line-height: 1.35;
+      }
+      .answers {
+        display: grid;
+        gap: 8px;
+      }
+      .answer {
+        padding: 12px;
+        border-radius: 13px;
+        border: 1px solid var(--line);
+        background: #fffdfa;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: 0.18s;
+      }
+      .answer:hover:not(:disabled) {
+        background: #f0eaff;
+        transform: translateX(3px);
+      }
+      .answer.correct {
+        background: #dcf6e8;
+        border-color: #86d4a9;
+      }
+      .answer.wrong {
+        background: #ffe3e3;
+        border-color: #f39a9b;
+      }
+      .quiz-feedback {
+        min-height: 22px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 750;
+        padding-top: 9px;
+      }
+      .quiz-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 5px;
+      }
+      .score {
+        font-size: 11px;
+        font-weight: 850;
+        color: var(--muted);
+      }
+      .next-btn {
+        background: var(--ink);
+        color: white;
+        border: 0;
+        border-radius: 11px;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 850;
+        cursor: pointer;
+      }
+      .next-btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .finish {
+        margin-top: 28px;
+        padding: 22px;
+        border-radius: 23px;
+        background: var(--yellow);
+        text-align: center;
+      }
+      .finish .big {
+        font-size: 38px;
+      }
+      .finish h2 {
+        margin: 5px 0;
+        font-size: 21px;
+      }
+      .finish p {
+        color: #716b84;
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 7px 0 13px;
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translate(-50%, 20px);
+        opacity: 0;
+        pointer-events: none;
+        background: var(--ink);
+        color: white;
+        padding: 11px 16px;
+        border-radius: 99px;
+        font-size: 12px;
+        font-weight: 800;
+        transition: 0.25s;
+        z-index: 30;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .confetti {
+        position: fixed;
+        z-index: 50;
+        top: -12px;
+        width: 9px;
+        height: 14px;
+        border-radius: 2px;
+        pointer-events: none;
+        animation: fall 1.8s linear forwards;
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(110vh) rotate(760deg);
+          opacity: 0.1;
+        }
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(14px);
+        transition:
+          opacity 0.55s ease,
+          transform 0.55s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: none;
+      }
       .bottom-nav {
-        display:flex; position:fixed; z-index:15; bottom:10px; left:50%; transform:translateX(-50%);
-        width:min(calc(100% - 22px),500px); padding:7px; justify-content:space-around; gap:2px;
-        background:rgba(41,35,66,.94); border-radius:20px; box-shadow:0 12px 35px rgba(42,30,70,.28); backdrop-filter:blur(10px);
+        display: none;
       }
-      .bottom-nav a { display:grid; justify-items:center; gap:2px; color:#fff; opacity:.78; font-size:9px; font-weight:750; padding:5px 9px; border-radius:12px; }
-      .bottom-nav a span { font-size:16px; }.bottom-nav a:hover { opacity:1; background:rgba(255,255,255,.14); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *:before, *:after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
-    }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <a class="brand" href="#top" aria-label="Study Garden home"><span class="brand-mark">🐝</span><span>STUDY GARDEN</span></a>
-      <div class="top-actions"><div class="progress-mini" aria-label="Study progress"><span id="progressBar"></span></div><span class="progress-label" id="progressLabel">0% done</span><button class="sound-btn" id="motionBtn" aria-label="Toggle animations" title="Toggle animations">✨</button></div>
-    </header>
-    <main id="top">
-      <section class="hero">
-        <span class="eyebrow">🌼 Module 01 · Tiny lessons, big ideas</span>
-        <h1>Real-Time<br><span class="gradient">Systems</span></h1>
-        <p class="hero-copy">A cheerful little field guide to systems that have to get the <b>right answer at the right time</b>. Explore, tap, flip, and test what you know.</p>
-        <div class="hero-bottom"><a class="primary-btn" href="#start">Let’s study <span>↓</span></a><button class="soft-btn" id="surpriseBtn">✨ Surprise me</button></div>
-        <div class="hero-art" aria-hidden="true">🐝<span class="spark one">✦</span><span class="spark two">✿</span></div>
-      </section>
-
-      <div class="jumpbar" aria-label="Lesson sections">
-        <a href="#start">🌱 Big idea</a><a href="#models">📦 Models</a><a href="#timing">⏱ Timing</a><a href="#tasks">🔔 Tasks</a><a href="#classes">🎯 Classes</a><a href="#loop">🔁 Control loop</a><a href="#practice">🧠 Practice</a>
-      </div>
-
-      <section id="start" class="reveal">
-        <div class="section-head"><div><span class="section-number">01 / THE BIG IDEA</span><h2>Correct means on time, too.</h2><p>In real-time computing, the clock is part of the problem.</p></div><span style="font-size:31px">⏰</span></div>
-        <div class="definition"><strong>💡 Real-Time System</strong><p>A computer system that receives input from the outside world and must respond within a <span class="highlight">fixed, stated deadline</span>.</p></div>
-        <div class="concept-grid">
-          <article class="concept-card"><span class="emoji">🧩</span><h3>Logical correctness</h3><p>The system calculated the right answer.</p></article>
-          <article class="concept-card"><span class="emoji">⏰</span><h3>Temporal correctness</h3><p>The right answer arrived before its deadline.</p></article>
-        </div>
-        <div class="callout">A correct answer that arrives too late is still a <b>failure</b>. Real-time is not “real fast”—it is <b>predictable, even in the worst case</b>. ✨</div>
-      </section>
-
-      <section id="models" class="reveal">
-        <div class="section-head"><div><span class="section-number">02 / THREE WAYS TO PROCESS</span><h2>Same computer, different goal.</h2><p>Tap a model to see what “success” means.</p></div><span style="font-size:29px">📦</span></div>
-        <div class="model-tabs" role="tablist" aria-label="Processing models">
-          <button class="tab" role="tab" aria-selected="true" data-model="batch">📚 Batch</button>
-          <button class="tab" role="tab" aria-selected="false" data-model="interactive">💬 Interactive</button>
-          <button class="tab" role="tab" aria-selected="false" data-model="realtime">⚡ Real-time</button>
-        </div>
-        <div class="model-panel" id="modelPanel" role="tabpanel" aria-live="polite"></div>
-      </section>
-
-      <section id="timing" class="reveal">
-        <div class="section-head"><div><span class="section-number">03 / KEY TIMING TERMS</span><h2>Read the little timeline.</h2><p>Tap the labels in your head as the task travels.</p></div><span style="font-size:29px">⏱️</span></div>
-        <div class="timing-card">
-          <div class="timing-track" aria-label="Task timing: release, execution, finish, deadline">
-            <span class="tick release"></span><span class="exec"></span><span class="tick finish"></span><span class="tick deadline"></span>
-            <span class="track-label release">release</span><span class="track-label finish">finish</span><span class="track-label deadline">deadline</span>
-          </div>
-          <div class="term-list">
-            <div class="term-row"><b>Release time</b><span>The exact moment a task becomes ready because an event or interrupt arrived.</span></div>
-            <div class="term-row"><b>Execution time</b><span>The CPU time needed to do the task’s work, not counting waiting.</span></div>
-            <div class="term-row"><b>Response time</b><span>Total elapsed time from release until the task finishes, including waiting.</span></div>
-            <div class="term-row"><b>Deadline</b><span>The latest allowed finish time for the task.</span></div>
-            <div class="term-row"><b>Jitter</b><span>A small variation in the timing of task releases or responses.</span></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tasks" class="reveal">
-        <div class="section-head"><div><span class="section-number">04 / TASK RELEASE TYPES</span><h2>How often does it ring?</h2><p>Each task has its own rhythm.</p></div><span style="font-size:29px">🔔</span></div>
-        <div class="task-types">
-          <article class="task-card"><span class="emoji">🔁</span><h3>Periodic</h3><p>Repeats at a fixed period. <b>Example:</b> read a sensor every 100 ms.</p></article>
-          <article class="task-card"><span class="emoji">🎲</span><h3>Aperiodic</h3><p>Triggered irregularly, with no guaranteed minimum gap. <b>Example:</b> a user button press.</p></article>
-          <article class="task-card"><span class="emoji">🛟</span><h3>Sporadic</h3><p>Irregular, but has a known minimum gap. <b>Example:</b> emergency stop at most once per 100 ms.</p></article>
-        </div>
-        <div class="callout"><b>Quick distinction:</b> Aperiodic = irregular, no minimum gap promised. Sporadic = irregular, but the minimum gap is known. 🌟</div>
-      </section>
-
-      <section id="classes" class="reveal">
-        <div class="section-head"><div><span class="section-number">05 / DEADLINE CONSEQUENCES</span><h2>What if it’s late?</h2><p>Compare how the result’s value changes.</p></div><span style="font-size:29px">🎯</span></div>
-        <div class="compare">
-          <article class="class-card">
-            <div class="class-top"><h3>🔴 Hard real-time</h3><span>Late = potentially catastrophic</span></div>
-            <div class="value-visual"><svg viewBox="0 0 320 35" preserveAspectRatio="none" aria-label="Value falls below zero after deadline"><path d="M0 8 H183 L191 28 H320" fill="none" stroke="#ed797d" stroke-width="4"/><path d="M191 0 V35" stroke="#302747" stroke-dasharray="3 3" opacity=".4"/></svg></div>
-            <details><summary>See the definition</summary><p>Missing a deadline can cause catastrophic failure, heavy damage, or loss of life. After the deadline, the result’s value may become negative because it causes harm.</p></details>
-          </article>
-          <article class="class-card">
-            <div class="class-top"><h3>🟡 Firm real-time</h3><span>Late = completely useless</span></div>
-            <div class="value-visual"><svg viewBox="0 0 320 35" preserveAspectRatio="none" aria-label="Value drops to zero at deadline"><path d="M0 8 H188 V29 H320" fill="none" stroke="#e9ad4d" stroke-width="4"/><path d="M188 0 V35" stroke="#302747" stroke-dasharray="3 3" opacity=".4"/></svg></div>
-            <details><summary>See the definition</summary><p>A late result is discarded. Its value drops instantly to zero at the deadline.</p></details>
-          </article>
-          <article class="class-card">
-            <div class="class-top"><h3>🟢 Soft real-time</h3><span>Late = less useful</span></div>
-            <div class="value-visual"><svg viewBox="0 0 320 35" preserveAspectRatio="none" aria-label="Value gradually decreases after deadline"><path d="M0 8 H188 C211 9 218 13 235 17 S275 26 320 29" fill="none" stroke="#5bb68a" stroke-width="4"/><path d="M188 0 V35" stroke="#302747" stroke-dasharray="3 3" opacity=".4"/></svg></div>
-            <details><summary>See the definition</summary><p>A late result may still have some value, but performance degrades gradually over time.</p></details>
-          </article>
-        </div>
-      </section>
-
-      <section id="loop" class="reveal">
-        <div class="section-head"><div><span class="section-number">06 / EMBEDDED SYSTEMS</span><h2>Sense → decide → act.</h2><p>A computer tucked into a machine, doing a dedicated job.</p></div><span style="font-size:29px">🤖</span></div>
-        <div class="definition"><strong>🧠 Embedded System</strong><p>A dedicated computer hidden inside a bigger physical machine to perform a specific job.</p></div>
-        <div class="loop-card">
-          <p><b>Real-time control loop:</b> the computer continuously senses the physical world, decides what to do, then changes the world.</p>
-          <div class="loop" aria-label="Environment to sensors to computer to actuators to environment">
-            <div class="loop-node"><span>🌍</span><b>Environment</b></div><span class="arrow">→</span>
-            <div class="loop-node"><span>📡</span><b>Sensors<br>(sense)</b></div><span class="arrow">→</span>
-            <div class="loop-node"><span>🧠</span><b>Computer<br>(decide)</b></div><span class="arrow">→</span>
-            <div class="loop-node"><span>🦾</span><b>Actuators<br>(act)</b></div><span class="arrow">↺</span>
-          </div>
-        </div>
-      </section>
-
-      <section id="practice" class="reveal">
-        <div class="section-head"><div><span class="section-number">07 / ACTIVE RECALL</span><h2>Flip a little flashcard.</h2><p>Try to recall the answer before you turn it over.</p></div><span style="font-size:29px">🃏</span></div>
-        <div class="flashcard-wrap"><button class="flashcard" id="flashcard" aria-label="Flashcard. Tap to reveal answer">
-          <span class="flash-side front"><span class="flash-kicker" id="flashKicker">Card 1 of 6 · Think first</span><span class="flash-text" id="flashQuestion"></span><span class="flash-hint">Tap this card to reveal the answer ↗</span></span>
-          <span class="flash-side back"><span class="flash-kicker">Answer · Nice remembering!</span><span class="flash-text" id="flashAnswer"></span><span class="flash-hint">Tap again to turn it back ↻</span></span>
-        </button></div>
-        <div class="flash-controls"><button id="prevCard">← Previous</button><button id="nextCard">Next card →</button></div>
-      </section>
-
-      <section class="reveal">
-        <div class="section-head"><div><span class="section-number">08 / QUICK CHECK</span><h2>Can you beat the clock?</h2><p>Three questions. Instant feedback. No pressure.</p></div><span style="font-size:29px">🧠</span></div>
-        <div class="quiz" id="quiz">
-          <span class="quiz-count" id="quizCount">QUESTION 1 / 3</span>
-          <h3 id="quizQuestion"></h3>
-          <div class="answers" id="answers"></div>
-          <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
-          <div class="quiz-footer"><span class="score" id="quizScore">Score: 0 / 3</span><button class="next-btn" id="quizNext" disabled>Next →</button></div>
-        </div>
-      </section>
-
-      <section class="finish reveal" id="finish">
-        <div class="big">🌈</div><h2>Your brain did a little dance.</h2>
-        <p>You explored the core of real-time systems. Mark this module complete when you feel ready, or revisit any section above.</p>
-        <button class="primary-btn" id="completeBtn">Mark module complete ✓</button>
-      </section>
-    </main>
-  </div>
-  <nav class="bottom-nav" aria-label="Quick navigation">
-    <a href="#start"><span>🌱</span>Basics</a><a href="#timing"><span>⏱</span>Timing</a><a href="#tasks"><span>🔔</span>Tasks</a><a href="#practice"><span>🧠</span>Quiz</a>
-  </nav>
-  <div class="toast" id="toast" role="status"></div>
-  <script>
-    const models = {
-      batch: {
-        title: "Batch processing", tag: "throughput", text: "Data gathers into a big pile, then gets processed together at a scheduled time. Success = how many jobs finish per hour.",
-        events: [["Data collected", 8], ["Wait for schedule", 38], ["Process batch", 67]], bar: [38, 45], note: "Think: a laundry basket—collect first, wash the load later."
-      },
-      interactive: {
-        title: "Interactive processing", tag: "average response time", text: "A person gives a command and waits for the screen to answer. A slower response is annoying, but it can still be correct.",
-        events: [["User input", 10], ["Computer responds", 57]], bar: [18, 40], note: "Think: tapping search and waiting for results."
-      },
-      realtime: {
-        title: "Real-time processing", tag: "worst-case response time", text: "Inputs arrive from the physical world and the system must react before a strict deadline. Late = wrong, even if the answer is correct.",
-        events: [["Sensor event", 8], ["Must finish by deadline", 75]], bar: [18, 43], note: "Think: a car airbag reacting in time—not just quickly on average."
+      @media (max-width: 600px) {
+        .page {
+          width: min(100% - 26px, 520px);
+          padding-bottom: 105px;
+        }
+        .hero {
+          padding-top: 28px;
+        }
+        .hero-art {
+          width: 100px;
+          height: 100px;
+          right: 0;
+          top: 42px;
+          font-size: 58px;
+          opacity: 0.96;
+        }
+        .hero-art:before {
+          width: 91px;
+          height: 91px;
+        }
+        h1 {
+          max-width: 75%;
+          font-size: clamp(39px, 12vw, 61px);
+        }
+        .hero-copy {
+          max-width: 88%;
+          font-size: 13px;
+        }
+        .section-head {
+          margin-top: 30px;
+        }
+        .section-head h2 {
+          font-size: 21px;
+        }
+        .concept-card {
+          min-height: 146px;
+          padding: 13px;
+        }
+        .concept-card p {
+          font-size: 11px;
+        }
+        .task-types {
+          gap: 7px;
+        }
+        .task-card {
+          padding: 12px 9px;
+          min-height: 165px;
+        }
+        .task-card p {
+          font-size: 10px;
+        }
+        .bottom-nav {
+          display: flex;
+          position: fixed;
+          z-index: 15;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: min(calc(100% - 22px), 500px);
+          padding: 7px;
+          justify-content: space-around;
+          gap: 2px;
+          background: rgba(41, 35, 66, 0.94);
+          border-radius: 20px;
+          box-shadow: 0 12px 35px rgba(42, 30, 70, 0.28);
+          backdrop-filter: blur(10px);
+        }
+        .bottom-nav a {
+          display: grid;
+          justify-items: center;
+          gap: 2px;
+          color: #fff;
+          opacity: 0.78;
+          font-size: 9px;
+          font-weight: 750;
+          padding: 5px 9px;
+          border-radius: 12px;
+        }
+        .bottom-nav a span {
+          font-size: 16px;
+        }
+        .bottom-nav a:hover {
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.14);
+        }
       }
-    };
-    const modelPanel = document.getElementById("modelPanel");
-    function renderModel(key) {
-      const item = models[key];
-      const eventEls = item.events.map(([label, left]) => `<span class="event" style="left:${left}%">${label}</span><span class="dot ${key === "realtime" ? "moving" : ""}" style="left:${left}%"></span>`).join("");
-      modelPanel.innerHTML = `<div class="model-title"><h3>${item.title}</h3><span class="pill">${item.tag}</span></div><p>${item.text}</p><div class="timeline"><span class="axis"></span>${eventEls}<span class="bar" style="left:${item.bar[0]}%;width:${item.bar[1]}%"></span><span class="label" style="left:6%">time →</span></div><p class="model-note">🌈 ${item.note}</p>`;
-      document.querySelectorAll(".tab").forEach(tab => tab.setAttribute("aria-selected", String(tab.dataset.model === key)));
-    }
-    document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => renderModel(tab.dataset.model)));
-    renderModel("batch");
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *:before,
+        *:after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Study Garden home"
+          ><span class="brand-mark">🐝</span><span>STUDY GARDEN</span></a
+        >
+        <div class="top-actions">
+          <div class="progress-mini" aria-label="Study progress">
+            <span id="progressBar"></span>
+          </div>
+          <span class="progress-label" id="progressLabel">0% done</span
+          ><button
+            class="sound-btn"
+            id="motionBtn"
+            aria-label="Toggle animations"
+            title="Toggle animations"
+          >
+            ✨
+          </button>
+        </div>
+      </header>
+      <main id="top">
+        <section class="hero">
+          <span class="eyebrow">🌼 Module 01 · Tiny lessons, big ideas</span>
+          <h1>Real-Time<br /><span class="gradient">Systems</span></h1>
+          <p class="hero-copy">
+            A cheerful little field guide to systems that have to get the
+            <b>right answer at the right time</b>. Explore, tap, flip, and test
+            what you know.
+          </p>
+          <div class="hero-bottom">
+            <a class="primary-btn" href="#start">Let’s study <span>↓</span></a
+            ><button class="soft-btn" id="surpriseBtn">✨ Surprise me</button>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            🐝<span class="spark one">✦</span><span class="spark two">✿</span>
+          </div>
+        </section>
 
-    const cards = [
-      ["What makes an answer “correct” in a real-time system?", "It must be logically correct and delivered before its deadline (temporal correctness)."],
-      ["What is jitter?", "A small variation in timing from one task release or response to the next."],
-      ["How is a sporadic task different from an aperiodic task?", "Both are irregular. A sporadic task has a known minimum gap between events; an aperiodic one has no guaranteed minimum gap."],
-      ["What happens to a firm real-time result after its deadline?", "It is discarded as useless; its value drops to zero."],
-      ["What does a sensor do in a control loop?", "It measures the physical environment and sends that input to the real-time computer."],
-      ["Does real-time mean “as fast as possible”?", "No. It means predictable timing that can be guaranteed, including in the worst case."]
-    ];
-    let cardIndex = 0;
-    const flashcard = document.getElementById("flashcard");
-    function showCard() {
-      flashcard.classList.remove("flipped");
-      document.getElementById("flashKicker").textContent = `Card ${cardIndex + 1} of ${cards.length} · Think first`;
-      document.getElementById("flashQuestion").textContent = cards[cardIndex][0];
-      document.getElementById("flashAnswer").textContent = cards[cardIndex][1];
-    }
-    flashcard.addEventListener("click", () => flashcard.classList.toggle("flipped"));
-    document.getElementById("prevCard").addEventListener("click", () => { cardIndex = (cardIndex - 1 + cards.length) % cards.length; showCard(); });
-    document.getElementById("nextCard").addEventListener("click", () => { cardIndex = (cardIndex + 1) % cards.length; showCard(); });
-    showCard();
+        <div class="jumpbar" aria-label="Lesson sections">
+          <a href="#start">🌱 Big idea</a><a href="#models">📦 Models</a
+          ><a href="#timing">⏱ Timing</a><a href="#tasks">🔔 Tasks</a
+          ><a href="#classes">🎯 Classes</a><a href="#loop">🔁 Control loop</a
+          ><a href="#practice">🧠 Practice</a>
+        </div>
 
-    const questions = [
-      { q: "A sensor must be read every 100 ms. What kind of task is this?", a: ["Aperiodic", "Periodic", "Sporadic"], correct: 1, explain: "A fixed, repeating interval makes it periodic." },
-      { q: "A late result is thrown away and has zero value. Which system class?", a: ["Hard real-time", "Firm real-time", "Soft real-time"], correct: 1, explain: "Firm real-time results lose all value after the deadline." },
-      { q: "Which measure matters most when a late response is a failure?", a: ["Total jobs per hour", "Average response time", "Worst-case response time"], correct: 2, explain: "Real-time success is measured against the worst case, not just the average." }
-    ];
-    let questionIndex = 0, score = 0, answered = false, quizFinished = false;
-    const quizQuestion = document.getElementById("quizQuestion"), answersEl = document.getElementById("answers");
-    const quizNext = document.getElementById("quizNext");
-    function showQuestion() {
-      const item = questions[questionIndex]; answered = false;
-      quizFinished = false;
-      document.getElementById("quizCount").textContent = `QUESTION ${questionIndex + 1} / ${questions.length}`;
-      quizQuestion.textContent = item.q; answersEl.innerHTML = "";
-      document.getElementById("quizFeedback").textContent = "";
-      quizNext.disabled = true; quizNext.textContent = questionIndex === questions.length - 1 ? "Finish ✓" : "Next →";
-      item.a.forEach((answer, index) => {
-        const button = document.createElement("button");
-        button.className = "answer"; button.textContent = answer;
-        button.addEventListener("click", () => selectAnswer(index, button));
-        answersEl.appendChild(button);
+        <section id="start" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">01 / THE BIG IDEA</span>
+              <h2>Correct means on time, too.</h2>
+              <p>In real-time computing, the clock is part of the problem.</p>
+            </div>
+            <span style="font-size: 31px">⏰</span>
+          </div>
+          <div class="definition">
+            <strong>💡 Real-Time System</strong>
+            <p>
+              A computer system that receives input from the outside world and
+              must respond within a
+              <span class="highlight">fixed, stated deadline</span>.
+            </p>
+          </div>
+          <div class="concept-grid">
+            <article class="concept-card">
+              <span class="emoji">🧩</span>
+              <h3>Logical correctness</h3>
+              <p>The system calculated the right answer.</p>
+            </article>
+            <article class="concept-card">
+              <span class="emoji">⏰</span>
+              <h3>Temporal correctness</h3>
+              <p>The right answer arrived before its deadline.</p>
+            </article>
+          </div>
+          <div class="callout">
+            A correct answer that arrives too late is still a <b>failure</b>.
+            Real-time is not “real fast”—it is
+            <b>predictable, even in the worst case</b>. ✨
+          </div>
+        </section>
+
+        <section id="models" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">02 / THREE WAYS TO PROCESS</span>
+              <h2>Same computer, different goal.</h2>
+              <p>Tap a model to see what “success” means.</p>
+            </div>
+            <span style="font-size: 29px">📦</span>
+          </div>
+          <div class="model-tabs" role="tablist" aria-label="Processing models">
+            <button
+              class="tab"
+              role="tab"
+              aria-selected="true"
+              data-model="batch"
+            >
+              📚 Batch
+            </button>
+            <button
+              class="tab"
+              role="tab"
+              aria-selected="false"
+              data-model="interactive"
+            >
+              💬 Interactive
+            </button>
+            <button
+              class="tab"
+              role="tab"
+              aria-selected="false"
+              data-model="realtime"
+            >
+              ⚡ Real-time
+            </button>
+          </div>
+          <div
+            class="model-panel"
+            id="modelPanel"
+            role="tabpanel"
+            aria-live="polite"
+          ></div>
+        </section>
+
+        <section id="timing" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">03 / KEY TIMING TERMS</span>
+              <h2>Read the little timeline.</h2>
+              <p>Tap the labels in your head as the task travels.</p>
+            </div>
+            <span style="font-size: 29px">⏱️</span>
+          </div>
+          <div class="timing-card">
+            <div
+              class="timing-track"
+              aria-label="Task timing: release, execution, finish, deadline"
+            >
+              <span class="tick release"></span><span class="exec"></span
+              ><span class="tick finish"></span
+              ><span class="tick deadline"></span>
+              <span class="track-label release">release</span
+              ><span class="track-label finish">finish</span
+              ><span class="track-label deadline">deadline</span>
+            </div>
+            <div class="term-list">
+              <div class="term-row">
+                <b>Release time</b
+                ><span
+                  >The exact moment a task becomes ready because an event or
+                  interrupt arrived.</span
+                >
+              </div>
+              <div class="term-row">
+                <b>Execution time</b
+                ><span
+                  >The CPU time needed to do the task’s work, not counting
+                  waiting.</span
+                >
+              </div>
+              <div class="term-row">
+                <b>Response time</b
+                ><span
+                  >Total elapsed time from release until the task finishes,
+                  including waiting.</span
+                >
+              </div>
+              <div class="term-row">
+                <b>Deadline</b
+                ><span>The latest allowed finish time for the task.</span>
+              </div>
+              <div class="term-row">
+                <b>Jitter</b
+                ><span
+                  >A small variation in the timing of task releases or
+                  responses.</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="tasks" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">04 / TASK RELEASE TYPES</span>
+              <h2>How often does it ring?</h2>
+              <p>Each task has its own rhythm.</p>
+            </div>
+            <span style="font-size: 29px">🔔</span>
+          </div>
+          <div class="task-types">
+            <article class="task-card">
+              <span class="emoji">🔁</span>
+              <h3>Periodic</h3>
+              <p>
+                Repeats at a fixed period. <b>Example:</b> read a sensor every
+                100 ms.
+              </p>
+            </article>
+            <article class="task-card">
+              <span class="emoji">🎲</span>
+              <h3>Aperiodic</h3>
+              <p>
+                Triggered irregularly, with no guaranteed minimum gap.
+                <b>Example:</b> a user button press.
+              </p>
+            </article>
+            <article class="task-card">
+              <span class="emoji">🛟</span>
+              <h3>Sporadic</h3>
+              <p>
+                Irregular, but has a known minimum gap.
+                <b>Example:</b> emergency stop at most once per 100 ms.
+              </p>
+            </article>
+          </div>
+          <div class="callout">
+            <b>Quick distinction:</b> Aperiodic = irregular, no minimum gap
+            promised. Sporadic = irregular, but the minimum gap is known. 🌟
+          </div>
+        </section>
+
+        <section id="classes" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">05 / DEADLINE CONSEQUENCES</span>
+              <h2>What if it’s late?</h2>
+              <p>Compare how the result’s value changes.</p>
+            </div>
+            <span style="font-size: 29px">🎯</span>
+          </div>
+          <div class="compare">
+            <article class="class-card">
+              <div class="class-top">
+                <h3>🔴 Hard real-time</h3>
+                <span>Late = potentially catastrophic</span>
+              </div>
+              <div class="value-visual">
+                <svg
+                  viewBox="0 0 320 35"
+                  preserveAspectRatio="none"
+                  aria-label="Value falls below zero after deadline"
+                >
+                  <path
+                    d="M0 8 H183 L191 28 H320"
+                    fill="none"
+                    stroke="#ed797d"
+                    stroke-width="4"
+                  />
+                  <path
+                    d="M191 0 V35"
+                    stroke="#302747"
+                    stroke-dasharray="3 3"
+                    opacity=".4"
+                  />
+                </svg>
+              </div>
+              <details>
+                <summary>See the definition</summary>
+                <p>
+                  Missing a deadline can cause catastrophic failure, heavy
+                  damage, or loss of life. After the deadline, the result’s
+                  value may become negative because it causes harm.
+                </p>
+              </details>
+            </article>
+            <article class="class-card">
+              <div class="class-top">
+                <h3>🟡 Firm real-time</h3>
+                <span>Late = completely useless</span>
+              </div>
+              <div class="value-visual">
+                <svg
+                  viewBox="0 0 320 35"
+                  preserveAspectRatio="none"
+                  aria-label="Value drops to zero at deadline"
+                >
+                  <path
+                    d="M0 8 H188 V29 H320"
+                    fill="none"
+                    stroke="#e9ad4d"
+                    stroke-width="4"
+                  />
+                  <path
+                    d="M188 0 V35"
+                    stroke="#302747"
+                    stroke-dasharray="3 3"
+                    opacity=".4"
+                  />
+                </svg>
+              </div>
+              <details>
+                <summary>See the definition</summary>
+                <p>
+                  A late result is discarded. Its value drops instantly to zero
+                  at the deadline.
+                </p>
+              </details>
+            </article>
+            <article class="class-card">
+              <div class="class-top">
+                <h3>🟢 Soft real-time</h3>
+                <span>Late = less useful</span>
+              </div>
+              <div class="value-visual">
+                <svg
+                  viewBox="0 0 320 35"
+                  preserveAspectRatio="none"
+                  aria-label="Value gradually decreases after deadline"
+                >
+                  <path
+                    d="M0 8 H188 C211 9 218 13 235 17 S275 26 320 29"
+                    fill="none"
+                    stroke="#5bb68a"
+                    stroke-width="4"
+                  />
+                  <path
+                    d="M188 0 V35"
+                    stroke="#302747"
+                    stroke-dasharray="3 3"
+                    opacity=".4"
+                  />
+                </svg>
+              </div>
+              <details>
+                <summary>See the definition</summary>
+                <p>
+                  A late result may still have some value, but performance
+                  degrades gradually over time.
+                </p>
+              </details>
+            </article>
+          </div>
+        </section>
+
+        <section id="loop" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">06 / EMBEDDED SYSTEMS</span>
+              <h2>Sense → decide → act.</h2>
+              <p>A computer tucked into a machine, doing a dedicated job.</p>
+            </div>
+            <span style="font-size: 29px">🤖</span>
+          </div>
+          <div class="definition">
+            <strong>🧠 Embedded System</strong>
+            <p>
+              A dedicated computer hidden inside a bigger physical machine to
+              perform a specific job.
+            </p>
+          </div>
+          <div class="loop-card">
+            <p>
+              <b>Real-time control loop:</b> the computer continuously senses
+              the physical world, decides what to do, then changes the world.
+            </p>
+            <div
+              class="loop"
+              aria-label="Environment to sensors to computer to actuators to environment"
+            >
+              <div class="loop-node"><span>🌍</span><b>Environment</b></div>
+              <span class="arrow">→</span>
+              <div class="loop-node">
+                <span>📡</span><b>Sensors<br />(sense)</b>
+              </div>
+              <span class="arrow">→</span>
+              <div class="loop-node">
+                <span>🧠</span><b>Computer<br />(decide)</b>
+              </div>
+              <span class="arrow">→</span>
+              <div class="loop-node">
+                <span>🦾</span><b>Actuators<br />(act)</b>
+              </div>
+              <span class="arrow">↺</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="practice" class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">07 / ACTIVE RECALL</span>
+              <h2>Flip a little flashcard.</h2>
+              <p>Try to recall the answer before you turn it over.</p>
+            </div>
+            <span style="font-size: 29px">🃏</span>
+          </div>
+          <div class="flashcard-wrap">
+            <button
+              class="flashcard"
+              id="flashcard"
+              aria-label="Flashcard. Tap to reveal answer"
+            >
+              <span class="flash-side front"
+                ><span class="flash-kicker" id="flashKicker"
+                  >Card 1 of 6 · Think first</span
+                ><span class="flash-text" id="flashQuestion"></span
+                ><span class="flash-hint"
+                  >Tap this card to reveal the answer ↗</span
+                ></span
+              >
+              <span class="flash-side back"
+                ><span class="flash-kicker">Answer · Nice remembering!</span
+                ><span class="flash-text" id="flashAnswer"></span
+                ><span class="flash-hint"
+                  >Tap again to turn it back ↻</span
+                ></span
+              >
+            </button>
+          </div>
+          <div class="flash-controls">
+            <button id="prevCard">← Previous</button
+            ><button id="nextCard">Next card →</button>
+          </div>
+        </section>
+
+        <section class="reveal">
+          <div class="section-head">
+            <div>
+              <span class="section-number">08 / QUICK CHECK</span>
+              <h2>Can you beat the clock?</h2>
+              <p>Three questions. Instant feedback. No pressure.</p>
+            </div>
+            <span style="font-size: 29px">🧠</span>
+          </div>
+          <div class="quiz" id="quiz">
+            <span class="quiz-count" id="quizCount">QUESTION 1 / 3</span>
+            <h3 id="quizQuestion"></h3>
+            <div class="answers" id="answers"></div>
+            <div
+              class="quiz-feedback"
+              id="quizFeedback"
+              aria-live="polite"
+            ></div>
+            <div class="quiz-footer">
+              <span class="score" id="quizScore">Score: 0 / 3</span
+              ><button class="next-btn" id="quizNext" disabled>Next →</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="finish reveal" id="finish">
+          <div class="big">🌈</div>
+          <h2>Your brain did a little dance.</h2>
+          <p>
+            You explored the core of real-time systems. Mark this module
+            complete when you feel ready, or revisit any section above.
+          </p>
+          <button class="primary-btn" id="completeBtn">
+            Mark module complete ✓
+          </button>
+        </section>
+      </main>
+    </div>
+    <nav class="bottom-nav" aria-label="Quick navigation">
+      <a href="#start"><span>🌱</span>Basics</a
+      ><a href="#timing"><span>⏱</span>Timing</a
+      ><a href="#tasks"><span>🔔</span>Tasks</a
+      ><a href="#practice"><span>🧠</span>Quiz</a>
+    </nav>
+    <div class="toast" id="toast" role="status"></div>
+    <script>
+      const models = {
+        batch: {
+          title: "Batch processing",
+          tag: "throughput",
+          text: "Data gathers into a big pile, then gets processed together at a scheduled time. Success = how many jobs finish per hour.",
+          events: [
+            ["Data collected", 8],
+            ["Wait for schedule", 38],
+            ["Process batch", 67],
+          ],
+          bar: [38, 45],
+          note: "Think: a laundry basket—collect first, wash the load later.",
+        },
+        interactive: {
+          title: "Interactive processing",
+          tag: "average response time",
+          text: "A person gives a command and waits for the screen to answer. A slower response is annoying, but it can still be correct.",
+          events: [
+            ["User input", 10],
+            ["Computer responds", 57],
+          ],
+          bar: [18, 40],
+          note: "Think: tapping search and waiting for results.",
+        },
+        realtime: {
+          title: "Real-time processing",
+          tag: "worst-case response time",
+          text: "Inputs arrive from the physical world and the system must react before a strict deadline. Late = wrong, even if the answer is correct.",
+          events: [
+            ["Sensor event", 8],
+            ["Must finish by deadline", 75],
+          ],
+          bar: [18, 43],
+          note: "Think: a car airbag reacting in time—not just quickly on average.",
+        },
+      };
+      const modelPanel = document.getElementById("modelPanel");
+      function renderModel(key) {
+        const item = models[key];
+        const eventEls = item.events
+          .map(
+            ([label, left]) =>
+              `<span class="event" style="left:${left}%">${label}</span><span class="dot ${key === "realtime" ? "moving" : ""}" style="left:${left}%"></span>`,
+          )
+          .join("");
+        modelPanel.innerHTML = `<div class="model-title"><h3>${item.title}</h3><span class="pill">${item.tag}</span></div><p>${item.text}</p><div class="timeline"><span class="axis"></span>${eventEls}<span class="bar" style="left:${item.bar[0]}%;width:${item.bar[1]}%"></span><span class="label" style="left:6%">time →</span></div><p class="model-note">🌈 ${item.note}</p>`;
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) =>
+            tab.setAttribute(
+              "aria-selected",
+              String(tab.dataset.model === key),
+            ),
+          );
+      }
+      document
+        .querySelectorAll(".tab")
+        .forEach((tab) =>
+          tab.addEventListener("click", () => renderModel(tab.dataset.model)),
+        );
+      renderModel("batch");
+
+      const cards = [
+        [
+          "What makes an answer “correct” in a real-time system?",
+          "It must be logically correct and delivered before its deadline (temporal correctness).",
+        ],
+        [
+          "What is jitter?",
+          "A small variation in timing from one task release or response to the next.",
+        ],
+        [
+          "How is a sporadic task different from an aperiodic task?",
+          "Both are irregular. A sporadic task has a known minimum gap between events; an aperiodic one has no guaranteed minimum gap.",
+        ],
+        [
+          "What happens to a firm real-time result after its deadline?",
+          "It is discarded as useless; its value drops to zero.",
+        ],
+        [
+          "What does a sensor do in a control loop?",
+          "It measures the physical environment and sends that input to the real-time computer.",
+        ],
+        [
+          "Does real-time mean “as fast as possible”?",
+          "No. It means predictable timing that can be guaranteed, including in the worst case.",
+        ],
+      ];
+      let cardIndex = 0;
+      const flashcard = document.getElementById("flashcard");
+      function showCard() {
+        flashcard.classList.remove("flipped");
+        document.getElementById("flashKicker").textContent =
+          `Card ${cardIndex + 1} of ${cards.length} · Think first`;
+        document.getElementById("flashQuestion").textContent =
+          cards[cardIndex][0];
+        document.getElementById("flashAnswer").textContent =
+          cards[cardIndex][1];
+      }
+      flashcard.addEventListener("click", () =>
+        flashcard.classList.toggle("flipped"),
+      );
+      document.getElementById("prevCard").addEventListener("click", () => {
+        cardIndex = (cardIndex - 1 + cards.length) % cards.length;
+        showCard();
       });
-      document.getElementById("quizScore").textContent = `Score: ${score} / ${questions.length}`;
-    }
-    function selectAnswer(index, button) {
-      if (answered) return;
-      answered = true;
-      const item = questions[questionIndex], correct = index === item.correct;
-      if (correct) score++;
-      [...answersEl.children].forEach((el, i) => { el.disabled = true; if (i === item.correct) el.classList.add("correct"); });
-      if (!correct) button.classList.add("wrong");
-      document.getElementById("quizFeedback").textContent = `${correct ? "🎉 You got it!" : "🌱 Not quite."} ${item.explain}`;
-      document.getElementById("quizScore").textContent = `Score: ${score} / ${questions.length}`;
-      quizNext.disabled = false;
-      if (correct) celebrate(9);
-      updateProgress();
-    }
-    quizNext.addEventListener("click", () => {
-      if (quizFinished) {
-        questionIndex = 0; score = 0; showQuestion(); updateProgress();
-        return;
-      }
-      if (!answered) return;
-      if (questionIndex < questions.length - 1) { questionIndex++; showQuestion(); }
-      else {
-        quizFinished = true;
-        quizQuestion.textContent = `You scored ${score} out of ${questions.length}!`;
-        document.getElementById("quizCount").textContent = "QUIZ COMPLETE";
-        answersEl.innerHTML = `<div class="callout">${score === 3 ? "🌟 Perfect score! You’re deadline-ready." : "✨ Nice effort! Revisit a section, then try again."}</div>`;
+      document.getElementById("nextCard").addEventListener("click", () => {
+        cardIndex = (cardIndex + 1) % cards.length;
+        showCard();
+      });
+      showCard();
+
+      const questions = [
+        {
+          q: "A sensor must be read every 100 ms. What kind of task is this?",
+          a: ["Aperiodic", "Periodic", "Sporadic"],
+          correct: 1,
+          explain: "A fixed, repeating interval makes it periodic.",
+        },
+        {
+          q: "A late result is thrown away and has zero value. Which system class?",
+          a: ["Hard real-time", "Firm real-time", "Soft real-time"],
+          correct: 1,
+          explain: "Firm real-time results lose all value after the deadline.",
+        },
+        {
+          q: "Which measure matters most when a late response is a failure?",
+          a: [
+            "Total jobs per hour",
+            "Average response time",
+            "Worst-case response time",
+          ],
+          correct: 2,
+          explain:
+            "Real-time success is measured against the worst case, not just the average.",
+        },
+      ];
+      let questionIndex = 0,
+        score = 0,
+        answered = false,
+        quizFinished = false;
+      const quizQuestion = document.getElementById("quizQuestion"),
+        answersEl = document.getElementById("answers");
+      const quizNext = document.getElementById("quizNext");
+      function showQuestion() {
+        const item = questions[questionIndex];
+        answered = false;
+        quizFinished = false;
+        document.getElementById("quizCount").textContent =
+          `QUESTION ${questionIndex + 1} / ${questions.length}`;
+        quizQuestion.textContent = item.q;
+        answersEl.innerHTML = "";
         document.getElementById("quizFeedback").textContent = "";
-        quizNext.textContent = "Try again"; quizNext.disabled = false;
+        quizNext.disabled = true;
+        quizNext.textContent =
+          questionIndex === questions.length - 1 ? "Finish ✓" : "Next →";
+        item.a.forEach((answer, index) => {
+          const button = document.createElement("button");
+          button.className = "answer";
+          button.textContent = answer;
+          button.addEventListener("click", () => selectAnswer(index, button));
+          answersEl.appendChild(button);
+        });
+        document.getElementById("quizScore").textContent =
+          `Score: ${score} / ${questions.length}`;
+      }
+      function selectAnswer(index, button) {
+        if (answered) return;
+        answered = true;
+        const item = questions[questionIndex],
+          correct = index === item.correct;
+        if (correct) score++;
+        [...answersEl.children].forEach((el, i) => {
+          el.disabled = true;
+          if (i === item.correct) el.classList.add("correct");
+        });
+        if (!correct) button.classList.add("wrong");
+        document.getElementById("quizFeedback").textContent =
+          `${correct ? "🎉 You got it!" : "🌱 Not quite."} ${item.explain}`;
+        document.getElementById("quizScore").textContent =
+          `Score: ${score} / ${questions.length}`;
+        quizNext.disabled = false;
+        if (correct) celebrate(9);
         updateProgress();
       }
-    });
-    showQuestion();
+      quizNext.addEventListener("click", () => {
+        if (quizFinished) {
+          questionIndex = 0;
+          score = 0;
+          showQuestion();
+          updateProgress();
+          return;
+        }
+        if (!answered) return;
+        if (questionIndex < questions.length - 1) {
+          questionIndex++;
+          showQuestion();
+        } else {
+          quizFinished = true;
+          quizQuestion.textContent = `You scored ${score} out of ${questions.length}!`;
+          document.getElementById("quizCount").textContent = "QUIZ COMPLETE";
+          answersEl.innerHTML = `<div class="callout">${score === 3 ? "🌟 Perfect score! You’re deadline-ready." : "✨ Nice effort! Revisit a section, then try again."}</div>`;
+          document.getElementById("quizFeedback").textContent = "";
+          quizNext.textContent = "Try again";
+          quizNext.disabled = false;
+          updateProgress();
+        }
+      });
+      showQuestion();
 
-    const progressBar = document.getElementById("progressBar"), progressLabel = document.getElementById("progressLabel");
-    let completed = false;
-    const visitedSections = new Set();
-    function updateProgress() {
-      const pct = completed ? 100 : Math.min(94, Math.round((visitedSections.size / sections.length) * 20 + (score / questions.length) * 55 + (cardIndex / (cards.length - 1)) * 19));
-      progressBar.style.width = `${pct}%`; progressLabel.textContent = `${pct}% done`;
-    }
-    document.getElementById("completeBtn").addEventListener("click", event => {
-      completed = !completed;
-      event.currentTarget.textContent = completed ? "Module complete ✓" : "Mark module complete ✓";
-      event.currentTarget.style.background = completed ? "#458e70" : "";
-      updateProgress();
-      if (completed) { celebrate(35); toast("Module complete! You did brilliant work. 🌈"); }
-    });
-    document.getElementById("prevCard").addEventListener("click", updateProgress);
-    document.getElementById("nextCard").addEventListener("click", updateProgress);
-    let toastTimer;
-    function toast(message) {
-      const el = document.getElementById("toast"); el.textContent = message; el.classList.add("show");
-      clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
-    }
-    function celebrate(count) {
-      const colors = ["#ff8e83", "#ffd15f", "#8edbb2", "#9c81ed", "#7fc9f2", "#f18bb4"];
-      for (let i = 0; i < count; i++) {
-        const piece = document.createElement("i"); piece.className = "confetti";
-        piece.style.left = `${Math.random() * 100}vw`; piece.style.background = colors[i % colors.length];
-        piece.style.animationDelay = `${Math.random() * .45}s`; piece.style.transform = `rotate(${Math.random() * 180}deg)`;
-        document.body.appendChild(piece); setTimeout(() => piece.remove(), 2400);
+      const progressBar = document.getElementById("progressBar"),
+        progressLabel = document.getElementById("progressLabel");
+      let completed = false;
+      const visitedSections = new Set();
+      function updateProgress() {
+        const pct = completed
+          ? 100
+          : Math.min(
+              94,
+              Math.round(
+                (visitedSections.size / sections.length) * 20 +
+                  (score / questions.length) * 55 +
+                  (cardIndex / (cards.length - 1)) * 19,
+              ),
+            );
+        progressBar.style.width = `${pct}%`;
+        progressLabel.textContent = `${pct}% done`;
       }
-    }
-    document.getElementById("surpriseBtn").addEventListener("click", () => {
-      const sections = ["#models", "#timing", "#tasks", "#classes", "#loop", "#practice"];
-      document.querySelector(sections[Math.floor(Math.random() * sections.length)]).scrollIntoView({ behavior: "smooth" });
-      toast("A new idea is waiting for you! ✨");
-    });
-    let motionOff = false;
-    document.getElementById("motionBtn").addEventListener("click", event => {
-      motionOff = !motionOff; document.body.classList.toggle("motion-off", motionOff);
-      document.getElementById("motionStyle")?.remove();
-      if (motionOff) {
-        const style = document.createElement("style"); style.id = "motionStyle";
-        style.textContent = "*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}";
-        document.head.appendChild(style); event.currentTarget.textContent = "⏸️"; event.currentTarget.setAttribute("aria-label", "Enable animations");
-        toast("Animations paused");
-      } else {
-        event.currentTarget.textContent = "✨"; event.currentTarget.setAttribute("aria-label", "Toggle animations");
-        toast("Animations are back!");
+      document
+        .getElementById("completeBtn")
+        .addEventListener("click", (event) => {
+          completed = !completed;
+          event.currentTarget.textContent = completed
+            ? "Module complete ✓"
+            : "Mark module complete ✓";
+          event.currentTarget.style.background = completed ? "#458e70" : "";
+          updateProgress();
+          if (completed) {
+            celebrate(35);
+            toast("Module complete! You did brilliant work. 🌈");
+          }
+        });
+      document
+        .getElementById("prevCard")
+        .addEventListener("click", updateProgress);
+      document
+        .getElementById("nextCard")
+        .addEventListener("click", updateProgress);
+      let toastTimer;
+      function toast(message) {
+        const el = document.getElementById("toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
       }
-    });
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
-    }), { threshold: .12 });
-    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
-    const sections = [...document.querySelectorAll("main section[id]")];
-    const progressObserver = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting && !visitedSections.has(entry.target.id)) {
-        visitedSections.add(entry.target.id); updateProgress();
+      function celebrate(count) {
+        const colors = [
+          "#ff8e83",
+          "#ffd15f",
+          "#8edbb2",
+          "#9c81ed",
+          "#7fc9f2",
+          "#f18bb4",
+        ];
+        for (let i = 0; i < count; i++) {
+          const piece = document.createElement("i");
+          piece.className = "confetti";
+          piece.style.left = `${Math.random() * 100}vw`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = `${Math.random() * 0.45}s`;
+          piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 2400);
+        }
       }
-    }), { threshold: .3 });
-    sections.forEach(section => progressObserver.observe(section));
-  </script>
-</body>
+      document.getElementById("surpriseBtn").addEventListener("click", () => {
+        const sections = [
+          "#models",
+          "#timing",
+          "#tasks",
+          "#classes",
+          "#loop",
+          "#practice",
+        ];
+        document
+          .querySelector(sections[Math.floor(Math.random() * sections.length)])
+          .scrollIntoView({ behavior: "smooth" });
+        toast("A new idea is waiting for you! ✨");
+      });
+      let motionOff = false;
+      document
+        .getElementById("motionBtn")
+        .addEventListener("click", (event) => {
+          motionOff = !motionOff;
+          document.body.classList.toggle("motion-off", motionOff);
+          document.getElementById("motionStyle")?.remove();
+          if (motionOff) {
+            const style = document.createElement("style");
+            style.id = "motionStyle";
+            style.textContent =
+              "*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}";
+            document.head.appendChild(style);
+            event.currentTarget.textContent = "⏸️";
+            event.currentTarget.setAttribute("aria-label", "Enable animations");
+            toast("Animations paused");
+          } else {
+            event.currentTarget.textContent = "✨";
+            event.currentTarget.setAttribute("aria-label", "Toggle animations");
+            toast("Animations are back!");
+          }
+        });
+      const observer = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          }),
+        { threshold: 0.12 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+      const sections = [...document.querySelectorAll("main section[id]")];
+      const progressObserver = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !visitedSections.has(entry.target.id)) {
+              visitedSections.add(entry.target.id);
+              updateProgress();
+            }
+          }),
+        { threshold: 0.3 },
+      );
+      sections.forEach((section) => progressObserver.observe(section));
+    </script>
+  </body>
 </html>
